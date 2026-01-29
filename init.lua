@@ -1,5 +1,5 @@
 -- Mi configuracion de Neovim
-
+--
 -- OPCIONES BÁSICAS
 vim.opt.number = true
 vim.opt.tabstop = 4
@@ -8,25 +8,19 @@ vim.opt.expandtab = true
 vim.opt.smartindent = true
 vim.opt.relativenumber = true
 vim.opt.wrap = false
-
 -- AUTOGUARDADO
 vim.opt.autowrite = true
 vim.opt.autowriteall = true
-
 -- BUSQUEDA
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
-
 -- CLIPBOARD
 vim.opt.clipboard:append({ "unnamed", "unnamedplus" })
-
 -- LEADER KEY(Tecla para atajos)
 vim.g.mapleader = " "
-
 -- COLORES
 vim.opt.termguicolors = true
 print("Configuración basicá cargada.")
-
 -- ATAJOS DE TECLADO
 -- Guardar archivo
 vim.keymap.set("n", "<C-s>", ":w<CR>", { noremap = true, silent = true})
@@ -37,10 +31,8 @@ vim.keymap.set("n", "<C-h>", "<C-w>h", { noremap = true, silent = true })  -- Ve
 vim.keymap.set("n", "<C-j>", "<C-w>j", { noremap = true, silent = true })  -- Ventana abajo
 vim.keymap.set("n", "<C-k>", "<C-w>k", { noremap = true, silent = true })  -- Ventana arriba
 vim.keymap.set("n", "<C-l>", "<C-w>l", { noremap = true, silent = true })  -- Ventana derecha
-
 -- GIT STATUS
 vim.keymap.set("n", "<leader>gs", ":Git<CR>", { noremap = true, silent = true })
-
 -- LAZY.NVIM (Plugin Manager)
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -54,7 +46,6 @@ if not vim.loop.fs_stat(lazypath) then
   })
 end
 vim.opt.rtp:prepend(lazypath)
-
 -- CARGAR PLUGINS
 require("lazy").setup({
   -- Tema de colores: Dracula
@@ -318,5 +309,73 @@ require("lazy").setup({
     'christoomey/vim-tmux-navigator',
     lazy = false,
   },
-})
+  -- ✨ NUEVO: GitSigns - Ver cambios de Git como en VSCode
+  {
+    'lewis6991/gitsigns.nvim',
+    config = function()
+        require('gitsigns').setup({
+            signs = {
+                add          = { text = '│' },
+                change       = { text = '│' },
+                delete       = { text = '_' },
+                topdelete    = { text = '‾' },
+                changedelete = { text = '~' },
+                untracked    = { text = '┆' },
+            },
+            signcolumn = true,  -- Mostrar en columna izquierda
+            numhl      = false,
+            linehl     = false,
+            word_diff  = false,
+            current_line_blame = true,  -- Mostrar quién escribió la línea
+            current_line_blame_opts = {
+                virt_text = true,
+                virt_text_pos = 'eol',  -- Al final de la línea
+                delay = 500,
+            },
+            on_attach = function(bufnr)
+                local gs = package.loaded.gitsigns
 
+                -- Navegación entre cambios
+                vim.keymap.set('n', ']c', function()
+                    if vim.wo.diff then return ']c' end
+                    vim.schedule(function() gs.next_hunk() end)
+                    return '<Ignore>'
+                end, {expr=true, buffer = bufnr, desc = "Siguiente cambio"})
+
+                vim.keymap.set('n', '[c', function()
+                    if vim.wo.diff then return '[c' end
+                    vim.schedule(function() gs.prev_hunk() end)
+                    return '<Ignore>'
+                end, {expr=true, buffer = bufnr, desc = "Anterior cambio"})
+
+                -- Acciones sobre cambios
+                vim.keymap.set('n', '<leader>hs', gs.stage_hunk, {buffer = bufnr, desc = "Stage hunk"})
+                vim.keymap.set('n', '<leader>hr', gs.reset_hunk, {buffer = bufnr, desc = "Reset hunk"})
+                vim.keymap.set('n', '<leader>hp', gs.preview_hunk, {buffer = bufnr, desc = "Preview hunk"})
+                vim.keymap.set('n', '<leader>hb', function() gs.blame_line{full=true} end, {buffer = bufnr, desc = "Blame line"})
+            end
+        })
+    end
+  },
+  -- ✨ NUEVO: Markdown Preview - Ver archivos .md bonitos
+  {
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    build = "cd app && npm install",
+    init = function()
+        vim.g.mkdp_filetypes = { "markdown" }
+    end,
+    ft = { "markdown" },
+    config = function()
+        -- Atajos para abrir preview
+        vim.keymap.set('n', '<leader>mp', ':MarkdownPreview<CR>', { desc = 'Markdown Preview' })
+        vim.keymap.set('n', '<leader>ms', ':MarkdownPreviewStop<CR>', { desc = 'Stop Markdown Preview' })
+
+        -- Configuración
+        vim.g.mkdp_auto_start = 0  -- No abrir automáticamente
+        vim.g.mkdp_auto_close = 1  -- Cerrar automáticamente
+        vim.g.mkdp_refresh_slow = 0  -- Actualizar en tiempo real
+        vim.g.mkdp_browser = ''  -- Usar navegador por defecto
+    end
+  },
+})

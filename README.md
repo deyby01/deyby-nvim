@@ -426,7 +426,7 @@ vimtutor
 ### Archivos de este repo
 
 - `init.lua` - Configuración principal de Neovim
-- `nvim-cheatsheet.md` - Guía de referencia de atajos
+- `commands-and-workflow.md` - Guía de referencia de atajos
 - `README.md` - Este archivo
 
 ---
@@ -434,7 +434,7 @@ vimtutor
 ## 🎯 Próximos Pasos
 
 1. ✅ Completa la instalación siguiendo esta guía
-2. 📖 Lee el archivo `nvim-cheatsheet.md` para aprender los atajos
+2. 📖 Lee el archivo `commands-and-workflow.md` para aprender los atajos
 3. 🎮 Practica con `vimtutor`
 4. 🔧 Personaliza tu configuración según tus necesidades
 5. 🚀 ¡Empieza a codear como un pro!
