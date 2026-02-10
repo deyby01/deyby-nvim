@@ -1,6 +1,6 @@
 # 🚀 Instalación y Configuración de Neovim
 
-> Guía completa para instalar y configurar Neovim en Ubuntu con todos los plugins y herramientas necesarias para desarrollo.
+> Guía completa para instalar y configurar Neovim en Ubuntu con estructura modular y todos los plugins necesarios para desarrollo profesional.
 
 ---
 
@@ -13,6 +13,8 @@
 - [LazyDocker](#-lazydocker)
 - [Fuentes Nerd Fonts](#-fuentes-nerd-fonts)
 - [Configuración de Neovim](#️-configuración-de-neovim)
+- [Estructura Modular](#-estructura-modular)
+- [Instalación de LSPs](#-instalación-de-lsps)
 - [Verificación](#-verificación)
 - [Recursos Adicionales](#-recursos-adicionales)
 
@@ -152,11 +154,13 @@ set-option -g allow-rename off
 
 | Comando | Descripción |
 |---------|-------------|
-| `tmux new -s proyecto` | Crear nueva sesión |
+| `tmux new -s nombre` | Crear nueva sesión |
 | `tmux ls` | Listar sesiones activas |
-| `tmux attach -t proyecto` | Conectarse a sesión |
+| `tmux attach -t nombre` | Conectarse a sesión |
 | `Ctrl+a d` | Desconectar de sesión |
 | `Ctrl+a s` | Cambiar entre sesiones |
+| `Ctrl+a \|` | Dividir verticalmente |
+| `Ctrl+a -` | Dividir horizontalmente |
 
 ---
 
@@ -178,7 +182,7 @@ lazydocker --version
 
 ## 🎨 Fuentes Nerd Fonts
 
-Las Nerd Fonts son necesarias para mostrar correctamente los iconos en Neovim y el explorador de archivos.
+Las Nerd Fonts son necesarias para mostrar correctamente los iconos en Neovim.
 
 ### Instalación de JetBrainsMono Nerd Font (Recomendada)
 
@@ -220,8 +224,6 @@ echo -e "\ue0b0 \u00b1 \ue0a0 \u27a6 \u2718 \u26a1 \u2699"
 
 ### Fuentes alternativas
 
-Si prefieres otra fuente, aquí tienes más opciones:
-
 ```bash
 cd ~/.local/share/fonts
 
@@ -245,55 +247,33 @@ fc-cache -fv
 
 ## ⚙️ Configuración de Neovim
 
-### Crear estructura de directorios
+### Instalar Node.js (requerido para algunos plugins)
 
 ```bash
-# Crear carpeta de configuración
-mkdir -p ~/.config/nvim
+# Verificar si Node.js está instalado
+node --version
 
-# Verificar creación
-ls -la ~/.config/nvim/
+# Si no está instalado:
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install nodejs -y
+
+# Verificar instalación
+node --version
+npm --version
+```
+
+### Clonar configuración desde repositorio
+
+```bash
+# Hacer backup de configuración anterior (si existe)
+mv ~/.config/nvim ~/.config/nvim.backup
+
+# Clonar tu repositorio de configuración
+git clone <url-de-tu-repo> ~/.config/nvim
 
 # Navegar a la carpeta
 cd ~/.config/nvim
 ```
-
-### Crear archivo de configuración
-
-```bash
-# Crear init.lua
-touch init.lua
-
-# Verificar creación
-ls -la init.lua
-```
-
-### Agregar configuración
-
-**Opción 1: Copiar desde este repositorio**
-
-```bash
-# Clonar este repositorio
-git clone <url-de-tu-repo> ~/temp-nvim-config
-
-# Copiar init.lua
-cp ~/temp-nvim-config/init.lua ~/.config/nvim/init.lua
-
-# Limpiar
-rm -rf ~/temp-nvim-config
-```
-
-**Opción 2: Editar manualmente**
-
-```bash
-# Abrir init.lua
-nvim ~/.config/nvim/init.lua
-```
-
-1. Presiona `i` para entrar en modo **INSERT**
-2. Pega el contenido del archivo `init.lua` de este repo
-3. Presiona `Esc` para salir del modo INSERT
-4. Escribe `:wq` y presiona Enter para guardar y salir
 
 ### Primera ejecución
 
@@ -304,26 +284,114 @@ nvim
 
 **¿Qué esperar?**
 
-- Lazy.nvim se instalará automáticamente
-- Los plugins comenzarán a descargarse
-- Espera a que termine el proceso (puede tomar 1-2 minutos)
-- Una vez completado, cierra y vuelve a abrir Neovim
+1. Lazy.nvim se instalará automáticamente
+2. Los plugins comenzarán a descargarse en segundo plano
+3. Espera 2-3 minutos a que termine
+4. Verás algunos mensajes de instalación
+5. Cierra Neovim (`:qa`) y vuelve a abrirlo
 
-### Instalar Language Servers
+---
+
+## 📁 Estructura Modular
+
+Tu configuración está organizada de forma modular para facilitar el mantenimiento:
+
+```
+~/.config/nvim/
+├── init.lua                 # Archivo principal (carga módulos)
+├── lua/
+│   ├── config/
+│   │   ├── options.lua      # Opciones básicas de Vim
+│   │   ├── keymaps.lua      # Atajos de teclado
+│   │   └── autocmds.lua     # Autocomandos
+│   └── plugins/
+│       ├── init.lua         # Configuración de Lazy.nvim
+│       ├── ui.lua           # Temas, lualine, colorizer
+│       ├── editor.lua       # Telescope, NvimTree, Harpoon
+│       ├── lsp.lua          # LSP, Mason, autocompletado
+│       ├── git.lua          # Fugitive, GitSigns
+│       └── terminal.lua     # ToggleTerm, tmux
+```
+
+### Ventajas de la estructura modular:
+
+- ✅ **Fácil de mantener**: Cada archivo tiene una responsabilidad clara
+- ✅ **Fácil de expandir**: Agrega plugins en el archivo correspondiente
+- ✅ **Fácil de debugear**: Sabes exactamente dónde está cada configuración
+- ✅ **Fácil de compartir**: Puedes compartir módulos específicos
+
+### Cómo agregar un nuevo plugin:
+
+```lua
+-- Editar el archivo correspondiente en lua/plugins/
+-- Ejemplo: lua/plugins/editor.lua
+
+return {
+  -- ... plugins existentes ...
+
+  -- Nuevo plugin
+  {
+    "autor/nombre-plugin",
+    config = function()
+      require("plugin").setup({
+        -- configuración
+      })
+    end
+  },
+}
+```
+
+---
+
+## 🛠️ Instalación de LSPs
+
+Los Language Servers proporcionan autocompletado, ir a definición, diagnósticos, etc.
+
+### Instalar desde Mason
 
 ```bash
 # Abrir Neovim
 nvim
 
-# Dentro de Neovim, ejecuta:
+# Abrir Mason
 :Mason
 ```
 
-Instala los siguientes LSP (usa `/` para buscar y presiona `i` para instalar):
+### LSPs recomendados:
 
-- ✅ **pyright** (Python)
-- ✅ **html** (HTML)
-- ✅ **emmet-ls** (Emmet para HTML/CSS)
+Dentro de Mason, usa `/` para buscar y presiona `i` para instalar:
+
+#### Python
+- ✅ **pyright** - LSP principal para Python
+- ✅ **black** - Formateador de código
+- ✅ **isort** - Organizador de imports
+
+#### Web (HTML/CSS/JS)
+- ✅ **html-lsp** - LSP para HTML
+- ✅ **css-lsp** - LSP para CSS
+- ✅ **typescript-language-server** - LSP para JS/TS
+- ✅ **emmet-ls** - Emmet para HTML/CSS
+- ✅ **prettier** - Formateador para HTML/CSS/JS
+
+#### Otros
+- ✅ **lua-language-server** - LSP para Lua (útil para configurar Neovim)
+- ✅ **json-lsp** - LSP para JSON
+
+### Verificar que los LSPs están instalados
+
+```vim
+# Dentro de Neovim, abrir Mason
+:Mason
+
+# Deberías ver tus LSPs instalados con un checkmark ✓
+```
+
+### Actualizar LSPs
+
+```vim
+:Mason
+# Presiona 'U' para actualizar todos los LSPs
+```
 
 ---
 
@@ -351,22 +419,36 @@ lazydocker --version
 
 # Git
 git --version
+
+# Node.js y npm
+node --version
+npm --version
 ```
 
-### Probar configuración
+### Probar funcionalidades
 
 ```bash
-# Abrir Neovim
+# 1. Abrir Neovim
 nvim
 
-# Probar Telescope (buscar archivos)
-# Dentro de Neovim: Espacio + ff
+# 2. Verificar salud del sistema
+:checkhealth
 
-# Probar NvimTree (explorador)
-# Dentro de Neovim: Espacio + e
+# 3. Probar Telescope (buscar archivos)
+Espacio + ff
 
-# Probar terminal
-# Dentro de Neovim: Ctrl + ´
+# 4. Probar NvimTree (explorador)
+Espacio + e
+
+# 5. Probar terminal
+Ctrl + ´
+
+# 6. Probar LSP (abrir archivo Python/JS y ver autocompletado)
+nvim test.py
+# Escribe algo y verifica que aparezcan sugerencias
+
+# 7. Probar Git
+Espacio + gs
 ```
 
 ---
@@ -375,43 +457,129 @@ nvim
 
 ### Los iconos no se muestran correctamente
 
-**Solución:** Verifica que hayas configurado la Nerd Font en tu terminal y que hayas reiniciado la terminal después de instalar las fuentes.
+**Problema:** Ves cuadrados en lugar de iconos.
+
+**Solución:**
+```bash
+# 1. Verificar que la fuente está instalada
+fc-list | grep JetBrainsMono
+
+# 2. Si no aparece, reinstalar:
+cd ~/.local/share/fonts
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
+unzip JetBrainsMono.zip -d JetBrainsMono
+fc-cache -fv
+
+# 3. Configurar en tu terminal (ver sección de fuentes)
+# 4. Reiniciar terminal completamente
+```
 
 ### Telescope no encuentra archivos
 
-**Solución:** Asegúrate de que `ripgrep` y `fd` estén instalados y en tu PATH.
+**Problema:** Telescope no funciona o no encuentra archivos.
 
+**Solución:**
 ```bash
+# Verificar que ripgrep y fd están instalados
 which rg
 which fd
+
+# Si no están:
+sudo apt install ripgrep fd-find -y
+sudo ln -s /usr/bin/fdfind /usr/local/bin/fd
 ```
 
-### LSP no funciona
+### LSP no funciona / No hay autocompletado
 
-**Solución:** Abre Mason y verifica que los language servers estén instalados:
+**Problema:** No aparecen sugerencias al escribir.
 
-```vim
+**Solución:**
+```bash
+# 1. Verificar que los LSPs están instalados
+nvim
 :Mason
+
+# 2. Verificar que el LSP se adjuntó al buffer
+:LspInfo
+
+# 3. Reinstalar el LSP específico
+:Mason
+# Busca el LSP, presiona 'X' para desinstalar, luego 'i' para reinstalar
+
+# 4. Verificar logs de LSP
+:LspLog
+```
+
+### Markdown Preview no funciona
+
+**Problema:** No se abre el navegador al usar `:MarkdownPreview`.
+
+**Solución:**
+```bash
+# 1. Verificar que Node.js está instalado
+node --version
+
+# 2. Si no está, instalarlo
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install nodejs -y
+
+# 3. Reinstalar el plugin
+nvim
+:Lazy clean
+:Lazy sync
+
+# 4. Navegar al plugin y compilar
+cd ~/.local/share/nvim/lazy/markdown-preview.nvim/app
+npm install
 ```
 
 ### Errores al iniciar Neovim
 
-**Solución:** Verifica la sintaxis de tu `init.lua`:
+**Problema:** Neovim muestra errores al iniciarse.
 
+**Solución:**
 ```bash
-nvim --headless "+Lazy! sync" +qa
+# 1. Limpiar caché de plugins
+rm -rf ~/.local/share/nvim
+rm -rf ~/.local/state/nvim
+rm -rf ~/.cache/nvim
+
+# 2. Abrir Neovim (reinstalará todo)
+nvim
+
+# 3. Sincronizar plugins
+:Lazy sync
+
+# 4. Verificar errores específicos
+:checkhealth
+```
+
+### ESC no funciona en modo INSERT
+
+**Problema:** Al presionar ESC no sales de modo INSERT.
+
+**Solución:**
+```bash
+# Usa los atajos alternativos configurados:
+jk  # Presiona 'j' seguido rápidamente de 'k'
+kj  # O 'k' seguido de 'j'
+
+# Si el problema persiste, revisa que no haya conflictos:
+nvim
+:verbose imap <Esc>
 ```
 
 ---
 
 ## 📚 Recursos Adicionales
 
-### Documentación
+### Documentación oficial
 
 - [Neovim Docs](https://neovim.io/doc/)
 - [Lazy.nvim](https://github.com/folke/lazy.nvim)
 - [Telescope](https://github.com/nvim-telescope/telescope.nvim)
 - [LSP Config](https://github.com/neovim/nvim-lspconfig)
+- [Mason](https://github.com/williamboman/mason.nvim)
 
 ### Tutoriales
 
@@ -421,45 +589,99 @@ vimtutor
 
 # Ayuda de Neovim
 :help
+
+# Ayuda de un plugin específico
+:help telescope
+:help lsp
 ```
 
 ### Archivos de este repo
 
-- `init.lua` - Configuración principal de Neovim
-- `commands-and-workflow.md` - Guía de referencia de atajos
-- `README.md` - Este archivo
+- `README.md` - Guía de instalación (este archivo)
+- `commands-and-workflow.md` - Referencia completa de atajos
+- `init.lua` - Archivo principal de configuración
+- `lua/` - Módulos de configuración
 
 ---
 
 ## 🎯 Próximos Pasos
 
-1. ✅ Completa la instalación siguiendo esta guía
-2. 📖 Lee el archivo `commands-and-workflow.md` para aprender los atajos
-3. 🎮 Practica con `vimtutor`
-4. 🔧 Personaliza tu configuración según tus necesidades
-5. 🚀 ¡Empieza a codear como un pro!
+1. ✅ **Completar instalación** siguiendo esta guía
+2. 📖 **Leer** `commands-and-workflow.md` para conocer todos los atajos
+3. 🎮 **Practicar** con `vimtutor` (30 minutos)
+4. 🧪 **Experimentar** creando archivos y usando atajos
+5. 🔧 **Personalizar** según tus necesidades
+6. 🚀 **Codear** como un profesional
 
 ---
 
-## 🤝 Contribuciones
+## 💡 Tips para principiantes
 
-Si encuentras algún error o tienes sugerencias para mejorar esta guía, no dudes en:
+### Primer día
+- Usa `vimtutor` (30 minutos)
+- Practica movimientos básicos: `h` `j` `k` `l`
+- Aprende a entrar/salir de modo INSERT: `i` `Esc`
+- Practica guardar: `Ctrl+s`
 
-- Abrir un issue
-- Hacer un pull request
-- Compartir tu feedback
+### Primera semana
+- Domina Telescope: `Espacio+ff` para buscar archivos
+- Usa NvimTree: `Espacio+e` para explorar
+- Aprende movimientos avanzados: `w` `b` `0` `$` `gg` `G`
+- Practica copiar/pegar: `yy` `dd` `p`
+
+### Primer mes
+- Domina Git: `Espacio+gs` y navegación con `]c` `[c`
+- Usa Harpoon: marca archivos frecuentes con `Espacio+a`
+- Aprende LSP: `gd` para ir a definición, `Espacio+ca` para auto-imports
+- Personaliza atajos según tu workflow
 
 ---
 
-## 📝 Notas
+## 📝 Notas importantes
 
-- Esta configuración está optimizada para **desarrollo en Python, HTML y JavaScript**
-- Usa **Dracula** como tema por defecto
-- La tecla **Leader** está configurada como **Espacio**
-- Compatible con **Ubuntu 20.04+**
+- **Leader Key:** Configurada como `Espacio`
+- **Tema:** Dracula por defecto
+- **Lenguajes soportados:** Python, HTML, CSS, JavaScript, TypeScript
+- **Compatibilidad:** Ubuntu 20.04+
+- **Requisitos mínimos:** 4GB RAM, procesador dual-core
+
+---
+
+## 🤝 Mantenimiento
+
+### Actualizar plugins
+
+```vim
+# Dentro de Neovim
+:Lazy sync
+```
+
+### Actualizar LSPs
+
+```vim
+:Mason
+# Presiona 'U' para actualizar todos
+```
+
+### Actualizar Neovim
+
+```bash
+sudo apt update
+sudo apt upgrade neovim
+```
+
+### Hacer backup
+
+```bash
+# Backup completo de configuración
+cp -r ~/.config/nvim ~/nvim-backup-$(date +%Y%m%d)
+
+# Backup solo de archivos personalizados
+tar -czf nvim-config-backup.tar.gz ~/.config/nvim/lua/config/
+```
 
 ---
 
 **¡Happy coding! 🚀**
 
-*Última actualización: Enero 2026*
+*Última actualización: Febrero 2026*

@@ -1,8 +1,9 @@
-# 📚 Guía de Referencia - Mi Configuración de Neovim
+# 📚 Guía de Referencia Completa - Neovim
 
-> **Última actualización:** Enero 2026  
-> **Tema:** Dracula  
+> **Última actualización:** Febrero 2026
+> **Tema:** Dracula
 > **Leader Key:** `Espacio`
+> **Estructura:** Modular
 
 ---
 
@@ -11,15 +12,16 @@
 - [Atajos Básicos de Vim](#-atajos-básicos-de-vim)
 - [Navegación](#-navegación)
 - [Edición de Texto](#️-edición-de-texto)
-- [Gestión de Archivos](#-gestión-de-archivos)
+- [Gestión de Archivos y Ventanas](#-gestión-de-archivos-y-ventanas)
 - [Búsqueda con Telescope](#-búsqueda-con-telescope)
 - [Explorador de Archivos (NvimTree)](#-explorador-de-archivos-nvimtree)
 - [Marcadores con Harpoon](#-marcadores-con-harpoon)
-- [Git con Fugitive](#-git-con-fugitive)
-- [Terminal con ToggleTerm](#-terminal-con-toggleterm)
+- [Git (Fugitive + GitSigns)](#-git-fugitive--gitsigns)
+- [Terminal (ToggleTerm)](#-terminal-toggleterm)
 - [LSP y Autocompletado](#-lsp-y-autocompletado)
 - [Tmux Integration](#-tmux-integration)
-- [Comandos Útiles](#-comandos-útiles)
+- [Comandos Avanzados](#-comandos-avanzados)
+- [Trucos y Tips](#-trucos-y-tips)
 
 ---
 
@@ -27,30 +29,38 @@
 
 ### Modos de Vim
 
-| Modo | Descripción | Cómo entrar |
-|------|-------------|-------------|
-| **Normal** | Modo por defecto, para navegar y ejecutar comandos | `Esc` |
-| **Insert** | Modo de inserción de texto | `i`, `a`, `o` |
-| **Visual** | Modo de selección de texto | `v`, `V`, `Ctrl+v` |
-| **Command** | Modo de comandos | `:` |
+| Modo | Descripción | Cómo entrar | Cómo salir |
+|------|-------------|-------------|------------|
+| **Normal** | Navegación y comandos | `Esc` | N/A (modo por defecto) |
+| **Insert** | Inserción de texto | `i` `a` `o` `I` `A` `O` | `Esc` o `jk` o `kj` |
+| **Visual** | Selección de texto | `v` `V` `Ctrl+v` | `Esc` |
+| **Visual Line** | Selección de líneas completas | `V` | `Esc` |
+| **Visual Block** | Selección de bloques | `Ctrl+v` | `Esc` |
+| **Command** | Ejecutar comandos Ex | `:` | `Esc` o `Ctrl+c` |
 
 ### Entrar a modo INSERT
 
 | Atajo | Acción |
 |-------|--------|
-| `i` | Insertar antes del cursor |
-| `I` | Insertar al inicio de la línea |
-| `a` | Insertar después del cursor |
-| `A` | Insertar al final de la línea |
-| `o` | Nueva línea abajo y entrar a INSERT |
-| `O` | Nueva línea arriba y entrar a INSERT |
+| `i` | Insertar **antes** del cursor |
+| `I` | Insertar al **inicio** de la línea |
+| `a` | Insertar **después** del cursor |
+| `A` | Insertar al **final** de la línea |
+| `o` | Nueva línea **abajo** y entrar a INSERT |
+| `O` | Nueva línea **arriba** y entrar a INSERT |
+| `s` | Borrar carácter y entrar a INSERT |
+| `S` | Borrar línea y entrar a INSERT |
+| `C` | Borrar desde cursor hasta final de línea y entrar a INSERT |
 
 ### Salir de modo INSERT
 
 | Atajo | Acción |
 |-------|--------|
 | `Esc` | Volver a modo NORMAL |
+| `jk` | Volver a modo NORMAL (atajo personalizado) ⭐ |
+| `kj` | Volver a modo NORMAL (atajo personalizado) ⭐ |
 | `Ctrl+c` | Volver a modo NORMAL (alternativa) |
+| `Ctrl+[` | Volver a modo NORMAL (nativo de Vim) |
 
 ---
 
@@ -60,39 +70,74 @@
 
 | Atajo | Acción |
 |-------|--------|
-| `h` | Mover cursor izquierda |
-| `j` | Mover cursor abajo |
-| `k` | Mover cursor arriba |
-| `l` | Mover cursor derecha |
-| `w` | Saltar al inicio de la siguiente palabra |
-| `b` | Saltar al inicio de la palabra anterior |
-| `e` | Saltar al final de la palabra |
-| `0` | Ir al inicio de la línea |
-| `$` | Ir al final de la línea |
-| `gg` | Ir al inicio del archivo |
-| `G` | Ir al final del archivo |
-| `{número}G` | Ir a la línea número (ej: `50G`) |
-| `Ctrl+d` | Bajar media página |
-| `Ctrl+u` | Subir media página |
-| `%` | Saltar al paréntesis/corchete correspondiente |
+| `h` | Mover cursor **izquierda** |
+| `j` | Mover cursor **abajo** |
+| `k` | Mover cursor **arriba** |
+| `l` | Mover cursor **derecha** |
+| `w` | Saltar al **inicio** de la siguiente palabra |
+| `W` | Saltar al inicio de la siguiente PALABRA (ignora puntuación) |
+| `b` | Saltar al **inicio** de la palabra anterior |
+| `B` | Saltar al inicio de la PALABRA anterior (ignora puntuación) |
+| `e` | Saltar al **final** de la palabra |
+| `E` | Saltar al final de la PALABRA (ignora puntuación) |
+| `0` | Ir al **inicio** de la línea |
+| `^` | Ir al **primer carácter no blanco** de la línea |
+| `$` | Ir al **final** de la línea |
+| `gg` | Ir al **inicio** del archivo |
+| `G` | Ir al **final** del archivo |
+| `{número}G` | Ir a la **línea número** (ej: `50G` va a línea 50) |
+| `{número}gg` | Ir a la línea número (alternativa) |
+| `Ctrl+d` | Bajar **media página** |
+| `Ctrl+u` | Subir **media página** |
+| `Ctrl+f` | Bajar **página completa** |
+| `Ctrl+b` | Subir **página completa** |
+| `%` | Saltar al **paréntesis/corchete/llave** correspondiente |
+| `{` | Saltar al **párrafo anterior** |
+| `}` | Saltar al **párrafo siguiente** |
+| `(` | Saltar a la **frase anterior** |
+| `)` | Saltar a la **frase siguiente** |
 
 ### Navegación entre ventanas (splits)
 
 | Atajo | Acción |
 |-------|--------|
-| `Ctrl+h` | Ir a ventana izquierda |
-| `Ctrl+j` | Ir a ventana abajo |
-| `Ctrl+k` | Ir a ventana arriba |
-| `Ctrl+l` | Ir a ventana derecha |
+| `Ctrl+h` | Ir a ventana **izquierda** ⭐ |
+| `Ctrl+j` | Ir a ventana **abajo** ⭐ |
+| `Ctrl+k` | Ir a ventana **arriba** ⭐ |
+| `Ctrl+l` | Ir a ventana **derecha** ⭐ |
+| `Ctrl+w w` | Ciclar entre ventanas |
+| `Ctrl+w p` | Ir a ventana **anterior** |
+| `Ctrl+w =` | **Igualar tamaño** de todas las ventanas |
+| `Ctrl+w >` | Aumentar **ancho** de ventana |
+| `Ctrl+w <` | Reducir **ancho** de ventana |
+| `Ctrl+w +` | Aumentar **altura** de ventana |
+| `Ctrl+w -` | Reducir **altura** de ventana |
 
-### Crear splits
+### Crear y gestionar splits
 
-| Comando | Acción |
-|---------|--------|
-| `:split` o `:sp` | Dividir horizontalmente |
-| `:vsplit` o `:vsp` | Dividir verticalmente |
+| Atajo/Comando | Acción |
+|---------------|--------|
+| `Espacio+v` | Panel nuevo a la **derecha** ⭐ |
+| `Espacio+s` | Panel nuevo **abajo** ⭐ |
+| `Espacio+q` | **Cerrar** panel actual ⭐ |
+| `Espacio+o` | Cerrar **todos** excepto el actual ⭐ |
+| `:split` o `:sp` | Dividir **horizontalmente** |
+| `:vsplit` o `:vsp` | Dividir **verticalmente** |
 | `:close` | Cerrar ventana actual |
 | `:only` | Cerrar todas excepto la actual |
+
+### Navegación inteligente
+
+| Atajo | Acción |
+|-------|--------|
+| `*` | Buscar palabra bajo cursor (hacia adelante) |
+| `#` | Buscar palabra bajo cursor (hacia atrás) |
+| `f{carácter}` | Saltar al siguiente `{carácter}` en la línea |
+| `F{carácter}` | Saltar al anterior `{carácter}` en la línea |
+| `t{carácter}` | Saltar **hasta antes** del siguiente `{carácter}` |
+| `T{carácter}` | Saltar **hasta antes** del anterior `{carácter}` |
+| `;` | Repetir último `f`, `F`, `t`, `T` |
+| `,` | Repetir último `f`, `F`, `t`, `T` en dirección opuesta |
 
 ---
 
@@ -102,39 +147,67 @@
 
 | Atajo | Acción |
 |-------|--------|
-| `yy` | Copiar línea completa |
-| `y{movimiento}` | Copiar (ej: `yw` copia palabra) |
-| `dd` | Cortar línea completa |
-| `d{movimiento}` | Cortar (ej: `dw` corta palabra) |
-| `p` | Pegar después del cursor |
+| `yy` o `Y` | **Copiar** línea completa |
+| `y{movimiento}` | Copiar (ej: `yw` copia palabra, `y$` copia hasta final de línea) |
+| `dd` | **Cortar** línea completa |
+| `d{movimiento}` | Cortar (ej: `dw` corta palabra, `d$` corta hasta final) |
+| `D` | Cortar desde cursor hasta final de línea |
+| `p` | **Pegar** después del cursor |
 | `P` | Pegar antes del cursor |
 | `x` | Borrar carácter bajo el cursor |
-| `u` | Deshacer |
-| `Ctrl+r` | Rehacer |
+| `X` | Borrar carácter antes del cursor |
+| `c{movimiento}` | Cambiar (borrar y entrar a INSERT) |
+| `C` | Cambiar desde cursor hasta final de línea |
+| `u` | **Deshacer** ⭐ |
+| `Ctrl+r` | **Rehacer** ⭐ |
+| `.` | **Repetir** última acción ⭐ |
 
 ### Buscar y reemplazar
 
 | Comando | Acción |
 |---------|--------|
-| `/texto` | Buscar "texto" hacia adelante |
-| `?texto` | Buscar "texto" hacia atrás |
-| `n` | Ir a siguiente coincidencia |
-| `N` | Ir a anterior coincidencia |
-| `:%s/viejo/nuevo/g` | Reemplazar "viejo" por "nuevo" en todo el archivo |
-| `:%s/viejo/nuevo/gc` | Igual pero pidiendo confirmación |
+| `/texto` | Buscar "texto" hacia **adelante** |
+| `?texto` | Buscar "texto" hacia **atrás** |
+| `n` | Ir a **siguiente** coincidencia |
+| `N` | Ir a **anterior** coincidencia |
+| `*` | Buscar palabra bajo cursor (adelante) |
+| `#` | Buscar palabra bajo cursor (atrás) |
+| `:%s/viejo/nuevo/g` | Reemplazar "viejo" por "nuevo" en **todo el archivo** |
+| `:%s/viejo/nuevo/gc` | Igual pero pidiendo **confirmación** |
+| `:s/viejo/nuevo/g` | Reemplazar en **línea actual** |
+| `:'<,'>s/viejo/nuevo/g` | Reemplazar en **selección visual** |
+| `:%s/viejo/nuevo/gi` | Reemplazar ignorando **mayúsculas/minúsculas** |
 
 ### Indentar y formatear
 
 | Atajo | Acción |
 |-------|--------|
-| `>>` | Indentar línea a la derecha |
-| `<<` | Indentar línea a la izquierda |
-| `={movimiento}` | Auto-indentar (ej: `gg=G` formatea todo) |
-| `J` | Unir línea actual con la siguiente |
+| `>>` | Indentar línea a la **derecha** |
+| `<<` | Indentar línea a la **izquierda** |
+| `={movimiento}` | **Auto-indentar** (ej: `gg=G` formatea todo el archivo) ⭐ |
+| `==` | Auto-indentar **línea actual** |
+| `J` | **Unir** línea actual con la siguiente |
+| `gJ` | Unir sin agregar espacio |
+| `~` | Cambiar **mayúscula/minúscula** del carácter |
+| `gu{movimiento}` | Convertir a **minúsculas** |
+| `gU{movimiento}` | Convertir a **MAYÚSCULAS** |
+
+### Modo visual (selección)
+
+| Atajo | Acción |
+|-------|--------|
+| `v` | Modo visual (selección por caracteres) |
+| `V` | Modo visual por **líneas** |
+| `Ctrl+v` | Modo visual en **bloque** (columnas) |
+| `o` | Mover al **otro extremo** de la selección |
+| `gv` | **Re-seleccionar** última selección |
+| `>` | Indentar selección a la derecha |
+| `<` | Indentar selección a la izquierda |
+| `=` | Auto-indentar selección |
 
 ---
 
-## 💾 Gestión de Archivos
+## 💾 Gestión de Archivos y Ventanas
 
 ### Guardar y salir
 
@@ -143,77 +216,134 @@
 | `Ctrl+s` | **Guardar archivo** ⭐ |
 | `:w` | Guardar archivo |
 | `:w nombre.txt` | Guardar como "nombre.txt" |
+| `:w!` | Guardar **forzado** (sobreescribir archivo de solo lectura) |
 | `:q` | Salir (si no hay cambios) |
 | `Ctrl+q` | **Salir sin guardar** ⭐ |
-| `:q!` | Salir sin guardar |
-| `:wq` | Guardar y salir |
-| `:qa` | Cerrar todas las ventanas |
+| `:q!` | Salir sin guardar (forzado) |
+| `:wq` | Guardar **y** salir |
+| `:x` | Guardar y salir (solo si hay cambios) |
+| `ZZ` | Guardar y salir (atajo rápido) |
+| `ZQ` | Salir sin guardar (atajo rápido) |
+| `:qa` | Cerrar **todas** las ventanas |
+| `:qa!` | Cerrar todas sin guardar |
+| `:wqa` | Guardar todo y cerrar todo |
 
 ### Trabajar con buffers
 
 | Comando | Acción |
 |---------|--------|
 | `:e archivo.txt` | Abrir archivo |
+| `:e .` | Abrir explorador de archivos (Netrw) |
 | `:bnext` o `:bn` | Siguiente buffer |
 | `:bprev` o `:bp` | Buffer anterior |
 | `:bd` | Cerrar buffer actual |
+| `:bd!` | Cerrar buffer forzado |
 | `:buffers` o `:ls` | Listar todos los buffers |
+| `:b{número}` | Ir al buffer número X |
+| `:b nombre` | Ir al buffer por nombre (autocompletado con Tab) |
+
+### Tabs (pestañas)
+
+| Comando | Acción |
+|---------|--------|
+| `:tabnew` | Nueva **pestaña** |
+| `:tabnew archivo` | Abrir archivo en nueva pestaña |
+| `gt` | Siguiente pestaña |
+| `gT` | Anterior pestaña |
+| `{número}gt` | Ir a pestaña número X |
+| `:tabclose` | Cerrar pestaña actual |
+| `:tabonly` | Cerrar todas excepto la actual |
 
 ---
 
 ## 🔍 Búsqueda con Telescope
 
-**Telescope** es tu herramienta principal para encontrar archivos y contenido rápidamente.
+**Telescope** es tu herramienta principal para encontrar archivos y contenido.
 
 ### Atajos de Telescope
 
 | Atajo | Acción |
 |-------|--------|
-| `Espacio + ff` | **Buscar archivos** en proyecto actual ⭐ |
-| `Espacio + fg` | **Buscar contenido** (grep) en proyecto actual ⭐ |
-| `Espacio + fb` | **Buscar entre buffers** abiertos |
-| `Espacio + fp` | **Buscar archivos en TODOS los proyectos** (~/Documents) 🚀 |
-| `Espacio + fP` | **Buscar contenido en TODOS los proyectos** (~/Documents) 🚀 |
+| `Espacio+ff` | **Buscar archivos** en proyecto actual ⭐ |
+| `Espacio+fg` | **Buscar contenido** (grep) en proyecto actual ⭐ |
+| `Espacio+fb` | **Buscar entre buffers** abiertos |
+| `Espacio+fp` | **Buscar archivos en TODOS los proyectos** (~/Documents) 🚀 |
+| `Espacio+fP` | **Buscar contenido en TODOS los proyectos** 🚀 |
 
 ### Navegación dentro de Telescope
 
 | Atajo | Acción |
 |-------|--------|
-| `Ctrl+j` | Bajar en la lista |
-| `Ctrl+k` | Subir en la lista |
-| `Enter` | Abrir archivo seleccionado |
-| `Esc` | Cerrar Telescope |
-| `Ctrl+x` | Abrir en split horizontal |
-| `Ctrl+v` | Abrir en split vertical |
+| `Ctrl+j` | **Bajar** en la lista |
+| `Ctrl+k` | **Subir** en la lista |
+| `Enter` | **Abrir** archivo seleccionado |
+| `Ctrl+x` | Abrir en **split horizontal** |
+| `Ctrl+v` | Abrir en **split vertical** |
+| `Ctrl+t` | Abrir en nueva **pestaña** |
+| `Esc` | **Cerrar** Telescope |
+| `Ctrl+u` | **Scroll up** en preview |
+| `Ctrl+d` | **Scroll down** en preview |
+| `Ctrl+q` | Enviar resultados a **quickfix list** |
+
+### Tips de búsqueda en Telescope
+
+- **Búsqueda fuzzy:** No necesitas escribir el nombre completo
+  - Buscas `models.py` → puedes escribir `mdpy` o `mopy`
+- **Búsqueda en ruta:** Incluye parte de la ruta
+  - `app/models` encuentra archivos models.py dentro de app/
+- **Búsqueda de contenido:** `Espacio+fg` busca dentro de archivos
+  - Perfecto para encontrar funciones, clases, variables
 
 ---
 
 ## 📁 Explorador de Archivos (NvimTree)
 
-**NvimTree** es tu explorador visual de archivos, como el sidebar de VSCode.
+**NvimTree** es tu explorador visual de archivos lateral.
 
 ### Atajos principales
 
 | Atajo | Acción |
 |-------|--------|
-| `Espacio + e` | **Abrir/Cerrar NvimTree** ⭐ |
+| `Espacio+e` | **Toggle NvimTree** (abrir/cerrar) ⭐ |
+| `Espacio++` | **Aumentar ancho** de NvimTree |
+| `Espacio+-` | **Reducir ancho** de NvimTree |
 
 ### Dentro de NvimTree
 
 | Atajo | Acción |
 |-------|--------|
-| `Enter` | Abrir archivo o expandir carpeta |
+| `Enter` | Abrir archivo o **expandir** carpeta |
 | `o` | Abrir archivo |
-| `a` | Crear archivo/carpeta (termina con `/` para carpeta) |
-| `d` | Borrar archivo/carpeta |
-| `r` | Renombrar archivo/carpeta |
-| `x` | Cortar archivo |
-| `c` | Copiar archivo |
-| `p` | Pegar archivo |
-| `R` | Refrescar árbol |
-| `H` | Mostrar/ocultar archivos ocultos |
+| `<Tab>` | Abrir archivo pero mantener cursor en NvimTree |
+| `a` | **Crear** archivo/carpeta (termina con `/` para carpeta) ⭐ |
+| `d` | **Borrar** archivo/carpeta |
+| `r` | **Renombrar** archivo/carpeta |
+| `x` | **Cortar** archivo |
+| `c` | **Copiar** archivo |
+| `p` | **Pegar** archivo |
+| `m` | **Mover** archivo |
+| `y` | Copiar **nombre** del archivo |
+| `Y` | Copiar **ruta relativa** |
+| `gy` | Copiar **ruta absoluta** |
+| `R` | **Refrescar** árbol |
+| `H` | **Toggle** archivos ocultos (.env, .git, etc) ⭐ |
+| `I` | Toggle archivos ignorados (.gitignore) |
 | `Ctrl+]` | Cambiar directorio raíz a carpeta actual |
-| `q` | Cerrar NvimTree |
+| `Backspace` | Subir al directorio **padre** |
+| `-` | Subir al directorio padre (alternativa) |
+| `s` | Abrir en **split vertical** |
+| `i` | Abrir en **split horizontal** |
+| `t` | Abrir en nueva **pestaña** |
+| `q` | **Cerrar** NvimTree |
+
+### Crear archivos y carpetas
+
+```
+a                       # Presionar 'a' dentro de NvimTree
+nombre.py               # Crear archivo
+carpeta/                # Crear carpeta (termina con /)
+carpeta/archivo.py      # Crear carpeta + archivo
+```
 
 ---
 
@@ -225,291 +355,594 @@
 
 | Atajo | Acción |
 |-------|--------|
-| `Espacio + a` | **Marcar archivo actual** ⭐ |
-| `Espacio + h` | **Ver lista de archivos marcados** ⭐ |
-| `Espacio + 1` | Saltar al archivo marcado #1 |
-| `Espacio + 2` | Saltar al archivo marcado #2 |
-| `Espacio + 3` | Saltar al archivo marcado #3 |
-| `Espacio + 4` | Saltar al archivo marcado #4 |
+| `Espacio+a` | **Marcar** archivo actual ⭐ |
+| `Espacio+h` | **Ver lista** de archivos marcados ⭐ |
+| `Espacio+1` | Saltar al archivo marcado **#1** |
+| `Espacio+2` | Saltar al archivo marcado **#2** |
+| `Espacio+3` | Saltar al archivo marcado **#3** |
+| `Espacio+4` | Saltar al archivo marcado **#4** |
 
-### Workflow recomendado
+### Workflow recomendado con Harpoon
 
-1. Abre tus archivos más importantes del proyecto
-2. Marca cada uno con `Espacio + a`
-3. Salta entre ellos con `Espacio + 1/2/3/4`
-4. No más búsquedas repetitivas 🚀
+```bash
+# 1. Abrir proyecto y marcar archivos importantes
+nvim
+
+Espacio+ff          # Buscar views.py
+Espacio+a           # Marcar como #1
+
+Espacio+ff          # Buscar models.py
+Espacio+a           # Marcar como #2
+
+Espacio+ff          # Buscar urls.py
+Espacio+a           # Marcar como #3
+
+# 2. Ahora puedes saltar entre ellos instantáneamente
+Espacio+1           # views.py
+Espacio+2           # models.py
+Espacio+3           # urls.py
+
+# 3. Ver/editar lista de marcados
+Espacio+h
+```
 
 ---
 
-## 🔀 Git con Fugitive
+## 🔀 Git (Fugitive + GitSigns)
 
-**Fugitive** integra Git directamente en Neovim.
+Integración completa de Git en Neovim.
 
-### Atajos de Git
+### Atajos principales
 
 | Atajo/Comando | Acción |
 |---------------|--------|
-| `Espacio + gs` | **Abrir Git status** ⭐ |
-| `:Git add %` | Agregar archivo actual al stage |
+| `Espacio+gs` | **Git status** ⭐ |
+| `Espacio+gu` | **Deshacer cambios** del archivo actual ⭐ |
+| `Espacio+gU` | Deshacer **TODOS** los cambios |
+
+### GitSigns - Navegación entre cambios
+
+| Atajo | Acción |
+|-------|--------|
+| `]c` | Ir al **siguiente** cambio ⭐ |
+| `[c` | Ir al cambio **anterior** ⭐ |
+| `Espacio+hp` | **Preview** del cambio (ver diff) ⭐ |
+| `Espacio+hs` | **Stage** el cambio (agregar a git) |
+| `Espacio+hr` | **Reset** el cambio (deshacerlo) |
+| `Espacio+hb` | **Blame** (ver quién escribió esa línea) |
+| `Espacio+hd` | **Diff** del archivo completo |
+| `Espacio+tb` | **Toggle** blame en todas las líneas |
+
+### Dentro de Git status (Fugitive)
+
+| Atajo | Acción |
+|-------|--------|
+| `s` | **Stage/unstage** archivo bajo cursor |
+| `u` | **Unstage** archivo |
+| `=` | Ver **diff** del archivo |
+| `cc` | Crear **commit** |
+| `ca` | **Amend** último commit |
+| `X` | **Descartar** cambios del archivo |
+| `-` | Toggle stage/unstage |
+| `dd` | Ver diff en split |
+| `dv` | Ver diff en split vertical |
+
+### Comandos Git
+
+| Comando | Acción |
+|---------|--------|
+| `:Git add %` | Agregar archivo actual |
+| `:Git add .` | Agregar todos los archivos |
 | `:Git commit` | Hacer commit |
+| `:Git commit -m "mensaje"` | Commit con mensaje |
 | `:Git push` | Push a remoto |
 | `:Git pull` | Pull desde remoto |
 | `:Git log` | Ver historial de commits |
 | `:Git diff` | Ver diferencias |
 | `:Git blame` | Ver quién escribió cada línea |
-
-### Dentro de Git status
-
-| Atajo | Acción |
-|-------|--------|
-| `s` | Stage/unstage archivo bajo cursor |
-| `u` | Unstage archivo |
-| `cc` | Crear commit |
-| `=` | Ver diff del archivo |
+| `:Git restore archivo` | Deshacer cambios de archivo |
+| `:Git restore .` | Deshacer todos los cambios |
 
 ---
 
-## 💻 Terminal con ToggleTerm
+## 💻 Terminal (ToggleTerm)
 
-**ToggleTerm** te da una terminal integrada estilo VSCode.
+Terminal integrada estilo VSCode.
 
 ### Atajos de Terminal
 
 | Atajo | Acción |
 |-------|--------|
-| `Ctrl + ´` | **Toggle terminal horizontal** ⭐ |
-| `Espacio + tt` | Abrir terminal horizontal |
-| `Espacio + ld` | **Abrir LazyDocker** (flotante) 🐳 |
+| `Ctrl+´` | **Toggle** terminal horizontal ⭐ |
+| `Espacio+tt` | Toggle terminal horizontal |
+| `Espacio+ld` | Abrir **LazyDocker** (flotante) 🐳 |
 
 ### Dentro de la terminal
 
 | Atajo | Acción |
 |-------|--------|
-| `Esc` | Salir del modo terminal (ir a modo NORMAL) |
+| `Esc` | Salir del modo terminal (ir a modo NORMAL) ⭐ |
 | `i` o `a` | Volver al modo terminal |
-| `Ctrl+h/j/k/l` | Navegar entre ventanas |
+| `Ctrl+h` | Ir a ventana **izquierda** |
+| `Ctrl+j` | Ir a ventana **abajo** |
+| `Ctrl+k` | Ir a ventana **arriba** |
+| `Ctrl+l` | Ir a ventana **derecha** |
 
 ### Comandos útiles en terminal
 
 ```bash
-# Iniciar servidor de desarrollo
+# Django
 python manage.py runserver
+python manage.py migrate
+python manage.py makemigrations
+python manage.py shell
 
-# Ver logs de Docker
+# Docker
+docker ps
 docker logs -f nombre-contenedor
+docker exec -it nombre-contenedor bash
+docker-compose up -d
 
-# Git status
+# Git
 git status
+git log --oneline
+git diff
 
-# Correr tests
+# Tests
 pytest
+pytest -v
+pytest -k "nombre_test"
 ```
 
 ---
 
 ## 🧠 LSP y Autocompletado
 
-**LSP** (Language Server Protocol) te da inteligencia de código: autocompletado, ir a definición, etc.
-
-### Language Servers instalados
-
-- **Python**: Pyright
-- **HTML**: HTML Language Server
-- **Emmet**: Emmet para HTML/CSS
+**LSP** proporciona inteligencia de código: autocompletado, ir a definición, diagnósticos, etc.
 
 ### Atajos de LSP
 
 | Atajo | Acción |
 |-------|--------|
 | `gd` | **Ir a definición** ⭐ |
-| `gr` | **Ver referencias** (dónde se usa esto) |
-| `K` | **Mostrar documentación** (hover) ⭐ |
-| `Espacio + rn` | **Renombrar símbolo** |
-| `Espacio + ca` | **Ver code actions** (acciones disponibles) |
+| `gr` | **Ver referencias** (dónde se usa) ⭐ |
+| `gi` | Ir a **implementación** |
+| `K` | **Hover** (mostrar documentación) ⭐ |
+| `Espacio+rn` | **Renombrar** símbolo ⭐ |
+| `Espacio+ca` | **Code actions** (auto-import, quick fixes) ⭐ |
+| `Espacio+f` | **Formatear** código |
+| `[d` | Ir al **diagnóstico anterior** (error/warning) |
+| `]d` | Ir al **siguiente diagnóstico** |
 
 ### Autocompletado (nvim-cmp)
 
 | Atajo | Acción |
 |-------|--------|
-| `Ctrl+Space` | Activar autocompletado |
-| `Ctrl+n` | Siguiente sugerencia |
-| `Ctrl+p` | Anterior sugerencia |
-| `Enter` | Aceptar sugerencia |
-| `Ctrl+e` | Cerrar autocompletado |
-| `Ctrl+f` | Scroll down en documentación |
-| `Ctrl+b` | Scroll up en documentación |
+| `Ctrl+Space` | Activar autocompletado **manual** |
+| `Tab` | **Siguiente** sugerencia ⭐ |
+| `Shift+Tab` | Sugerencia **anterior** ⭐ |
+| `Enter` | **Aceptar** sugerencia ⭐ |
+| `Ctrl+e` | **Cerrar** autocompletado |
+| `Ctrl+f` | Scroll **down** en documentación |
+| `Ctrl+b` | Scroll **up** en documentación |
+| `Ctrl+n` | Siguiente sugerencia (alternativa) |
+| `Ctrl+p` | Anterior sugerencia (alternativa) |
 
-### Instalar más Language Servers
+### Uso de Code Actions (Auto-import)
+
+```python
+# Ejemplo: Auto-importar en Python
+# 1. Escribes código sin importar
+User.objects.all()  # User no está importado
+
+# 2. Posicionas cursor sobre "User"
+# 3. Presionas Espacio+ca
+# 4. Seleccionas: "Import User from django.contrib.auth.models"
+# 5. ¡Listo! Se importa automáticamente
+```
+
+### Instalar más LSPs
 
 ```vim
 :Mason
+# Buscar con / y presionar 'i' para instalar
 ```
 
-Esto abre el gestor de LSP donde puedes instalar más servidores para otros lenguajes.
+### Verificar LSP activo
+
+```vim
+:LspInfo        # Ver LSPs adjuntos al buffer actual
+:LspLog         # Ver logs de LSP
+:checkhealth lsp   # Verificar salud de LSP
+```
 
 ---
 
 ## 🖥️ Tmux Integration
 
-**Vim-tmux-navigator** permite navegar fluidamente entre paneles de Vim y Tmux.
+**Vim-tmux-navigator** permite navegar fluidamente entre Vim y Tmux.
 
-### Navegación unificada
-
-| Atajo | Acción |
-|-------|--------|
-| `Ctrl+h` | Ir al panel izquierdo (Vim o Tmux) |
-| `Ctrl+j` | Ir al panel abajo (Vim o Tmux) |
-| `Ctrl+k` | Ir al panel arriba (Vim o Tmux) |
-| `Ctrl+l` | Ir al panel derecha (Vim o Tmux) |
-
-### Comandos básicos de Tmux
-
-**Prefijo de Tmux:** `Ctrl+a`
+### Navegación unificada Vim + Tmux
 
 | Atajo | Acción |
 |-------|--------|
-| `Ctrl+a \|` | Dividir verticalmente |
-| `Ctrl+a -` | Dividir horizontalmente |
-| `Ctrl+a c` | Nueva ventana |
-| `Ctrl+a n` | Siguiente ventana |
-| `Ctrl+a p` | Ventana anterior |
-| `Ctrl+a d` | Desconectar de sesión |
-| `Ctrl+a s` | Lista de sesiones |
-| `Ctrl+a x` | Cerrar panel actual |
+| `Ctrl+h` | Ir al panel **izquierdo** (Vim o Tmux) ⭐ |
+| `Ctrl+j` | Ir al panel **abajo** (Vim o Tmux) ⭐ |
+| `Ctrl+k` | Ir al panel **arriba** (Vim o Tmux) ⭐ |
+| `Ctrl+l` | Ir al panel **derecha** (Vim o Tmux) ⭐ |
 
-### Workflow con Tmux
+### Comandos de Tmux
+
+**Prefijo:** `Ctrl+a`
+
+| Atajo | Acción |
+|-------|--------|
+| `Ctrl+a \|` | Dividir **verticalmente** |
+| `Ctrl+a -` | Dividir **horizontalmente** |
+| `Ctrl+a c` | Nueva **ventana** |
+| `Ctrl+a n` | **Siguiente** ventana |
+| `Ctrl+a p` | Ventana **anterior** |
+| `Ctrl+a {número}` | Ir a ventana número X |
+| `Ctrl+a d` | **Desconectar** de sesión (detach) |
+| `Ctrl+a s` | Lista de **sesiones** |
+| `Ctrl+a w` | Lista de **ventanas** |
+| `Ctrl+a x` | **Cerrar** panel actual |
+| `Ctrl+a &` | Cerrar ventana actual |
+| `Ctrl+a r` | **Recargar** configuración |
+| `Ctrl+a z` | **Zoom** panel actual (toggle fullscreen) |
+| `Alt+↑↓←→` | Cambiar tamaño de panel |
+
+### Workflow diario con Tmux
 
 ```bash
-# Crear sesión para proyecto frontend
+# LUNES - Crear sesión para proyecto frontend
 tmux new -s frontend
 cd ~/Documents/proyecto-web
 nvim
 
-# Crear sesión para backend (en otra terminal)
-tmux new -s backend
+# Dividir para ver terminal
+Ctrl+a -
+# Arriba: Neovim
+# Abajo: Terminal para runserver
+
+# MARTES - Necesitas trabajar en backend
+Ctrl+a d              # Desconectar (todo sigue corriendo)
+tmux new -s backend   # Nueva sesión
 cd ~/Documents/api
 nvim
 
-# Ver sesiones activas
+# Cambiar entre proyectos
+Ctrl+a s              # Lista de sesiones
+# Selecciona con flechas y Enter
+
+# VIERNES - Ver todas tus sesiones
 tmux ls
 
-# Adjuntarse a sesión
+# LUNES SIGUIENTE - Volver exactamente donde lo dejaste
 tmux attach -t frontend
-
-# Dentro de tmux, cambiar de sesión
-Ctrl+a s  # y selecciona con flechas
+# ¡Todo sigue abierto! Nvim, archivos, terminal
 ```
 
 ---
 
-## 📌 Comandos Útiles
+## 📌 Comandos Avanzados
 
 ### Información del sistema
 
 | Comando | Acción |
 |---------|--------|
-| `:checkhealth` | Verificar salud de Neovim |
-| `:version` | Ver versión de Neovim |
-| `:Lazy` | Abrir gestor de plugins |
-| `:Mason` | Abrir gestor de LSP |
+| `:checkhealth` | Verificar **salud** de Neovim |
+| `:version` | Ver **versión** de Neovim |
+| `:Lazy` | Abrir gestor de **plugins** |
+| `:Mason` | Abrir gestor de **LSP** |
+| `:messages` | Ver **mensajes** del sistema |
+| `:e $MYVIMRC` | Editar **configuración** |
 
 ### Configuración
 
 | Comando | Acción |
 |---------|--------|
-| `:e ~/.config/nvim/init.lua` | Editar configuración |
-| `:source %` | Recargar archivo actual |
-| `:Lazy sync` | Sincronizar plugins |
+| `:source %` | **Recargar** archivo actual |
+| `:Lazy sync` | **Sincronizar** plugins |
+| `:Lazy clean` | **Limpiar** plugins no usados |
+| `:Lazy update` | **Actualizar** todos los plugins |
+| `:TSUpdate` | Actualizar **parsers** de Treesitter |
+| `:LspRestart` | **Reiniciar** LSP |
 
-### Edición masiva
+### Edición masiva con Visual Block
+
+```vim
+# Insertar en múltiples líneas:
+1. Ctrl+v              # Modo visual block
+2. Selecciona líneas (j/k)
+3. I                   # Insertar al inicio
+4. Escribe el texto
+5. Esc                 # Se aplicará a todas las líneas
+
+# Agregar al final de múltiples líneas:
+1. Ctrl+v
+2. Selecciona líneas
+3. $                   # Ir al final
+4. A                   # Append
+5. Escribe el texto
+6. Esc
+
+# Comentar múltiples líneas:
+1. Ctrl+v
+2. Selecciona líneas
+3. I                   # Insert
+4. #                   # Carácter de comentario
+5. Esc
+```
+
+### Cambiar tamaño de ventanas
 
 | Comando | Acción |
 |---------|--------|
-| `Ctrl+v` (visual block) | Selección en columna |
-| `I` (después de visual block) | Insertar en múltiples líneas |
-| `A` (después de visual block) | Añadir al final de múltiples líneas |
-
----
-
-## 🎨 Personalización Rápida
-
-### Cambiar tamaño de splits
-
-```vim
-:resize +5        " Aumentar altura
-:resize -5        " Reducir altura
-:vertical resize +5    " Aumentar ancho
-:vertical resize -5    " Reducir ancho
-```
+| `:resize +5` | Aumentar **altura** +5 |
+| `:resize -5` | Reducir altura -5 |
+| `:vertical resize +10` | Aumentar **ancho** +10 |
+| `:vertical resize -10` | Reducir ancho -10 |
+| `Ctrl+w =` | **Igualar** todas las ventanas |
+| `Ctrl+w _` | Maximizar altura de ventana actual |
+| `Ctrl+w \|` | Maximizar ancho de ventana actual |
 
 ### Números de línea
 
+| Comando | Acción |
+|---------|--------|
+| `:set number` | Mostrar números |
+| `:set relativenumber` | Números **relativos** |
+| `:set nonumber` | Ocultar números |
+| `:set norelativenumber` | Desactivar relativos |
+
+---
+
+## 🚀 Trucos y Tips
+
+### Macros (grabación de acciones)
+
 ```vim
-:set number           " Mostrar números
-:set relativenumber   " Números relativos
-:set nonumber         " Ocultar números
+# Grabar macro:
+qa                      # Empezar a grabar en registro 'a'
+{realizar acciones}     # Lo que quieras automatizar
+q                       # Terminar grabación
+
+# Ejecutar macro:
+@a                      # Ejecutar macro 'a' una vez
+10@a                    # Ejecutar macro 10 veces
+@@                      # Repetir último macro ejecutado
+
+# Ejemplo práctico:
+qa                      # Grabar
+I# <Esc>j              # Agregar # al inicio y bajar
+q                       # Terminar
+10@a                    # Comentar 10 líneas
+```
+
+### Marks (marcas personales)
+
+```vim
+# Crear marca:
+ma                      # Crear marca 'a' en posición actual
+
+# Saltar a marca:
+`a                      # Saltar a marca 'a' (posición exacta)
+'a                      # Saltar a línea de marca 'a'
+
+# Marcas especiales automáticas:
+``                      # Última posición del cursor
+`.                      # Última edición
+`[                      # Inicio de última modificación
+`]                      # Final de última modificación
+```
+
+### Búsqueda avanzada
+
+```vim
+/palabra                # Buscar "palabra"
+/\<palabra\>            # Buscar palabra COMPLETA (no "palabras")
+/palabra\c              # Buscar ignorando mayúsculas
+/palabra\C              # Buscar respetando mayúsculas
+*                       # Buscar palabra bajo cursor
+#                       # Buscar palabra bajo cursor (atrás)
+g*                      # Buscar palabra bajo cursor (parcial)
+```
+
+### Reemplazar con confirmación
+
+```vim
+:%s/viejo/nuevo/gc      # Reemplazar en todo el archivo
+# Opciones durante confirmación:
+y - yes (reemplazar)
+n - no (saltar)
+a - all (reemplazar todos sin preguntar)
+q - quit (terminar)
+l - last (reemplazar este y terminar)
+```
+
+### Deshacer/rehacer avanzado
+
+```vim
+u                       # Deshacer
+Ctrl+r                  # Rehacer
+U                       # Deshacer todos los cambios de la línea
+:earlier 5m             # Volver 5 minutos atrás
+:later 5m               # Ir 5 minutos adelante
+:undo 10                # Volver al estado de undo #10
+```
+
+### Copiar/pegar con registros
+
+```vim
+# Registros nombrados:
+"ayy                    # Copiar línea al registro 'a'
+"ap                     # Pegar desde registro 'a'
+
+# Registros especiales:
+"0p                     # Último texto copiado (yank)
+"1p                     # Último texto borrado
+"+y                     # Copiar al portapapeles del sistema
+"+p                     # Pegar desde portapapeles del sistema
+:reg                    # Ver todos los registros
+```
+
+### Edición de múltiples archivos
+
+```vim
+:args *.py              # Abrir todos los .py como argumentos
+:argdo %s/viejo/nuevo/g # Ejecutar comando en todos los archivos
+:wall                   # Guardar todos los archivos
+```
+
+### Colorizer (colores CSS)
+
+```vim
+Espacio+tc              # Toggle colorizer (activar/desactivar)
+:ColorizerToggle        # Mismo efecto
+```
+
+### Utilidades varias
+
+```vim
+Espacio+ve              # Editar archivo .env rápidamente
+:!comando               # Ejecutar comando de shell
+:read !comando          # Insertar salida de comando en buffer
+:.!comando              # Filtrar línea actual por comando
+:%!jq                   # Formatear JSON en todo el archivo
+:sort                   # Ordenar líneas alfabéticamente
+:sort n                 # Ordenar líneas numéricamente
 ```
 
 ---
 
-## 🚀 Tips y Trucos
+## 🎯 Workflow Diario Completo
 
-### Macros
+### Inicio del día
 
-1. Grabar macro: `qa` (graba en registro 'a')
-2. Ejecutar acciones
-3. Terminar grabación: `q`
-4. Ejecutar macro: `@a`
-5. Repetir: `@@`
+```bash
+# 1. Iniciar sesión de Tmux
+tmux new -s trabajo
 
-### Marks (Marcas)
+# 2. Abrir Neovim en proyecto
+cd ~/Documents/mi-proyecto
+nvim
 
-| Atajo | Acción |
-|-------|--------|
-| `ma` | Crear marca 'a' |
-| `` `a `` | Ir a marca 'a' |
-| `'a` | Ir a línea de marca 'a' |
+# 3. Abrir archivos frecuentes con Harpoon
+Espacio+ff              # Buscar views.py
+Espacio+a               # Marcar
+Espacio+ff              # Buscar models.py
+Espacio+a               # Marcar
 
-### Búsqueda incremental
+# 4. Dividir terminal para servidor
+Ctrl+a -                # Panel abajo
+python manage.py runserver
 
-```vim
-/palabra    " Buscar mientras escribes
-*           " Buscar palabra bajo cursor
-#           " Buscar palabra bajo cursor (atrás)
+# 5. Volver a Neovim
+Ctrl+k
 ```
 
-### Multi-cursor (Treesitter)
+### Durante el día
 
-```vim
-" Seleccionar palabras iguales
-1. Coloca cursor en palabra
-2. Ctrl+n para seleccionar siguiente
-3. c para cambiar todas
+```bash
+# Buscar archivo rápido
+Espacio+ff              # Buscar por nombre
+
+# Buscar texto en proyecto
+Espacio+fg              # Buscar contenido
+
+# Saltar entre archivos marcados
+Espacio+1               # views.py
+Espacio+2               # models.py
+
+# Ver cambios de Git
+]c                      # Siguiente cambio
+Espacio+hp              # Ver diff
+
+# Auto-importar
+Espacio+ca              # Code actions
+
+# Terminal rápida
+Ctrl+´                  # Toggle terminal
+```
+
+### Final del día
+
+```bash
+# Commit de cambios
+Espacio+gs              # Git status
+s                       # Stage archivos
+cc                      # Commit
+
+# Desconectar (todo sigue corriendo)
+Ctrl+a d
+
+# Cerrar terminal
+exit
+```
+
+### Próximo día
+
+```bash
+# Reconectar a sesión
+tmux attach -t trabajo
+
+# ¡Todo está exactamente como lo dejaste!
 ```
 
 ---
 
-## 📚 Recursos Adicionales
+## 📚 Recursos de Ayuda
 
-- **Documentación de Neovim**: `:help`
-- **Documentación de plugins**: `:help telescope`, `:help harpoon`, etc.
-- **Aprender Vim**: `vimtutor` (en terminal)
+### Dentro de Neovim
+
+```vim
+:help                   # Ayuda general
+:help telescope         # Ayuda de plugin específico
+:help lsp               # Ayuda de LSP
+:help :comando          # Ayuda de comando Ex
+:helpgrep término       # Buscar en ayuda
+```
+
+### Tutoriales
+
+```bash
+vimtutor                # Tutorial interactivo (30 min)
+```
+
+### Verificar configuración
+
+```vim
+:checkhealth            # Verificar salud completa
+:checkhealth lsp        # Verificar solo LSP
+:checkhealth telescope  # Verificar solo Telescope
+```
 
 ---
 
-## 🎯 Workflow Diario Recomendado
+## 💡 Tips Finales
 
-1. **Iniciar tmux**: `tmux new -s proyecto`
-2. **Abrir Neovim**: `nvim`
-3. **Buscar archivo**: `Espacio + ff`
-4. **Marcar archivos frecuentes**: `Espacio + a`
-5. **Saltar entre archivos**: `Espacio + 1/2/3/4`
-6. **Abrir terminal**: `Ctrl + ´`
-7. **Git status**: `Espacio + gs`
-8. **Buscar en todos los proyectos**: `Espacio + fp`
+### Día 1-7: Fundamentos
+- Domina movimientos: `h` `j` `k` `l` `w` `b` `0` `$`
+- Practica entrar/salir de INSERT: `i` `a` `Esc`
+- Aprende copiar/pegar: `yy` `dd` `p`
+- Usa `Espacio+ff` para buscar archivos
+
+### Semana 2: Productividad
+- Domina Git: `]c` `[c` `Espacio+hp`
+- Usa Harpoon: marca archivos con `Espacio+a`
+- Aprende splits: `Espacio+v` `Espacio+s`
+- Practica terminal: `Ctrl+´`
+
+### Mes 1: Maestría
+- LSP completo: `gd` `gr` `Espacio+ca`
+- Tmux para múltiples proyectos
+- Macros para tareas repetitivas
+- Personaliza atajos según tu workflow
 
 ---
 
 **¡Happy coding! 🚀**
 
-*Esta guía está viva y se actualiza con tu configuración.*
+*Guía viva - Se actualiza con cada mejora de configuración*
+*Última actualización: Febrero 2026*
