@@ -9,7 +9,7 @@ return {
     version = "*",
     config = function()
         require("toggleterm").setup({
-            size = 15,
+            size = 23,
             open_mapping = [[<c-´>]],
             hide_numbers = true,
             shade_terminals = true,

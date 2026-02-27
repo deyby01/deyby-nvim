@@ -39,3 +39,6 @@ vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 -- Leader key
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+
+-- Skip ts_context_commentstring module (deprecado en treesittier)
+vim.g.skip_ts_context_commentstring_module = true
