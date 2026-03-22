@@ -117,6 +117,8 @@ return {
                 "htmldjango",
                 "markdown",
                 "markdown_inline",
+                "cpp",
+                "c",
             },
             highlight = {
                 enable = true,
@@ -219,24 +221,73 @@ return {
             Rule('f"', '"', "python"),
         })
     end
-  },
-  -- Comentar código fácilmente
-  {
-    "numToStr/Comment.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    dependencies = {
-        "JoosepAlviste/nvim-ts-context-commentstring",
     },
-    config = function()
-        -- Configurar ts_context_commentstring PRIMERO
-        require("ts_context_commentstring").setup({
-            enable_autocmd = false,
+    -- Comentar código fácilmente
+    {
+        "numToStr/Comment.nvim",
+        event = { "BufReadPre", "BufNewFile" },
+        dependencies = {
+            "JoosepAlviste/nvim-ts-context-commentstring",
+        },
+        config = function()
+            -- Configurar ts_context_commentstring PRIMERO
+            require("ts_context_commentstring").setup({
+                enable_autocmd = false,
+            })
+
+            -- Luego configurar Comment.nvim
+            require("Comment").setup({
+                pre_hook = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook(),
+            })
+        end,
+    },
+    -- Navegación rápida
+    {
+        "folke/flash.nvim",
+        event = "VeryLazy",
+        config = function()
+        require("flash").setup({
+            modes = {
+                search = {
+                    enabled = true,
+                },
+                char = {
+                    enabled = true,
+                },
+            },
         })
 
-        -- Luego configurar Comment.nvim
-        require("Comment").setup({
-            pre_hook = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook(),
-        })
+        -- Atajos
+        vim.keymap.set({ "n", "x", "o" }, "s", function() require("flash").jump() end, { desc = "Flash: saltar" })
+        vim.keymap.set({ "n", "x", "o" }, "S", function() require("flash").treesitter() end, { desc = "Flash: treesitter" })
     end,
-  },
+    },
+    -- Todo comments
+    {
+        "folke/todo-comments.nvim",
+        dependencies = { "nvim-lua/plenary.nvim" },
+        event = "BufReadPre",
+        config = function()
+            require("todo-comments").setup({
+                keywords = {
+                    FIX  = { icon = " ", color = "error",   alt = { "FIXME", "BUG", "FIXIT" } },
+                    TODO = { icon = " ", color = "info" },
+                    HACK = { icon = " ", color = "warning" },
+                    WARN = { icon = " ", color = "warning", alt = { "WARNING" } },
+                    NOTE = { icon = " ", color = "hint",    alt = { "INFO" } },
+                },
+            })
+
+            -- Buscar todos los TODOs del proyecto
+            vim.keymap.set("n", "<leader>ft", ":TodoTelescope<CR>", { desc = "Buscar TODOs" })
+        end,
+    },
+    -- Surround
+    {
+        "kylechui/nvim-surround",
+        event = "VeryLazy",
+        config = function()
+            require("nvim-surround").setup()
+        end,
+    },
 }

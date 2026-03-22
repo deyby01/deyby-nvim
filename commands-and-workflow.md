@@ -1,6 +1,6 @@
 # 📚 Guía de Referencia Completa - Neovim
 
-> **Última actualización:** Febrero 2026
+> **Última actualización:** Marzo 2026
 > **Tema:** Dracula
 > **Leader Key:** `Espacio`
 > **Estructura:** Modular
@@ -19,6 +19,11 @@
 - [Git (Fugitive + GitSigns)](#-git-fugitive--gitsigns)
 - [Terminal (ToggleTerm)](#-terminal-toggleterm)
 - [LSP y Autocompletado](#-lsp-y-autocompletado)
+- [C++ - Compilar y Ejecutar](#-c---compilar-y-ejecutar)
+- [Debugger (nvim-dap)](#-debugger-nvim-dap)
+- [Navegación Rápida (Flash)](#-navegación-rápida-flash)
+- [Surround](#-surround)
+- [TODO Comments](#-todo-comments)
 - [Tmux Integration](#-tmux-integration)
 - [Comandos Avanzados](#-comandos-avanzados)
 - [Trucos y Tips](#-trucos-y-tips)
@@ -269,6 +274,7 @@
 | `Espacio+fb` | **Buscar entre buffers** abiertos |
 | `Espacio+fp` | **Buscar archivos en TODOS los proyectos** (~/Documents) 🚀 |
 | `Espacio+fP` | **Buscar contenido en TODOS los proyectos** 🚀 |
+| `Espacio+ft` | **Buscar TODOs** del proyecto 🆕 |
 
 ### Navegación dentro de Telescope
 
@@ -345,6 +351,8 @@ carpeta/                # Crear carpeta (termina con /)
 carpeta/archivo.py      # Crear carpeta + archivo
 ```
 
+> 💡 **Tip C++:** Al crear un archivo `.cpp` dentro de `week_*` o `tasks_unab_cplus/*/`, se crea automáticamente un `Makefile` en esa carpeta.
+
 ---
 
 ## 🎯 Marcadores con Harpoon
@@ -399,6 +407,12 @@ Integración completa de Git en Neovim.
 | `Espacio+gs` | **Git status** ⭐ |
 | `Espacio+gu` | **Deshacer cambios** del archivo actual ⭐ |
 | `Espacio+gU` | Deshacer **TODOS** los cambios |
+| `Espacio+gd` | **Diff con rama development** (QA Review) |
+| `Espacio+gD` | Diff con **origin/development** |
+| `Espacio+gw` | Diff **working tree** (cambios no commiteados) |
+| `Espacio+gq` | **Cerrar** Diffview |
+| `Espacio+gh` | **Historial** del archivo actual |
+| `Espacio+gf` | **Commits** desde development hasta HEAD |
 
 ### GitSigns - Navegación entre cambios
 
@@ -514,19 +528,19 @@ pytest -k "nombre_test"
 | `[d` | Ir al **diagnóstico anterior** (error/warning) |
 | `]d` | Ir al **siguiente diagnóstico** |
 
-### Autocompletado (nvim-cmp)
+### Autocompletado (nvim-cmp + Supermaven)
 
 | Atajo | Acción |
 |-------|--------|
 | `Ctrl+Space` | Activar autocompletado **manual** |
-| `Tab` | **Siguiente** sugerencia ⭐ |
-| `Shift+Tab` | Sugerencia **anterior** ⭐ |
-| `Enter` | **Aceptar** sugerencia ⭐ |
+| `Tab` | **Aceptar sugerencia de Supermaven** o siguiente opción de cmp ⭐ |
+| `Ctrl+j` | Aceptar siguiente **palabra** de Supermaven |
+| `Ctrl+]` | **Descartar** sugerencia de Supermaven |
+| `Shift+Tab` | Sugerencia **anterior** de cmp ⭐ |
+| `Enter` | **Aceptar** sugerencia de cmp ⭐ |
 | `Ctrl+e` | **Cerrar** autocompletado |
 | `Ctrl+f` | Scroll **down** en documentación |
 | `Ctrl+b` | Scroll **up** en documentación |
-| `Ctrl+n` | Siguiente sugerencia (alternativa) |
-| `Ctrl+p` | Anterior sugerencia (alternativa) |
 
 ### Uso de Code Actions (Auto-import)
 
@@ -548,12 +562,213 @@ User.objects.all()  # User no está importado
 # Buscar con / y presionar 'i' para instalar
 ```
 
+### LSPs instalados
+
+| LSP | Lenguaje |
+|-----|----------|
+| `pyright` | Python (type checker) |
+| `ruff` | Python (linter + formatter) |
+| `clangd` | C / C++ |
+| `html` | HTML |
+| `cssls` | CSS / SCSS |
+| `ts_ls` | JavaScript / TypeScript |
+| `emmet_ls` | Emmet (HTML/CSS) |
+
 ### Verificar LSP activo
 
 ```vim
 :LspInfo        # Ver LSPs adjuntos al buffer actual
 :LspLog         # Ver logs de LSP
 :checkhealth lsp   # Verificar salud de LSP
+```
+
+---
+
+## ⚙️ C++ - Compilar y Ejecutar
+
+### Atajos de C++
+
+| Atajo | Acción |
+|-------|--------|
+| `Espacio+rr` | **Compilar y ejecutar** archivo actual (un solo .cpp) ⭐ |
+| `Espacio+rc` | **Solo compilar** archivo actual (sin ejecutar) |
+| `Espacio+rm` | **Compilar y ejecutar** todos los .cpp con Makefile ⭐ |
+| `Espacio+rC` | **Solo compilar** proyecto completo con Makefile |
+
+### Makefile automático
+
+Al crear un archivo `.cpp` dentro de las carpetas:
+- `week_*/` → para ejercicios semanales
+- `tasks_unab_cplus/*/` → para tareas de la universidad
+
+Se crea automáticamente un `Makefile` con esta estructura:
+
+```makefile
+CXX = g++
+CXXFLAGS = -Wall -std=c++17
+TARGET = /tmp/programa
+SRCS = $(wildcard *.cpp)
+
+all:
+    $(CXX) $(CXXFLAGS) $(SRCS) -o $(TARGET) && $(TARGET)
+
+compile:
+    $(CXX) $(CXXFLAGS) $(SRCS) -o $(TARGET)
+
+clean:
+    rm -f $(TARGET)
+```
+
+### Estructura recomendada para C++
+
+```
+cpp-universidad/
+├── week_one/
+│   ├── Makefile          # Creado automáticamente
+│   ├── main.cpp
+│   ├── figura.h
+│   └── figura.cpp
+├── week_two/
+│   ├── Makefile          # Creado automáticamente
+│   └── main.cpp
+tasks_unab_cplus/
+├── first_task/
+│   ├── Makefile          # Creado automáticamente
+│   ├── main.cpp
+│   └── clase.h
+```
+
+### Workflow C++ con múltiples archivos
+
+```bash
+# 1. Crear carpeta en NvimTree
+# 2. Crear main.cpp → Makefile se genera solo
+# 3. Crear archivos .h y .cpp adicionales
+# 4. Compilar y ejecutar todo junto
+Espacio+rm          # Compila todos los .cpp y ejecuta
+
+# Si solo quieres ver errores sin ejecutar
+Espacio+rC          # Solo compila el proyecto completo
+```
+
+---
+
+## 🐛 Debugger (nvim-dap)
+
+Debugger integrado para C++ con breakpoints y ejecución paso a paso.
+
+> **Importante:** Antes de debuggear, compilar con `Espacio+rm` para generar `/tmp/programa`.
+
+### Atajos del Debugger
+
+| Atajo | Acción |
+|-------|--------|
+| `Espacio+db` | **Toggle breakpoint** (poner/quitar) ⭐ |
+| `Espacio+dc` | **Continuar** hasta siguiente breakpoint ⭐ |
+| `Espacio+do` | **Step over** (siguiente línea sin entrar a función) |
+| `Espacio+di` | **Step into** (entrar a función) |
+| `Espacio+dx` | **Terminar** sesión de debug |
+| `Espacio+du` | **Toggle UI** del debugger |
+
+### Workflow de debugging
+
+```bash
+# 1. Compilar primero
+Espacio+rm
+
+# 2. Poner breakpoints en líneas importantes
+Espacio+db          # En la línea donde quieres pausar
+
+# 3. Iniciar debug
+Espacio+dc          # Abre la UI y ejecuta hasta el breakpoint
+
+# 4. Inspeccionar variables en el panel izquierdo (Scopes)
+
+# 5. Navegar
+Espacio+do          # Siguiente línea
+Espacio+di          # Entrar a función
+Espacio+dc          # Continuar hasta siguiente breakpoint
+
+# 6. Terminar
+Espacio+dx
+```
+
+---
+
+## ⚡ Navegación Rápida (Flash)
+
+**Flash** te permite saltar a cualquier parte del código en 2-3 teclas.
+
+### Atajos de Flash
+
+| Atajo | Acción |
+|-------|--------|
+| `s` | **Saltar** a cualquier parte del archivo ⭐ |
+| `S` | Saltar usando **Treesitter** (selección de nodos) |
+
+### Cómo usar Flash
+
+```bash
+# 1. Presiona 's' en modo NORMAL
+s
+
+# 2. Escribe 2 letras de donde quieres ir
+# Ejemplo: quieres ir a una línea con "cout"
+co
+
+# 3. Aparecen etiquetas en todas las coincidencias
+# Presiona la letra de la etiqueta y saltas directo ahí
+```
+
+---
+
+## 🔤 Surround
+
+**nvim-surround** permite manipular paréntesis, comillas, llaves y tags fácilmente.
+
+### Atajos de Surround
+
+| Atajo | Acción |
+|-------|--------|
+| `cs"'` | **Cambiar** `"hola"` → `'hola'` |
+| `cs({` | **Cambiar** `(hola)` → `{ hola }` |
+| `ds"` | **Eliminar** comillas → `"hola"` → `hola` |
+| `ysiw"` | **Rodear** palabra con comillas → `"hola"` |
+| `ysiw)` | **Rodear** palabra con paréntesis → `(hola)` |
+| `yss)` | **Rodear** línea completa con paréntesis |
+| `yssb` | **Rodear** línea con `{}` |
+
+---
+
+## 📝 TODO Comments
+
+Resalta y organiza notas en tu código.
+
+### Palabras clave soportadas
+
+| Keyword | Ícono | Color | Uso |
+|---------|-------|-------|-----|
+| `TODO` | ✓ | Azul | Cosas pendientes de implementar |
+| `FIXME` | ✗ | Rojo | Bugs conocidos |
+| `NOTE` | ★ | Verde | Notas informativas |
+| `HACK` | ⚠ | Amarillo | Soluciones temporales |
+| `WARN` | ⚠ | Amarillo | Advertencias |
+| `BUG` | ✗ | Rojo | Alias de FIXME |
+
+### Uso en código
+
+```cpp
+// TODO: implementar el método calcularArea()
+// FIXME: este loop tiene off-by-one error
+// NOTE: esta clase hereda de Figura
+// HACK: solución temporal hasta el próximo sprint
+int main() { ... }
+```
+
+### Buscar TODOs
+
+```vim
+Espacio+ft          # Abrir Telescope con todos los TODOs del proyecto
 ```
 
 ---
@@ -648,6 +863,7 @@ tmux attach -t frontend
 | `:Lazy update` | **Actualizar** todos los plugins |
 | `:TSUpdate` | Actualizar **parsers** de Treesitter |
 | `:LspRestart` | **Reiniciar** LSP |
+| `:SupermavenUseFree` | Activar **Supermaven** gratis |
 
 ### Edición masiva con Visual Block
 
@@ -855,6 +1071,9 @@ Espacio+fg              # Buscar contenido
 Espacio+1               # views.py
 Espacio+2               # models.py
 
+# Navegar rápido dentro del archivo
+s                       # Flash: saltar a cualquier parte
+
 # Ver cambios de Git
 ]c                      # Siguiente cambio
 Espacio+hp              # Ver diff
@@ -933,9 +1152,11 @@ vimtutor                # Tutorial interactivo (30 min)
 - Usa Harpoon: marca archivos con `Espacio+a`
 - Aprende splits: `Espacio+v` `Espacio+s`
 - Practica terminal: `Ctrl+´`
+- Navega rápido con Flash: `s`
 
 ### Mes 1: Maestría
 - LSP completo: `gd` `gr` `Espacio+ca`
+- Debugger C++: `Espacio+db` `Espacio+dc`
 - Tmux para múltiples proyectos
 - Macros para tareas repetitivas
 - Personaliza atajos según tu workflow
@@ -945,4 +1166,4 @@ vimtutor                # Tutorial interactivo (30 min)
 **¡Happy coding! 🚀**
 
 *Guía viva - Se actualiza con cada mejora de configuración*
-*Última actualización: Febrero 2026*
+*Última actualización: Marzo 2026*

@@ -69,3 +69,36 @@ end, { desc = "Editar .env" })
 -- Salida rápida de modo INSERT (alternativa a ESC)
 keymap('i', 'jk', '<Esc>', opts)
 keymap('i', 'kj', '<Esc>', opts)
+
+-- ==========================================
+-- C++ COMPILAR Y EJECUTAR
+-- ==========================================
+keymap("n", "<leader>rr", function()
+    local file = vim.fn.expand("%:p")  -- ruta absoluta del .cpp
+    local name = vim.fn.expand("%:t:r") -- solo el nombre sin extensión
+    local out = "/tmp/" .. name
+    local cmd = string.format("g++ %s -o %s && %s", file, out, out)
+    vim.cmd("split | terminal " .. cmd)
+end, { desc = "C++: Compilar y ejecutar" })
+
+-- Solo compilar (sin ejecutar)
+keymap("n", "<leader>rc", function()
+    local file = vim.fn.expand("%:p")
+    local name = vim.fn.expand("%:t:r")
+    local out = "/tmp/" .. name
+    local cmd = string.format("g++ %s -o %s", file, out)
+    vim.cmd("split | terminal " .. cmd)
+end, { desc = "C++: Solo compilar" })
+
+-- Ejecutar con makefile en la carpeta actual todos los archivos .cpp
+keymap("n", "<leader>rm", function()
+    local dir = vim.fn.expand("%:p:h")  -- carpeta del archivo actual
+    local cmd = string.format("cd %s && make", dir)
+    vim.cmd("split | terminal " .. cmd)
+end, { desc = "C++: Ejecutar Makefile" })
+
+keymap("n", "<leader>rC", function()
+    local dir = vim.fn.expand("%:p:h")
+    local cmd = string.format("cd %s && make compile", dir)
+    vim.cmd("split | terminal " .. cmd)
+end, { desc = "C++: Solo compilar proyecto completo" })

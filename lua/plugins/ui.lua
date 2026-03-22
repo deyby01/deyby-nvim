@@ -81,24 +81,33 @@ return {
   {
     "NvChad/nvim-colorizer.lua",
     event = "BufReadPre",
-    opts = {
-        filetypes = {
-            "css", "scss", "sass", "html", "htmldjango",
-            "javascript", "typescript", "jsx", "tsx",
-        },
-        user_default_options = {
-            RGB = true,
-            RRGGBB = true,
-            names = true,
-            RRGGBBAA = true,
-            rgb_fn = true,
-            hsl_fn = true,
-            css = true,
-            css_fn = true,
-            mode = "virtualtext",
-            tailwind = true,
-        },
-    },
+    config = function()
+        require("colorizer").setup({
+            filetypes = {
+                "css",
+                "scss",
+                "sass",
+                "html",
+                "htmldjango",
+                "javascript",
+                "typescript",
+                "jsx",
+                "tsx",
+                "lua",
+            },
+            user_default_options = {
+                names = true,
+                rgb_fn = true,
+                hsl_fn = true,
+                css = true,
+                css_fn = true,
+                mode = "background",
+                tailwind = true,
+                RRGGBB = true,
+                RRGGBBAA = true,
+            },
+        })
+    end,
   },
 
   -- Líneas de indentación

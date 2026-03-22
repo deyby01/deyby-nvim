@@ -18,11 +18,13 @@ return {
     config = function()
       require("mason-lspconfig").setup({
         ensure_installed = {
-          "pyright",      -- Python
-          "html",         -- HTML
-          "cssls",        -- CSS
-          "ts_ls",        -- JavaScript/TypeScript
-          "emmet_ls",     -- Emmet
+          "pyright",      -- Python type checker
+          "ruff",         -- Python linter/formatter
+          "clangd",       -- C/C++
+          "html",
+          "cssls",
+          "ts_ls",
+          "emmet_ls",
         },
         automatic_installation = true,
       })
@@ -40,7 +42,29 @@ return {
     config = function()
         local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-        -- Python (Pyright)
+        -- Diagnósticos inline
+        vim.diagnostic.config({
+            virtual_text = true,
+            signs = true,
+            underline = true,
+            update_in_insert = false,
+            severity_sort = true,
+        })
+
+        -- Ruff (Linter + Formatter Python)
+        vim.lsp.config("ruff", {
+            cmd = { "ruff", "server" },
+            filetypes = { "python" },
+            init_options = {
+                settings = {
+                    configurationPreference = "filesystemFirst",
+                    lint = { enable = true },
+                    format = { enable = true },
+                },
+            },
+        })
+
+        -- Pyright (Type Checker Python)
         vim.lsp.config("pyright", {
             cmd = { "pyright-langserver", "--stdio" },
             filetypes = { "python" },
@@ -50,10 +74,20 @@ return {
                         autoSearchPaths = true,
                         diagnosticMode = "workspace",
                         useLibraryCodeForTypes = true,
-                        typeCheckingMode = "basic",
+                        typeCheckingMode = "standard",
                     },
                 },
             },
+        })
+
+        -- C/C++
+        vim.lsp.config("clangd", {
+            cmd = {
+                "   clangd",
+                "--background-index",
+                "--completion-style=detailed",
+            },
+            filetypes = { "c", "cpp", "objc", "objcpp" },
         })
 
         -- HTML
@@ -62,11 +96,19 @@ return {
             filetypes = { "html", "htmldjango" },
             init_options = {
                 configurationSection = { "html", "css", "javascript" },
-                embeddedLanguages = {
-                    css = true,
-                    javascript = true,
-                },
+                embeddedLanguages = { css = true, javascript = true },
                 provideFormatter = true,
+            },
+            settings = {
+                html = {
+                    format = {
+                        indentInnerHtml = true,
+                        tabSize = 4,              -- 4 espacios
+                        insertSpaces = true,
+                        wrapLineLength = 120,
+                        endWithNewline = true,
+                    },
+                },
             },
         })
 
@@ -89,39 +131,36 @@ return {
         })
 
         -- Habilitar todos
-        vim.lsp.enable({ "pyright", "html", "cssls", "ts_ls", "emmet_ls" })
+        vim.lsp.enable({ "ruff", "pyright", "clangd", "html", "cssls", "ts_ls", "emmet_ls" })
 
         -- Keymaps de LSP
         local function setup_lsp_keymaps(bufnr)
             local opts = { noremap = true, silent = true, buffer = bufnr }
-
-            -- Navegación
             vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
             vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
             vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
             vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-
-            -- Refactoring
             vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
             vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
             vim.keymap.set("v", "<leader>ca", vim.lsp.buf.code_action, opts)
-
-            -- Formateo
             vim.keymap.set("n", "<leader>f", function()
                 vim.lsp.buf.format({ async = true })
             end, opts)
         end
 
-        -- Aplicar keymaps cuando se adjunta LSP
         vim.api.nvim_create_autocmd("LspAttach", {
             callback = function(args)
+                local client = vim.lsp.get_client_by_id(args.data.client_id)
+                if client and client.supports_method("textDocument/inlayHint") then
+                    vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
+                end
                 setup_lsp_keymaps(args.buf)
             end,
         })
     end
   },
 
-  -- nvim-cmp: Autocompletado MEJORADO
+  -- nvim-cmp (sin cambios)
   {
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
@@ -139,7 +178,6 @@ return {
         local luasnip = require("luasnip")
         local lspkind = require("lspkind")
 
-        -- Cargar snippets
         require("luasnip.loaders.from_vscode").lazy_load()
 
         cmp.setup({

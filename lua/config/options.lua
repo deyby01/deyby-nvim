@@ -42,3 +42,18 @@ vim.g.maplocalleader = " "
 
 -- Skip ts_context_commentstring module (deprecado en treesittier)
 vim.g.skip_ts_context_commentstring_module = true
+
+-- ==========================================
+-- INDENTACIÓN POR TIPO DE ARCHIVO
+-- ==========================================
+
+-- Forzar 4 espacios para HTML y archivos relacionados
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "html", "htmldjango", "css", "javascript", "typescript" },
+    callback = function()
+        vim.opt_local.tabstop = 4
+        vim.opt_local.shiftwidth = 4
+        vim.opt_local.softtabstop = 4
+        vim.opt_local.expandtab = true
+    end,
+})
