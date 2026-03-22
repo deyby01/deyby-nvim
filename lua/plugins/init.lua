@@ -30,6 +30,7 @@ require("lazy").setup({
     { import = "plugins.dashboard" }, -- Dashboard
     { import = "plugins.session" },   -- Session
     { import = "plugins.testing" },   -- Testing
+    { import = "plugins.legendary" }, -- Paleta de comandos
 }, {
   -- Configuración de Lazy
   checker = {

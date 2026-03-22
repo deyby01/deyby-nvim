@@ -3,18 +3,18 @@
 -- ==========================================
 
 return {
-  -- Tema: Dracula
-  {
+    -- Tema: Dracula
+    {
     "dracula/vim",
     name = "dracula",
     priority = 1000,
     config = function()
       vim.cmd.colorscheme("dracula")
     end
-  },
+    },
 
-  -- Barra de estado (lualine)
-  {
+    -- Barra de estado (lualine)
+    {
     'nvim-lualine/lualine.nvim',
     dependencies = {'nvim-tree/nvim-web-devicons'},
     config = function()
@@ -75,10 +75,10 @@ return {
             },
         })
     end
-  },
+    },
 
-  -- Colores para CSS/HTML
-  {
+    -- Colores para CSS/HTML
+    {
     "NvChad/nvim-colorizer.lua",
     event = "BufReadPre",
     config = function()
@@ -108,10 +108,10 @@ return {
             },
         })
     end,
-  },
+    },
 
-  -- Líneas de indentación
-  {
+    -- Líneas de indentación
+    {
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
     config = function()
@@ -158,10 +158,10 @@ return {
             },
         })
     end,
-  },
+    },
 
-  -- Rainbow delimiters (colores para paréntesis/tags)
-  {
+    -- Rainbow delimiters (colores para paréntesis/tags)
+    {
     "HiPhish/rainbow-delimiters.nvim",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     event = "BufReadPost",
@@ -191,36 +191,93 @@ return {
             },
         })
     end,
-  },
--- Barbecue: breadcrumbs
-{
-  "utilyre/barbecue.nvim",
-  name = "barbecue",
-  version = "*",
-  dependencies = {
-    "SmiteshP/nvim-navic",
-    "nvim-tree/nvim-web-devicons",
-  },
-  event = "BufReadPre",
-  config = function()
-    require("barbecue").setup({
-      theme = "dracula",
-      include_buftypes = { "" },
-      exclude_filetypes = {
-        "netrw",
-        "toggleterm",
-        "NvimTree",
-        "dashboard",
-        "lazy",
-        "mason",
+    },
+    -- Dropbar: breadcrumbs interactivos
+    {
+      "Bekaboo/dropbar.nvim",
+      event = "BufReadPre",
+      dependencies = {
+        "nvim-telescope/telescope.nvim",
       },
-      show_modified = true,
-      symbols = {
-        modified = "●",
-        ellipsis = "…",
-        separator = "",
-      },
-    })
-  end,
-},
+      config = function()
+        require("dropbar").setup({
+          bar = {
+            hover = true,
+            enable = function(buf, win)
+              return not vim.api.nvim_win_get_config(win).zindex
+                and vim.bo[buf].buftype == ""
+                and vim.api.nvim_buf_get_name(buf) ~= ""
+                and not vim.wo[win].diff
+            end,
+          },
+          icons = {
+            enable = true,
+            kinds = {
+              file_icon = function(path)
+                local ok, devicons = pcall(require, "nvim-web-devicons")
+                if ok then
+                  local icon, hl = devicons.get_icon(path)
+                  return (icon or "") .. " ", hl
+                end
+                return "", nil
+              end,
+            },
+          },
+          menu = {
+            quick_navigation = true,
+            keymaps = {
+              ["q"] = function()
+                local menu = require("dropbar.api").get_current_dropbar_menu()
+                if menu then menu:close() end
+              end,
+            },
+          },
+        })
+
+        vim.keymap.set("n", "<leader>bp", function() require("dropbar.api").pick() end, { desc = "Dropbar: navegar breadcrumb" })
+      end,
+    },
+    -- Modes: colores según modo vim
+    {
+      "mvllow/modes.nvim",
+      event = "BufReadPre",
+      config = function()
+        require("modes").setup({
+          colors = {
+            copy   = "#FFD93D",
+            delete = "#FF6B6B",
+            insert = "#50fa7b",
+            visual = "#FFA500",
+          },
+          line_opacity = 0.15,
+          set_cursor = true,
+          set_cursorline = true,
+          set_number = true,
+          ignore_filetypes = {
+            "NvimTree",
+            "TelescopePrompt",
+            "dashboard",
+          },
+        })
+      end,
+    },
+    -- Tiny inline diagnostic: errores más bonitos
+    {
+      "rachartier/tiny-inline-diagnostic.nvim",
+      event = "BufReadPre",
+      priority = 1000,
+      config = function()
+        require("tiny-inline-diagnostic").setup({
+          preset = "modern",
+          options = {
+            show_source = true,
+            throttle = 20,
+            softwrap = 15,
+            multiple_diag_under_cursor = true,
+            multilines = true,
+            show_all_diags_on_cursorline = true,
+          },
+        })
+      end,
+    },
 }

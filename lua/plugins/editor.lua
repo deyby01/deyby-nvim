@@ -335,4 +335,13 @@ return {
         vim.keymap.set("n", "<leader>sf", function() require("spectre").open_file_search({ select_word = true }) end, { desc = "Spectre: buscar en archivo actual" })
       end,
     },
+    -- Cellular Automaton (puro entretenimiento)
+    {
+      "eandrju/cellular-automaton.nvim",
+      cmd = "CellularAutomaton",
+      config = function()
+        vim.keymap.set("n", "<leader>fml", ":CellularAutomaton make_it_rain<CR>", { desc = "Make it rain" })
+        vim.keymap.set("n", "<leader>gol", ":CellularAutomaton game_of_life<CR>", { desc = "Game of life" })
+      end,
+    },
 }

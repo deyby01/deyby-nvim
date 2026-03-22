@@ -29,6 +29,10 @@
 - [Buscar y Reemplazar (Spectre)](#-buscar-y-reemplazar-spectre)
 - [Errores y Warnings (Trouble)](#-errores-y-warnings-trouble)
 - [Tests (Neotest)](#-tests-neotest)
+- [Modos Vim (modes.nvim)](#-modos-vim-modesnvim)
+- [Paleta de Comandos (Legendary)](#-paleta-de-comandos-legendary)
+- [Conflictos Git](#-conflictos-git)
+- [GitHub (Octo)](#-github-octo)
 - [Tmux Integration](#-tmux-integration)
 - [Comandos Avanzados](#-comandos-avanzados)
 - [Trucos y Tips](#-trucos-y-tips)
@@ -889,6 +893,120 @@ Espacio+no              # Output completo del test
 
 ---
 
+## 🎨 Modos Vim (modes.nvim)
+
+Cambia el color del cursor y la línea actual según el modo en que estés.
+
+| Modo | Color |
+|------|-------|
+| **NORMAL** | Azul |
+| **INSERT** | Verde |
+| **VISUAL** | Naranja |
+| **DELETE** | Rojo |
+| **COPY** | Amarillo |
+
+> Se aplica automáticamente sin ningún atajo, solo cambia de modo y verás el color 😄
+
+---
+
+## 🎯 Paleta de Comandos (Legendary)
+
+Paleta de comandos tipo `Ctrl+Shift+P` de VSCode. Muestra todos tus atajos y comandos en un buscador.
+
+### Atajos de Legendary
+
+| Atajo | Acción |
+|-------|--------|
+| `Ctrl+p` | **Abrir** paleta de comandos ⭐ |
+| `Espacio+lk` | Ver todos los **atajos** (keymaps) |
+| `Espacio+lc` | Ver todos los **comandos** |
+
+---
+
+## ⚔️ Conflictos Git
+
+Resuelve conflictos de merge de forma visual con colores y atajos.
+
+### Atajos de git-conflict
+
+| Atajo | Acción |
+|-------|--------|
+| `Espacio+co` | Elegir **nuestro** cambio (current) ⭐ |
+| `Espacio+ct` | Elegir **su** cambio (incoming) ⭐ |
+| `Espacio+cb` | Elegir **ambos** cambios |
+| `Espacio+cn` | Ir al **siguiente** conflicto |
+| `Espacio+cp` | Ir al **anterior** conflicto |
+| `Espacio+cl` | **Listar** todos los conflictos |
+
+### Workflow para resolver conflictos
+
+```bash
+# 1. Cuando hay un conflicto de merge nvim lo detecta automáticamente
+# 2. Navegar entre conflictos
+Espacio+cn          # Siguiente conflicto
+
+# 3. Elegir qué cambio conservar
+Espacio+co          # Quedarse con nuestro cambio
+Espacio+ct          # Quedarse con el cambio entrante
+Espacio+cb          # Quedarse con ambos
+
+# 4. Ver lista de todos los conflictos
+Espacio+cl
+```
+
+---
+
+## 🐙 GitHub (Octo)
+
+Gestionar Pull Requests e Issues de GitHub directamente desde nvim.
+
+> **Requisito:** Tener `gh` instalado y autenticado con `gh auth login`
+
+### Atajos de Octo
+
+| Atajo | Acción |
+|-------|--------|
+| `Espacio+opr` | **Listar** Pull Requests ⭐ |
+| `Espacio+opc` | **Crear** Pull Request |
+| `Espacio+ois` | **Listar** Issues |
+| `Espacio+oic` | **Crear** Issue |
+| `Espacio+or` | **Iniciar** code review |
+
+### Comandos directos
+
+| Comando | Acción |
+|---------|--------|
+| `:Octo pr list` | Listar PRs del repo actual |
+| `:Octo pr create` | Crear nuevo PR |
+| `:Octo issue list` | Listar issues |
+| `:Octo issue create` | Crear nuevo issue |
+| `:Octo review start` | Iniciar review de PR |
+| `:Octo review submit` | Enviar review |
+
+### Workflow con PRs
+
+```bash
+# 1. Entrar al repo
+cd ~/Documents/mi-proyecto
+nvim
+
+# 2. Ver PRs abiertos
+Espacio+opr
+
+# 3. Seleccionar un PR para revisar
+# Enter para abrirlo
+
+# 4. Iniciar review
+Espacio+or
+
+# 5. Navegar cambios con diffview integrado
+
+# 6. Enviar review
+:Octo review submit
+```
+
+---
+
 ## 🖥️ Tmux Integration
 
 **Vim-tmux-navigator** permite navegar fluidamente entre Vim y Tmux.
@@ -980,6 +1098,8 @@ tmux attach -t frontend
 | `:TSUpdate` | Actualizar **parsers** de Treesitter |
 | `:LspRestart` | **Reiniciar** LSP |
 | `:SupermavenUseFree` | Activar **Supermaven** gratis |
+| `:Octo pr list` | Listar **PRs** de GitHub |
+| `:Legendary` | Abrir **paleta** de comandos |
 
 ### Edición masiva con Visual Block
 

@@ -126,4 +126,67 @@ return {
             { desc = "Git: Commits desde development" })
     end,
   },
+    -- Git conflict: resolver conflictos fácilmente
+    {
+      "akinsho/git-conflict.nvim",
+      version = "*",
+      event = "BufReadPre",
+      config = function()
+        require("git-conflict").setup({
+          default_mappings = true,
+          default_commands = true,
+          disable_diagnostics = false,
+          list_opener = "copen",
+          highlights = {
+            incoming = "DiffAdd",
+            current = "DiffText",
+          },
+        })
+
+        -- Atajos
+        vim.keymap.set("n", "<leader>co", ":GitConflictChooseOurs<CR>",   { desc = "Conflict: elegir nuestro cambio" })
+        vim.keymap.set("n", "<leader>ct", ":GitConflictChooseTheirs<CR>", { desc = "Conflict: elegir su cambio" })
+        vim.keymap.set("n", "<leader>cb", ":GitConflictChooseBoth<CR>",   { desc = "Conflict: elegir ambos" })
+        vim.keymap.set("n", "<leader>cn", ":GitConflictNextConflict<CR>", { desc = "Conflict: siguiente conflicto" })
+        vim.keymap.set("n", "<leader>cp", ":GitConflictPrevConflict<CR>", { desc = "Conflict: conflicto anterior" })
+        vim.keymap.set("n", "<leader>cl", ":GitConflictListQf<CR>",       { desc = "Conflict: listar todos" })
+      end,
+    },
+    -- Octo: gestionar PRs e Issues de GitHub desde nvim
+    {
+      "pwntester/octo.nvim",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "nvim-telescope/telescope.nvim",
+        "nvim-tree/nvim-web-devicons",
+      },
+      cmd = "Octo",
+      config = function()
+        require("octo").setup({
+          enable_builtin = true,
+          default_remote = { "upstream", "origin" },
+          ssh_aliases = {},
+          reaction_viewer_hint_icon = "",
+          user_icon = " ",
+          timeline_marker = "",
+          timeline_indent = "2",
+          right_bubble_delimiter = "",
+          left_bubble_delimiter = "",
+          github_hostname = "",
+          snippet_context_lines = 4,
+          file_panel = {
+            size = 10,
+            use_icons = true,
+          },
+          mappings = {},
+        })
+
+        -- Atajos
+        vim.keymap.set("n", "<leader>opr", ":Octo pr list<CR>",      { desc = "Octo: listar PRs" })
+        vim.keymap.set("n", "<leader>opc", ":Octo pr create<CR>",    { desc = "Octo: crear PR" })
+        vim.keymap.set("n", "<leader>ois", ":Octo issue list<CR>",   { desc = "Octo: listar issues" })
+        vim.keymap.set("n", "<leader>oic", ":Octo issue create<CR>", { desc = "Octo: crear issue" })
+        vim.keymap.set("n", "<leader>or",  ":Octo review start<CR>", { desc = "Octo: iniciar review" })
+      end,
+    },
 }
