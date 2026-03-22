@@ -153,6 +153,7 @@ return {
                     "lazy",
                     "mason",
                     "NvimTree",
+                    "dashboard",
                 },
             },
         })
@@ -191,4 +192,35 @@ return {
         })
     end,
   },
+-- Barbecue: breadcrumbs
+{
+  "utilyre/barbecue.nvim",
+  name = "barbecue",
+  version = "*",
+  dependencies = {
+    "SmiteshP/nvim-navic",
+    "nvim-tree/nvim-web-devicons",
+  },
+  event = "BufReadPre",
+  config = function()
+    require("barbecue").setup({
+      theme = "dracula",
+      include_buftypes = { "" },
+      exclude_filetypes = {
+        "netrw",
+        "toggleterm",
+        "NvimTree",
+        "dashboard",
+        "lazy",
+        "mason",
+      },
+      show_modified = true,
+      symbols = {
+        modified = "●",
+        ellipsis = "…",
+        separator = "",
+      },
+    })
+  end,
+},
 }

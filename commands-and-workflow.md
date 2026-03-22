@@ -24,6 +24,11 @@
 - [Navegación Rápida (Flash)](#-navegación-rápida-flash)
 - [Surround](#-surround)
 - [TODO Comments](#-todo-comments)
+- [Dashboard](#-dashboard)
+- [Sesiones (auto-session)](#-sesiones-auto-session)
+- [Buscar y Reemplazar (Spectre)](#-buscar-y-reemplazar-spectre)
+- [Errores y Warnings (Trouble)](#-errores-y-warnings-trouble)
+- [Tests (Neotest)](#-tests-neotest)
 - [Tmux Integration](#-tmux-integration)
 - [Comandos Avanzados](#-comandos-avanzados)
 - [Trucos y Tips](#-trucos-y-tips)
@@ -769,6 +774,117 @@ int main() { ... }
 
 ```vim
 Espacio+ft          # Abrir Telescope con todos los TODOs del proyecto
+```
+
+---
+
+## 🖥️ Dashboard
+
+Pantalla de inicio personalizada con logo DEYBY-DEV.
+
+### Atajos del Dashboard
+
+| Atajo | Acción |
+|-------|--------|
+| `f` | **Buscar archivo** en proyecto actual |
+| `r` | **Abrir proyecto** desde ~/Documents |
+| `g` | **Buscar texto** en proyecto actual |
+| `c` | Abrir **configuración** de nvim |
+| `p` | Abrir gestor de **plugins** (Lazy) |
+| `q` | **Salir** de nvim |
+
+---
+
+## 💾 Sesiones (auto-session)
+
+Guarda y restaura sesiones automáticamente por proyecto.
+
+### Atajos de sesión
+
+| Atajo | Acción |
+|-------|--------|
+| `Espacio+ss` | **Guardar** sesión actual |
+| `Espacio+sr` | **Restaurar** sesión |
+| `Espacio+sd` | **Eliminar** sesión actual |
+
+> 💡 La sesión se guarda y restaura automáticamente al entrar/salir de cada carpeta de proyecto.
+
+---
+
+## 🔎 Buscar y Reemplazar (Spectre)
+
+Buscar y reemplazar en todo el proyecto con preview antes de aplicar.
+
+### Atajos de Spectre
+
+| Atajo | Acción |
+|-------|--------|
+| `Espacio+S` | **Abrir** panel de Spectre ⭐ |
+| `Espacio+sw` | **Buscar palabra** bajo cursor en todo el proyecto ⭐ |
+| `Espacio+sw` (visual) | Buscar **selección** en todo el proyecto |
+| `Espacio+sf` | Buscar en **archivo actual** |
+
+### Dentro de Spectre
+
+| Atajo | Acción |
+|-------|--------|
+| `dd` | **Toggle** línea (incluir/excluir del reemplazo) |
+| `<CR>` | **Ir** al archivo de la línea seleccionada |
+| `R` | **Reemplazar** todos los resultados |
+
+---
+
+## ❌ Errores y Warnings (Trouble)
+
+Panel elegante con todos los errores y warnings del proyecto.
+
+### Atajos de Trouble
+
+| Atajo | Acción |
+|-------|--------|
+| `Espacio+xx` | **Toggle** panel de todos los errores del proyecto ⭐ |
+| `Espacio+xf` | Errores del **archivo actual** |
+| `Espacio+xq` | **Quickfix list** |
+
+### Dentro de Trouble
+
+| Atajo | Acción |
+|-------|--------|
+| `<CR>` | **Ir** al error seleccionado |
+| `r` | **Refrescar** lista |
+| `zA` / `za` | **Toggle fold** grupo de errores |
+| `q` | **Cerrar** panel |
+
+---
+
+## 🧪 Tests (Neotest)
+
+Correr tests de Python directamente desde nvim con resultados inline.
+
+### Atajos de Neotest
+
+| Atajo | Acción |
+|-------|--------|
+| `Espacio+nt` | **Correr test** bajo cursor ⭐ |
+| `Espacio+nf` | Correr **todos los tests** del archivo ⭐ |
+| `Espacio+ns` | **Toggle panel** de resultados |
+| `Espacio+no` | Ver **output** del test |
+
+### Workflow de testing
+
+```bash
+# 1. Abrir archivo de tests
+Espacio+ff              # Buscar test_*.py
+
+# 2. Posicionar cursor en un test específico
+# 3. Correr ese test
+Espacio+nt              # Corre solo ese test
+
+# 4. Ver todos los resultados
+Espacio+ns              # Panel lateral con resultados
+
+# 5. Ver detalle de un test fallido
+Espacio+no              # Output completo del test
 ```
 
 ---

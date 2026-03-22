@@ -27,6 +27,9 @@ require("lazy").setup({
     { import = "plugins.ai" },        -- Inteligencia artificial
     { import = "plugins.ui_extra" },  -- Plugins adicionales
     { import = "plugins.debug" },     -- Debug
+    { import = "plugins.dashboard" }, -- Dashboard
+    { import = "plugins.session" },   -- Session
+    { import = "plugins.testing" },   -- Testing
 }, {
   -- Configuración de Lazy
   checker = {

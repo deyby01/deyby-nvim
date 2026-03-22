@@ -290,4 +290,49 @@ return {
             require("nvim-surround").setup()
         end,
     },
+    -- Trouble: panel de errores y warnings
+    {
+      "folke/trouble.nvim",
+      dependencies = { "nvim-tree/nvim-web-devicons" },
+      event = "BufReadPre",
+      config = function()
+        require("trouble").setup({
+          modes = {
+            diagnostics = {
+              auto_close = false,
+              auto_open = false,
+            },
+          },
+        })
+
+        -- Atajos
+        vim.keymap.set("n", "<leader>xx", ":Trouble diagnostics toggle<CR>", { desc = "Trouble: toggle panel" })
+        vim.keymap.set("n", "<leader>xf", ":Trouble diagnostics toggle filter.buf=0<CR>", { desc = "Trouble: errores archivo actual" })
+        vim.keymap.set("n", "<leader>xq", ":Trouble qflist toggle<CR>", { desc = "Trouble: quickfix list" })
+      end,
+    },
+    -- Spectre: buscar y reemplazar en proyecto
+    {
+      "nvim-pack/nvim-spectre",
+      dependencies = { "nvim-lua/plenary.nvim" },
+      event = "BufReadPre",
+      config = function()
+        require("spectre").setup({
+          color_devicons = true,
+          open_cmd = "vnew",
+          live_update = false,
+          highlight = {
+            ui = "String",
+            search = "DiffChange",
+            replace = "DiffDelete",
+          },
+        })
+
+        -- Atajos
+        vim.keymap.set("n", "<leader>S", function() require("spectre").toggle() end, { desc = "Spectre: toggle" })
+        vim.keymap.set("n", "<leader>sw", function() require("spectre").open_visual({ select_word = true }) end, { desc = "Spectre: buscar palabra bajo cursor" })
+        vim.keymap.set("v", "<leader>sw", function() require("spectre").open_visual() end, { desc = "Spectre: buscar selección" })
+        vim.keymap.set("n", "<leader>sf", function() require("spectre").open_file_search({ select_word = true }) end, { desc = "Spectre: buscar en archivo actual" })
+      end,
+    },
 }
