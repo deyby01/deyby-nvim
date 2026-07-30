@@ -84,7 +84,7 @@ Luego actívala en las preferencias de tu terminal.
 ### 4. Clonar la configuración
 
 ```bash
-mv ~/.config/nvim ~/.config/nvim.backup 2>/dev/null; git clone https://github.com/deyby-dev/my_conf_nvim.git ~/.config/nvim
+mv ~/.config/nvim ~/.config/nvim.backup 2>/dev/null; git clone https://github.com/deyby01/deyby-nvim.git ~/.config/nvim
 ```
 
 ### 5. Primera ejecución
@@ -201,15 +201,34 @@ Cada archivo de `lua/plugins/` cubre una categoría: comentando un `import` en
 > quedarán muertos. La explicación está en
 > [docs/plugins.md](docs/plugins.md#-regla-de-oro-atajos-en-keys-no-en-config).
 
-**Actualizar y fijar versiones:**
+---
 
-```vim
-:Lazy sync      " actualizar todo
-:Lazy restore   " volver a las versiones de lazy-lock.json
+## 🔄 Mantener actualizado
+
+Como `~/.config/nvim` **es** el repositorio clonado, actualizar es un `git pull`:
+
+```bash
+cd ~/.config/nvim && git pull
 ```
 
-Commitea `lazy-lock.json` después de actualizar: es lo que hace la config
-reproducible entre máquinas.
+Y si haces cambios, los subes desde ahí mismo:
+
+```bash
+cd ~/.config/nvim && git add -A && git commit -m "feat: ..." && git push
+```
+
+### Rutina mensual
+
+| Qué | Cómo |
+|-----|------|
+| **Neovim** | `sudo apt update && sudo apt upgrade neovim -y` |
+| **Plugins** | `:Lazy sync` — luego commitea `lazy-lock.json` |
+| **LSPs** | `:Mason` → pulsa `U` |
+| **Treesitter** | `:TSUpdate` |
+
+`lazy-lock.json` fija las versiones exactas: commitéalo tras cada `:Lazy sync`
+para que la config sea reproducible entre máquinas. Si una actualización rompe
+algo, `:Lazy restore` te devuelve a las versiones del lock.
 
 ---
 
@@ -225,6 +244,6 @@ la salida de `nvim --version` y `:checkhealth`.
 
 **Si te sirvió, deja una ⭐**
 
-Hecho con ☕ por [deyby-dev](https://github.com/deyby-dev) · *Julio 2026*
+Hecho con ☕ por [deyby01](https://github.com/deyby01) · *Julio 2026*
 
 </div>

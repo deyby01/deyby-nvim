@@ -182,7 +182,7 @@ fc-cache -fv
 mv ~/.config/nvim ~/.config/nvim.backup
 
 # Clonar
-git clone https://github.com/<tu-usuario>/my_conf_nvim.git ~/.config/nvim
+git clone https://github.com/deyby01/deyby-nvim.git ~/.config/nvim
 ```
 
 > 💡 El repo incluye `lazy-lock.json`, que fija las versiones exactas de todos
