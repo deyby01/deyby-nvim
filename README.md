@@ -118,6 +118,7 @@ instala los 11 LSPs automáticamente**. Cierra con `:qa` y vuelve a abrir.
 | `Espacio+fg` | Buscar texto en el proyecto |
 | `Espacio+e` | Explorador de archivos |
 | `Espacio+gs` | Git status |
+| `Espacio+ld` | Docker: contenedores y logs (LazyDocker) |
 | `Ctrl+´` | Terminal integrada |
 | `Ctrl+s` / `Ctrl+q` | Guardar / salir sin guardar |
 | `jk` | Salir de modo insert |

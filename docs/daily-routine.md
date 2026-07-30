@@ -12,14 +12,15 @@
 3. [Entender código ajeno](#3-entender-código-ajeno)
 4. [Escribir código](#4-escribir-código)
 5. [Cuando algo no funciona](#5-cuando-algo-no-funciona)
-6. [Refactorizar](#6-refactorizar)
-7. [Antes de commitear](#7-antes-de-commitear)
-8. [Commit y push](#8-commit-y-push)
-9. [Abrir el Pull Request](#9-abrir-el-pull-request)
-10. [Revisar el PR de otra persona](#10-revisar-el-pr-de-otra-persona)
-11. [Resolver conflictos](#11-resolver-conflictos)
-12. [Cerrar el día](#12-cerrar-el-día)
-13. [Los 15 atajos que usarás el 90% del tiempo](#los-15-atajos-que-usarás-el-90-del-tiempo)
+6. [Trabajar con Docker](#6-trabajar-con-docker)
+7. [Refactorizar](#7-refactorizar)
+8. [Antes de commitear](#8-antes-de-commitear)
+9. [Commit y push](#9-commit-y-push)
+10. [Abrir el Pull Request](#10-abrir-el-pull-request)
+11. [Revisar el PR de otra persona](#11-revisar-el-pr-de-otra-persona)
+12. [Resolver conflictos](#12-resolver-conflictos)
+13. [Cerrar el día](#13-cerrar-el-día)
+14. [Los 15 atajos que usarás el 90% del tiempo](#los-15-atajos-que-usarás-el-90-del-tiempo)
 
 ---
 
@@ -201,7 +202,41 @@ Espacio+hb     # blame de la línea sospechosa
 
 ---
 
-## 6. Refactorizar
+## 6. Trabajar con Docker
+
+```
+Espacio+ld     # LazyDocker: contenedores, logs, imágenes y volúmenes
+```
+
+Es la forma más rápida de responder "¿está corriendo?", "¿por qué se cayó?" y
+"reinicia esto". Dentro: `Tab` cambia de panel, `Enter` ve logs, **`x` abre el
+menú de acciones** del elemento seleccionado.
+
+### Lo que más se hace en el día
+
+```bash
+docker compose ps                  # ¿qué está arriba?
+docker compose logs -f web         # seguir los logs
+docker compose restart web         # aplicar un cambio de config
+docker compose exec web bash       # entrar al contenedor
+docker compose exec web python manage.py migrate
+```
+
+### Cuando el contenedor no levanta
+
+```
+Espacio+ld     → panel Containers → Enter sobre el que falló → leer el log
+```
+
+Si el error viene del `Dockerfile` o del `docker-compose.yml`, ábrelos en
+Neovim: tienen LSP con autocompletado y diagnósticos, así que los errores de
+sintaxis se ven antes de reconstruir.
+
+📖 Referencia completa en **[commands-and-workflow.md](commands-and-workflow.md#docker--lazydocker)**.
+
+---
+
+## 7. Refactorizar
 
 ### Renombrar bien
 
@@ -232,7 +267,7 @@ Espacio+gw     # ¿el diff es lo que esperaba?
 
 ---
 
-## 7. Antes de commitear
+## 8. Antes de commitear
 
 **El paso que más rondas de review ahorra:** revisar tu propio diff.
 
@@ -255,7 +290,7 @@ credenciales hardcodeadas, código comentado, imports sin usar.
 
 ---
 
-## 8. Commit y push
+## 9. Commit y push
 
 ### Commits limpios por hunks
 
@@ -285,7 +320,7 @@ cc             # commit → escribir mensaje → Ctrl+s
 
 ---
 
-## 9. Abrir el Pull Request
+## 10. Abrir el Pull Request
 
 Antes de pedirlo, mira el conjunto completo de tus commits:
 
@@ -308,7 +343,7 @@ gh pr create --base development --title "..." --body "..."
 
 ---
 
-## 10. Revisar el PR de otra persona
+## 11. Revisar el PR de otra persona
 
 ```
 Espacio+opr    # listar PRs
@@ -332,7 +367,7 @@ Mientras revisas:
 
 ---
 
-## 11. Resolver conflictos
+## 12. Resolver conflictos
 
 ```
 :Git merge development
@@ -354,7 +389,7 @@ Espacio+gs → s → cc
 
 ---
 
-## 12. Cerrar el día
+## 13. Cerrar el día
 
 ```
 Espacio+gs                          # ¿queda algo sin commitear?

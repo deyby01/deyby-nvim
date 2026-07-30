@@ -42,7 +42,7 @@ Para el flujo de trabajo diario, mira **[daily-routine.md](daily-routine.md)**.
 - [Fugitive](#fugitive--status-y-commits) · [GitSigns](#gitsigns--hunks-y-blame) · [Diffview](#diffview--diffs-e-historial) · [git-conflict](#git-conflict--conflictos) · [Octo](#octo--github)
 
 **Entorno**
-- [ToggleTerm](#toggleterm--terminal) · [tmux](#tmux) · [auto-session](#auto-session--sesiones) · [Legendary](#legendary--paleta-de-comandos) · [Dashboard](#dashboard) · [which-key](#which-key)
+- [ToggleTerm](#toggleterm--terminal) · [Docker](#docker--lazydocker) · [tmux](#tmux) · [auto-session](#auto-session--sesiones) · [Legendary](#legendary--paleta-de-comandos) · [Dashboard](#dashboard) · [which-key](#which-key)
 
 **Ejecución**
 - [nvim-dap](#nvim-dap--debugger) · [Neotest](#neotest--tests) · [Markdown Preview](#markdown-preview) · [Colorizer](#colorizer) · [Extras](#extras)
@@ -790,6 +790,79 @@ Resalta palabras clave en los comentarios y permite buscarlas.
 | `Esc` | Salir a modo normal (sin cerrar la terminal) |
 | `i` / `a` | Volver al modo terminal |
 | `Ctrl+h/j/k/l` | Moverse a otros splits sin salir del modo terminal |
+
+---
+
+## Docker — LazyDocker
+
+**Herramienta:** [LazyDocker](https://github.com/jesseduffield/lazydocker) vía `toggleterm.nvim` · **Activa:** al pulsar `Espacio+ld`
+
+Interfaz visual para ver contenedores, logs, imágenes y volúmenes sin salir de Neovim.
+
+| Atajo | Acción |
+|-------|--------|
+| `Espacio+ld` | Abrir **LazyDocker** en ventana flotante |
+
+### Dentro de LazyDocker
+
+| Tecla | Acción |
+|-------|--------|
+| `Tab` · `[` `]` | Cambiar entre paneles (Containers, Images, Volumes, Logs) |
+| `↑` `↓` · `j` `k` | Moverse en la lista |
+| `Enter` | Ver detalle / logs del elemento seleccionado |
+| `x` | **Menú de acciones** del elemento (lo más útil: lista todo lo posible) |
+| `s` | Parar el contenedor |
+| `r` | Reiniciar el contenedor |
+| `a` | Attach al contenedor |
+| `d` | Eliminar (pide confirmación) |
+| `/` | Filtrar |
+| `q` | Salir de LazyDocker |
+
+> 💡 **Si dudas de una tecla, pulsa `x`**: abre el menú contextual con todas las
+> acciones disponibles para lo que tengas seleccionado. Es la forma más segura
+> de operar sin memorizar atajos.
+
+### Comandos desde la terminal
+
+Con `Ctrl+´` (terminal integrada) o un panel de tmux:
+
+```bash
+# Ver estado
+docker ps                          # contenedores corriendo
+docker ps -a                       # incluidos los parados
+docker compose ps                  # solo los del compose actual
+
+# Logs
+docker compose logs -f web         # seguir logs de un servicio
+docker compose logs --tail=100 web
+
+# Ciclo de vida
+docker compose up -d               # levantar en segundo plano
+docker compose down                # bajar todo
+docker compose restart web         # reiniciar un servicio
+docker compose build web           # reconstruir la imagen
+
+# Entrar al contenedor
+docker compose exec web bash
+docker compose exec web python manage.py migrate
+
+# Limpieza
+docker system df                   # cuánto espacio ocupa Docker
+docker system prune                # borrar lo no usado ⚠️
+```
+
+### Soporte de LSP
+
+Los archivos de Docker tienen autocompletado y diagnósticos:
+
+| Archivo | Servidor |
+|---------|----------|
+| `Dockerfile` | `dockerls` |
+| `docker-compose*.yml` · `compose*.yml` | `docker_compose_language_service` |
+
+> El filetype de los compose se asigna con un autocomando en
+> [`lua/config/autocmds.lua`](../lua/config/autocmds.lua), porque Neovim los
+> detecta como YAML genérico y no activaría su servidor.
 
 ---
 
