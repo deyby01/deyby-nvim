@@ -3,32 +3,33 @@
 -- ==========================================
 
 return {
-  -- Mason: Instalador de LSP
+  -- Mason: Instalador de LSP (repos nuevos: mason-org)
   {
-    "williamboman/mason.nvim",
-    config = function()
-      require("mason").setup()
-    end
+    "mason-org/mason.nvim",
+    cmd = { "Mason", "MasonInstall", "MasonUpdate", "MasonUninstall" },
+    opts = {},
   },
 
-  -- Mason-lspconfig
+  -- Mason-lspconfig (v2: automatic_enable activa los servidores instalados)
   {
-    "williamboman/mason-lspconfig.nvim",
-    dependencies = { "williamboman/mason.nvim" },
-    config = function()
-      require("mason-lspconfig").setup({
-        ensure_installed = {
-          "pyright",      -- Python type checker
-          "ruff",         -- Python linter/formatter
-          "clangd",       -- C/C++
-          "html",
-          "cssls",
-          "ts_ls",
-          "emmet_ls",
-        },
-        automatic_installation = true,
-      })
-    end
+    "mason-org/mason-lspconfig.nvim",
+    dependencies = { "mason-org/mason.nvim" },
+    lazy = true,
+    opts = {
+      ensure_installed = {
+        "pyright",                          -- Python type checker
+        "ruff",                             -- Python linter/formatter
+        "html",
+        "cssls",
+        "ts_ls",                            -- JS/TS/React
+        "emmet_ls",
+        "jsonls",
+        "yamlls",
+        "dockerls",                         -- Dockerfile
+        "docker_compose_language_service",  -- docker-compose.yml
+        "nginx_language_server",            -- nginx.conf
+      },
+    },
   },
 
   -- Nvim-lspconfig
@@ -36,11 +37,13 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-        "williamboman/mason-lspconfig.nvim",
+        "mason-org/mason-lspconfig.nvim",
         "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
         local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+        vim.lsp.config("*", { capabilities = capabilities })
 
         -- Diagnósticos inline
         vim.diagnostic.config({
@@ -52,6 +55,8 @@ return {
         })
 
         -- Ruff (Linter + Formatter Python)
+        -- Se resuelve desde el PATH: si el .venv está activado, usa el ruff
+        -- del proyecto con su configuración local
         vim.lsp.config("ruff", {
             cmd = { "ruff", "server" },
             filetypes = { "python" },
@@ -80,17 +85,7 @@ return {
             },
         })
 
-        -- C/C++
-        vim.lsp.config("clangd", {
-            cmd = {
-                "   clangd",
-                "--background-index",
-                "--completion-style=detailed",
-            },
-            filetypes = { "c", "cpp", "objc", "objcpp" },
-        })
-
-        -- HTML
+        -- HTML (incluye templates de Django)
         vim.lsp.config("html", {
             cmd = { "vscode-html-language-server", "--stdio" },
             filetypes = { "html", "htmldjango" },
@@ -118,20 +113,20 @@ return {
             filetypes = { "css", "scss", "less" },
         })
 
-        -- JavaScript/TypeScript
+        -- JavaScript/TypeScript/React
         vim.lsp.config("ts_ls", {
             cmd = { "typescript-language-server", "--stdio" },
             filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
         })
 
-        -- Emmet
+        -- Emmet (expansión de tags: div.card>ul>li*3, etc.)
         vim.lsp.config("emmet_ls", {
             cmd = { "emmet-ls", "--stdio" },
-            filetypes = { "html", "htmldjango", "css", "scss", "javascript", "javascriptreact" },
+            filetypes = {
+                "html", "htmldjango", "css", "scss",
+                "javascript", "javascriptreact", "typescriptreact",
+            },
         })
-
-        -- Habilitar todos
-        vim.lsp.enable({ "ruff", "pyright", "clangd", "html", "cssls", "ts_ls", "emmet_ls" })
 
         -- Keymaps de LSP
         local function setup_lsp_keymaps(bufnr)
@@ -143,9 +138,6 @@ return {
             vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
             vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
             vim.keymap.set("v", "<leader>ca", vim.lsp.buf.code_action, opts)
-            vim.keymap.set("n", "<leader>f", function()
-                vim.lsp.buf.format({ async = true })
-            end, opts)
         end
 
         vim.api.nvim_create_autocmd("LspAttach", {
@@ -160,7 +152,38 @@ return {
     end
   },
 
-  -- nvim-cmp (sin cambios)
+  -- Conform: formateo por filetype (usa los formatters del .venv/PATH,
+  -- con fallback al LSP si no existen)
+  {
+    "stevearc/conform.nvim",
+    keys = {
+      {
+        "<leader>cf",
+        function() require("conform").format({ async = true }) end,
+        mode = { "n", "v" },
+        desc = "Formatear archivo/selección",
+      },
+    },
+    opts = {
+      formatters_by_ft = {
+        python = { "ruff_format" },
+        javascript = { "prettierd", "prettier", stop_after_first = true },
+        typescript = { "prettierd", "prettier", stop_after_first = true },
+        javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+        typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+        css = { "prettierd", "prettier", stop_after_first = true },
+        scss = { "prettierd", "prettier", stop_after_first = true },
+        json = { "prettierd", "prettier", stop_after_first = true },
+        yaml = { "prettierd", "prettier", stop_after_first = true },
+        htmldjango = { "djlint" },
+      },
+      default_format_opts = {
+        lsp_format = "fallback",
+      },
+    },
+  },
+
+  -- nvim-cmp
   {
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
@@ -172,11 +195,20 @@ return {
         "saadparwaiz1/cmp_luasnip",
         "rafamadriz/friendly-snippets",
         "onsails/lspkind.nvim",
+        "zbirenbaum/copilot-cmp",
     },
     config = function()
         local cmp = require("cmp")
         local luasnip = require("luasnip")
         local lspkind = require("lspkind")
+
+        -- Activar snippets de Django (friendly-snippets los trae, pero
+        -- hay que extender los filetypes para que aparezcan).
+        -- IMPORTANTE: antes de lazy_load(), si no, no se cargan.
+        --   htmldjango -> tags de template ({% block %}, {% for %}...) + HTML normal
+        --   python     -> modelos, forms, views, serializers DRF...
+        luasnip.filetype_extend("htmldjango", { "html" })
+        luasnip.filetype_extend("python", { "django", "django-rest" })
 
         require("luasnip.loaders.from_vscode").lazy_load()
 
@@ -195,7 +227,8 @@ return {
                 ["<C-f>"] = cmp.mapping.scroll_docs(4),
                 ["<C-Space>"] = cmp.mapping.complete(),
                 ["<C-e>"] = cmp.mapping.abort(),
-                ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                -- select = false: Enter solo confirma si seleccionaste algo
+                ["<CR>"] = cmp.mapping.confirm({ select = false }),
                 ["<Tab>"] = cmp.mapping(function(fallback)
                     if cmp.visible() then
                         cmp.select_next_item()
@@ -216,6 +249,7 @@ return {
                 end, { "i", "s" }),
             }),
             sources = cmp.config.sources({
+                { name = "copilot", priority = 1100 },
                 { name = "nvim_lsp", priority = 1000 },
                 { name = "luasnip", priority = 750 },
                 { name = "buffer", priority = 500 },
@@ -226,6 +260,7 @@ return {
                     mode = 'symbol_text',
                     maxwidth = 50,
                     ellipsis_char = '...',
+                    symbol_map = { Copilot = "" },
                 })
             },
         })

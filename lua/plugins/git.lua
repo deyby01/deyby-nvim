@@ -6,11 +6,13 @@ return {
   -- Vim Fugitive: Comandos de Git
   {
     'tpope/vim-fugitive',
+    cmd = { "Git", "G", "Gdiffsplit", "Gread", "Gwrite" },
   },
 
   -- GitSigns: Ver cambios de Git
   {
     'lewis6991/gitsigns.nvim',
+    event = { "BufReadPre", "BufNewFile" },
     config = function()
         require('gitsigns').setup({
             signs = {
@@ -71,6 +73,16 @@ return {
     "sindrets/diffview.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory" },
+    -- Los atajos van en keys (no en config) para que existan
+    -- aunque el plugin aún no haya cargado
+    keys = {
+      { "<leader>gd", ":DiffviewOpen development<CR>", desc = "Git: Diff con development (QA Review)" },
+      { "<leader>gD", ":DiffviewOpen origin/development<CR>", desc = "Git: Diff con origin/development" },
+      { "<leader>gw", ":DiffviewOpen<CR>", desc = "Git: Diff working tree" },
+      { "<leader>gq", ":DiffviewClose<CR>", desc = "Git: Cerrar Diffview" },
+      { "<leader>gh", ":DiffviewFileHistory %<CR>", desc = "Git: Historial del archivo" },
+      { "<leader>gf", ":DiffviewFileHistory development..HEAD<CR>", desc = "Git: Commits desde development" },
+    },
     config = function()
         require("diffview").setup({
             enhanced_diff_hl = true,
@@ -99,31 +111,6 @@ return {
             },
         })
 
-        -- ✅ ATAJOS PERSONALIZADOS (sin chocar con dd)
-
-        -- Comparar con development (TU CASO PRINCIPAL)
-        vim.keymap.set("n", "<leader>gd", ":DiffviewOpen development<CR>",
-            { desc = "Git: Diff con development (QA Review)" })
-
-        -- Comparar con development remoto
-        vim.keymap.set("n", "<leader>gD", ":DiffviewOpen origin/development<CR>",
-            { desc = "Git: Diff con origin/development" })
-
-        -- Ver cambios no commiteados (working tree)
-        vim.keymap.set("n", "<leader>gw", ":DiffviewOpen<CR>",
-            { desc = "Git: Diff working tree" })
-
-        -- Cerrar diffview
-        vim.keymap.set("n", "<leader>gq", ":DiffviewClose<CR>",
-            { desc = "Git: Cerrar Diffview" })
-
-        -- Ver historial del archivo actual
-        vim.keymap.set("n", "<leader>gh", ":DiffviewFileHistory %<CR>",
-            { desc = "Git: Historial del archivo" })
-
-        -- Ver todos los commits de tu rama vs development
-        vim.keymap.set("n", "<leader>gf", ":DiffviewFileHistory development..HEAD<CR>",
-            { desc = "Git: Commits desde development" })
     end,
   },
     -- Git conflict: resolver conflictos fácilmente
@@ -161,6 +148,14 @@ return {
         "nvim-tree/nvim-web-devicons",
       },
       cmd = "Octo",
+      -- Atajos en keys para que existan antes de cargar el plugin
+      keys = {
+        { "<leader>opr", ":Octo pr list<CR>", desc = "Octo: listar PRs" },
+        { "<leader>opc", ":Octo pr create<CR>", desc = "Octo: crear PR" },
+        { "<leader>ois", ":Octo issue list<CR>", desc = "Octo: listar issues" },
+        { "<leader>oic", ":Octo issue create<CR>", desc = "Octo: crear issue" },
+        { "<leader>or", ":Octo review start<CR>", desc = "Octo: iniciar review" },
+      },
       config = function()
         require("octo").setup({
           enable_builtin = true,
@@ -180,13 +175,6 @@ return {
           },
           mappings = {},
         })
-
-        -- Atajos
-        vim.keymap.set("n", "<leader>opr", ":Octo pr list<CR>",      { desc = "Octo: listar PRs" })
-        vim.keymap.set("n", "<leader>opc", ":Octo pr create<CR>",    { desc = "Octo: crear PR" })
-        vim.keymap.set("n", "<leader>ois", ":Octo issue list<CR>",   { desc = "Octo: listar issues" })
-        vim.keymap.set("n", "<leader>oic", ":Octo issue create<CR>", { desc = "Octo: crear issue" })
-        vim.keymap.set("n", "<leader>or",  ":Octo review start<CR>", { desc = "Octo: iniciar review" })
       end,
     },
 }

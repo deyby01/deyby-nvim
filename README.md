@@ -1,6 +1,18 @@
 # 🚀 Instalación y Configuración de Neovim
 
-> Guía completa para instalar y configurar Neovim en Ubuntu con estructura modular y todos los plugins necesarios para desarrollo profesional.
+> Guía completa para instalar y configurar Neovim en Ubuntu con estructura modular, optimizada para desarrollo con **Python / Django / DRF, JavaScript / TypeScript / React, HTML / CSS, Docker y nginx**.
+
+---
+
+## ✨ Características
+
+- ⚡ **Arranque rápido** (~60ms) gracias a lazy-loading de plugins
+- 🤖 **GitHub Copilot integrado en el autocompletado** (copilot-cmp): las sugerencias de IA aparecen dentro del mismo menú que el LSP
+- 🐍 **Snippets de Django y DRF** activados: `{% block %}`, `{% for %}`, modelos, forms, serializers, views...
+- 🧠 **LSPs auto-instalados** con Mason v2 (Python, JS/TS/React, HTML, CSS, JSON, YAML, Docker, docker-compose, nginx)
+- 🪄 **Formateo inteligente** con conform.nvim: usa los formatters de tu `.venv`/PATH (ruff, prettier, djlint) con fallback al LSP
+- 🐞 **Debugger de Python/Django** (debugpy) con configuración lista para `manage.py runserver`
+- 🎨 Tema **Dracula**, dashboard personalizado, which-key, paleta de comandos (Legendary)
 
 ---
 
@@ -9,13 +21,14 @@
 - [Requisitos Previos](#-requisitos-previos)
 - [Instalación de Neovim](#-instalación-de-neovim)
 - [Herramientas de Búsqueda](#-herramientas-de-búsqueda)
-- [Tmux - Gestor de Sesiones](#-tmux---gestor-de-sesiones)
+- [Tmux - Gestor de Sesiones](#️-tmux---gestor-de-sesiones)
 - [LazyDocker](#-lazydocker)
 - [Fuentes Nerd Fonts](#-fuentes-nerd-fonts)
 - [Configuración de Neovim](#️-configuración-de-neovim)
 - [Estructura Modular](#-estructura-modular)
-- [Instalación de LSPs](#-instalación-de-lsps)
+- [LSPs y Herramientas](#-lsps-y-herramientas)
 - [Verificación](#-verificación)
+- [Solución de Problemas](#-solución-de-problemas)
 - [Recursos Adicionales](#-recursos-adicionales)
 
 ---
@@ -38,11 +51,17 @@ sudo apt install git -y
 sudo apt update && sudo apt upgrade -y
 ```
 
+### Compilador y make (requerido por telescope-fzf-native y treesitter)
+
+```bash
+sudo apt install build-essential -y
+```
+
 ---
 
 ## 📦 Instalación de Neovim
 
-Instalaremos la última versión estable de Neovim desde el PPA oficial.
+> ⚠️ Esta configuración usa la API moderna de LSP (`vim.lsp.config` / `vim.lsp.enable`), por lo que requiere **Neovim 0.11 o superior**.
 
 ```bash
 # Agregar repositorio de Neovim
@@ -60,7 +79,7 @@ sudo apt install neovim -y
 nvim --version
 ```
 
-**Salida esperada:** Neovim v0.10.x o superior
+**Salida esperada:** Neovim v0.11.x o superior
 
 ---
 
@@ -217,45 +236,22 @@ fc-cache -fv
 Si ves iconos en lugar de cuadrados, ¡está funcionando!
 
 ```bash
-echo -e "\ue0b0 \u00b1 \ue0a0 \u27a6 \u2718 \u26a1 \u2699"
-```
-
-**Salida esperada:** ⮀ ± ⮀ ➦ ✘ ⚡ ⚙
-
-### Fuentes alternativas
-
-```bash
-cd ~/.local/share/fonts
-
-# FiraCode Nerd Font
-wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/FiraCode.zip
-unzip FiraCode.zip -d FiraCode && rm FiraCode.zip
-
-# Hack Nerd Font
-wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/Hack.zip
-unzip Hack.zip -d Hack && rm Hack.zip
-
-# CascadiaCode Nerd Font
-wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/CascadiaCode.zip
-unzip CascadiaCode.zip -d CascadiaCode && rm CascadiaCode.zip
-
-# Actualizar caché
-fc-cache -fv
+echo -e " ±  ➦ ✘ ⚡ ⚙"
 ```
 
 ---
 
 ## ⚙️ Configuración de Neovim
 
-### Instalar Node.js (requerido para algunos plugins)
+### Instalar Node.js (requerido por Copilot, LSPs web y Markdown Preview)
 
 ```bash
 # Verificar si Node.js está instalado
 node --version
 
-# Si no está instalado:
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt install nodejs -y
+# Recomendado: instalar con nvm (permite cambiar de versión fácilmente)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+nvm install 22
 
 # Verificar instalación
 node --version
@@ -284,33 +280,51 @@ nvim
 
 **¿Qué esperar?**
 
-1. Lazy.nvim se instalará automáticamente
-2. Los plugins comenzarán a descargarse en segundo plano
-3. Espera 2-3 minutos a que termine
-4. Verás algunos mensajes de instalación
-5. Cierra Neovim (`:qa`) y vuelve a abrirlo
+1. Lazy.nvim se instala automáticamente
+2. Los plugins se descargan (las versiones exactas vienen fijadas en `lazy-lock.json`)
+3. `telescope-fzf-native` se compila con `make` y Treesitter compila sus parsers
+4. **Mason instala automáticamente todos los LSPs** (`ensure_installed`) — no hay que instalarlos a mano
+5. Espera 2-3 minutos, cierra Neovim (`:qa`) y vuelve a abrirlo
+
+### Autenticar GitHub Copilot (solo la primera vez)
+
+```vim
+:Copilot auth
+```
+
+Sigue el enlace que aparece, pega el código en GitHub y listo. Verifica con:
+
+```vim
+:Copilot status
+```
 
 ---
 
 ## 📁 Estructura Modular
 
-Tu configuración está organizada de forma modular para facilitar el mantenimiento:
-
 ```
 ~/.config/nvim/
 ├── init.lua                 # Archivo principal (carga módulos)
+├── lazy-lock.json           # Versiones exactas de plugins (reproducibilidad)
 ├── lua/
 │   ├── config/
 │   │   ├── options.lua      # Opciones básicas de Vim
 │   │   ├── keymaps.lua      # Atajos de teclado
 │   │   └── autocmds.lua     # Autocomandos
 │   └── plugins/
-│       ├── init.lua         # Configuración de Lazy.nvim
-│       ├── ui.lua           # Temas, lualine, colorizer
-│       ├── editor.lua       # Telescope, NvimTree, Harpoon
-│       ├── lsp.lua          # LSP, Mason, autocompletado
-│       ├── git.lua          # Fugitive, GitSigns
-│       └── terminal.lua     # ToggleTerm, tmux
+│       ├── init.lua         # Bootstrap y configuración de Lazy.nvim
+│       ├── ui.lua           # Tema Dracula, lualine, colorizer, dropbar
+│       ├── ui_extra.lua     # Noice, which-key
+│       ├── editor.lua       # Telescope (+fzf), NvimTree, Harpoon, Treesitter, Trouble, Spectre
+│       ├── lsp.lua          # Mason v2, LSPs, nvim-cmp, conform, snippets Django
+│       ├── ai.lua           # GitHub Copilot (integrado en cmp)
+│       ├── git.lua          # Fugitive, GitSigns, Diffview, git-conflict, Octo
+│       ├── terminal.lua     # ToggleTerm, LazyDocker, tmux-navigator
+│       ├── debug.lua        # DAP para Python/Django (debugpy)
+│       ├── testing.lua      # Neotest (pytest)
+│       ├── session.lua      # Auto-session
+│       ├── dashboard.lua    # Pantalla de inicio
+│       └── legendary.lua    # Paleta de comandos
 ```
 
 ### Ventajas de la estructura modular:
@@ -341,56 +355,88 @@ return {
 }
 ```
 
+### ⚠️ Regla de oro: atajos de plugins lazy van en `keys`, NO en `config`
+
+Casi todos los plugins de esta config cargan bajo demanda (lazy) con
+`cmd`, `event`, `ft` o `keys`. Si un plugin carga por comando
+(`cmd = "MiComando"`) y defines sus atajos dentro de `config`, esos
+atajos **no existen** hasta que el plugin cargue... pero el plugin no
+carga hasta que ejecutes el comando a mano. Resultado: atajos muertos.
+
+```lua
+-- ❌ MAL: el atajo no existe hasta correr :DiffviewOpen manualmente
+{
+  "sindrets/diffview.nvim",
+  cmd = "DiffviewOpen",
+  config = function()
+    vim.keymap.set("n", "<leader>gd", ":DiffviewOpen<CR>")  -- nunca se registra
+  end,
+}
+
+-- ✅ BIEN: lazy registra el atajo al arrancar y carga el plugin al presionarlo
+{
+  "sindrets/diffview.nvim",
+  cmd = "DiffviewOpen",
+  keys = {
+    { "<leader>gd", ":DiffviewOpen<CR>", desc = "Git: Diff" },
+  },
+}
+```
+
+**Excepciones válidas** (atajos en `config` está bien cuando):
+- El plugin **no es lazy** (`lazy = false`), como auto-session
+- El plugin carga por **evento temprano** (`event = "BufReadPre"` / `"VeryLazy"`), como flash o todo-comments
+- Son atajos **buffer-local** creados al adjuntarse (gitsigns `on_attach`, keymaps de LSP en `LspAttach`)
+
+> 💡 Para verificar que un atajo realmente existe: `:verbose nmap <leader>gd`
+> o búscalo con `Ctrl+p` (Legendary).
+
 ---
 
-## 🛠️ Instalación de LSPs
+## 🛠️ LSPs y Herramientas
 
-Los Language Servers proporcionan autocompletado, ir a definición, diagnósticos, etc.
+### LSPs incluidos (se instalan solos con Mason)
 
-### Instalar desde Mason
+Definidos en `lua/plugins/lsp.lua` → `ensure_installed`:
+
+| LSP | Para |
+|-----|------|
+| `pyright` | Python (type checker) |
+| `ruff` | Python (linter + formatter) |
+| `html` | HTML y templates de Django |
+| `cssls` | CSS / SCSS / LESS |
+| `ts_ls` | JavaScript / TypeScript / React |
+| `emmet_ls` | Emmet (HTML, templates, JSX/TSX) |
+| `jsonls` | JSON |
+| `yamlls` | YAML |
+| `dockerls` | Dockerfile |
+| `docker_compose_language_service` | docker-compose.yml |
+| `nginx_language_server` | nginx.conf |
+
+> 💡 **Linters por proyecto:** ruff se resuelve desde el `PATH`, así que si abres nvim con el `.venv` del proyecto activado, usa el ruff del proyecto con su configuración local (`pyproject.toml` / `ruff.toml`).
+
+### Debugger
+
+```vim
+:MasonInstall debugpy    " Solo si no se instaló automáticamente
+```
+
+### Formatters opcionales (para conform.nvim)
+
+Conform busca estos en tu PATH/.venv y si no existen usa el LSP como fallback:
 
 ```bash
-# Abrir Neovim
-nvim
+# Por proyecto (recomendado, dentro del .venv)
+pip install ruff djlint
 
-# Abrir Mason
-:Mason
+# Globales para JS/TS/CSS
+npm install -g prettier @fsouza/prettierd
 ```
 
-### LSPs recomendados:
-
-Dentro de Mason, usa `/` para buscar y presiona `i` para instalar:
-
-#### Python
-- ✅ **pyright** - LSP principal para Python
-- ✅ **black** - Formateador de código
-- ✅ **isort** - Organizador de imports
-
-#### Web (HTML/CSS/JS)
-- ✅ **html-lsp** - LSP para HTML
-- ✅ **css-lsp** - LSP para CSS
-- ✅ **typescript-language-server** - LSP para JS/TS
-- ✅ **emmet-ls** - Emmet para HTML/CSS
-- ✅ **prettier** - Formateador para HTML/CSS/JS
-
-#### Otros
-- ✅ **lua-language-server** - LSP para Lua (útil para configurar Neovim)
-- ✅ **json-lsp** - LSP para JSON
-
-### Verificar que los LSPs están instalados
+### Gestionar desde Mason
 
 ```vim
-# Dentro de Neovim, abrir Mason
-:Mason
-
-# Deberías ver tus LSPs instalados con un checkmark ✓
-```
-
-### Actualizar LSPs
-
-```vim
-:Mason
-# Presiona 'U' para actualizar todos los LSPs
+:Mason      " Ver estado, instalar/actualizar (U = actualizar todos)
 ```
 
 ---
@@ -399,30 +445,16 @@ Dentro de Mason, usa `/` para buscar y presiona `i` para instalar:
 
 ### Checklist de instalación
 
-Ejecuta estos comandos para verificar que todo esté instalado correctamente:
-
 ```bash
-# Neovim
-nvim --version
-
-# Ripgrep
+nvim --version      # >= 0.11
 rg --version
-
-# fd
 fd --version
-
-# Tmux
 tmux -V
-
-# LazyDocker
 lazydocker --version
-
-# Git
 git --version
-
-# Node.js y npm
 node --version
 npm --version
+gcc --version       # Para fzf-native y treesitter
 ```
 
 ### Probar funcionalidades
@@ -443,11 +475,14 @@ Espacio + e
 # 5. Probar terminal
 Ctrl + ´
 
-# 6. Probar LSP (abrir archivo Python/JS y ver autocompletado)
+# 6. Probar LSP + Copilot (abrir archivo Python y escribir)
 nvim test.py
-# Escribe algo y verifica que aparezcan sugerencias
+# Deben aparecer sugerencias del LSP y de Copilot () en el mismo menú
 
-# 7. Probar Git
+# 7. Probar snippets de Django (en un template .html de Django)
+# Escribe "block" o "for" y acepta el snippet
+
+# 8. Probar Git
 Espacio + gs
 ```
 
@@ -464,21 +499,13 @@ Espacio + gs
 # 1. Verificar que la fuente está instalada
 fc-list | grep JetBrainsMono
 
-# 2. Si no aparece, reinstalar:
-cd ~/.local/share/fonts
-wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
-unzip JetBrainsMono.zip -d JetBrainsMono
-fc-cache -fv
-
-# 3. Configurar en tu terminal (ver sección de fuentes)
+# 2. Si no aparece, reinstalar (ver sección de fuentes)
+# 3. Configurar la fuente en tu terminal
 # 4. Reiniciar terminal completamente
 ```
 
 ### Telescope no encuentra archivos
 
-**Problema:** Telescope no funciona o no encuentra archivos.
-
-**Solución:**
 ```bash
 # Verificar que ripgrep y fd están instalados
 which rg
@@ -489,11 +516,19 @@ sudo apt install ripgrep fd-find -y
 sudo ln -s /usr/bin/fdfind /usr/local/bin/fd
 ```
 
+### telescope-fzf-native falla al compilar
+
+```bash
+# Necesitas make y gcc
+sudo apt install build-essential -y
+
+# Recompilar
+nvim
+:Lazy build telescope-fzf-native.nvim
+```
+
 ### LSP no funciona / No hay autocompletado
 
-**Problema:** No aparecen sugerencias al escribir.
-
-**Solución:**
 ```bash
 # 1. Verificar que los LSPs están instalados
 nvim
@@ -502,42 +537,42 @@ nvim
 # 2. Verificar que el LSP se adjuntó al buffer
 :LspInfo
 
-# 3. Reinstalar el LSP específico
-:Mason
-# Busca el LSP, presiona 'X' para desinstalar, luego 'i' para reinstalar
-
-# 4. Verificar logs de LSP
+# 3. Verificar logs de LSP
 :LspLog
+```
+
+### Copilot no sugiere código
+
+```vim
+" 1. Verificar autenticación
+:Copilot status
+
+" 2. Si no está autenticado
+:Copilot auth
+
+" 3. Verificar que el filetype está habilitado
+" (ver lua/plugins/ai.lua → filetypes; los no listados están
+"  apagados a propósito, p. ej. .env para no filtrar secretos)
 ```
 
 ### Markdown Preview no funciona
 
-**Problema:** No se abre el navegador al usar `:MarkdownPreview`.
-
-**Solución:**
 ```bash
-# 1. Verificar que Node.js está instalado
+# 1. Verificar Node.js
 node --version
 
-# 2. Si no está, instalarlo
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt install nodejs -y
-
-# 3. Reinstalar el plugin
+# 2. Reinstalar el plugin
 nvim
 :Lazy clean
 :Lazy sync
 
-# 4. Navegar al plugin y compilar
+# 3. Compilar manualmente si hace falta
 cd ~/.local/share/nvim/lazy/markdown-preview.nvim/app
 npm install
 ```
 
 ### Errores al iniciar Neovim
 
-**Problema:** Neovim muestra errores al iniciarse.
-
-**Solución:**
 ```bash
 # 1. Limpiar caché de plugins
 rm -rf ~/.local/share/nvim
@@ -547,26 +582,16 @@ rm -rf ~/.cache/nvim
 # 2. Abrir Neovim (reinstalará todo)
 nvim
 
-# 3. Sincronizar plugins
-:Lazy sync
-
-# 4. Verificar errores específicos
+# 3. Verificar errores específicos
 :checkhealth
 ```
 
 ### ESC no funciona en modo INSERT
 
-**Problema:** Al presionar ESC no sales de modo INSERT.
-
-**Solución:**
 ```bash
 # Usa los atajos alternativos configurados:
 jk  # Presiona 'j' seguido rápidamente de 'k'
 kj  # O 'k' seguido de 'j'
-
-# Si el problema persiste, revisa que no haya conflictos:
-nvim
-:verbose imap <Esc>
 ```
 
 ---
@@ -579,7 +604,9 @@ nvim
 - [Lazy.nvim](https://github.com/folke/lazy.nvim)
 - [Telescope](https://github.com/nvim-telescope/telescope.nvim)
 - [LSP Config](https://github.com/neovim/nvim-lspconfig)
-- [Mason](https://github.com/williamboman/mason.nvim)
+- [Mason](https://github.com/mason-org/mason.nvim)
+- [conform.nvim](https://github.com/stevearc/conform.nvim)
+- [copilot.lua](https://github.com/zbirenbaum/copilot.lua)
 
 ### Tutoriales
 
@@ -589,8 +616,6 @@ vimtutor
 
 # Ayuda de Neovim
 :help
-
-# Ayuda de un plugin específico
 :help telescope
 :help lsp
 ```
@@ -599,51 +624,10 @@ vimtutor
 
 - `README.md` - Guía de instalación (este archivo)
 - `commands-and-workflow.md` - Referencia completa de atajos
+- `daily_routine.md` - Referencia rápida del día a día
 - `init.lua` - Archivo principal de configuración
+- `lazy-lock.json` - Versiones exactas de los plugins
 - `lua/` - Módulos de configuración
-
----
-
-## 🎯 Próximos Pasos
-
-1. ✅ **Completar instalación** siguiendo esta guía
-2. 📖 **Leer** `commands-and-workflow.md` para conocer todos los atajos
-3. 🎮 **Practicar** con `vimtutor` (30 minutos)
-4. 🧪 **Experimentar** creando archivos y usando atajos
-5. 🔧 **Personalizar** según tus necesidades
-6. 🚀 **Codear** como un profesional
-
----
-
-## 💡 Tips para principiantes
-
-### Primer día
-- Usa `vimtutor` (30 minutos)
-- Practica movimientos básicos: `h` `j` `k` `l`
-- Aprende a entrar/salir de modo INSERT: `i` `Esc`
-- Practica guardar: `Ctrl+s`
-
-### Primera semana
-- Domina Telescope: `Espacio+ff` para buscar archivos
-- Usa NvimTree: `Espacio+e` para explorar
-- Aprende movimientos avanzados: `w` `b` `0` `$` `gg` `G`
-- Practica copiar/pegar: `yy` `dd` `p`
-
-### Primer mes
-- Domina Git: `Espacio+gs` y navegación con `]c` `[c`
-- Usa Harpoon: marca archivos frecuentes con `Espacio+a`
-- Aprende LSP: `gd` para ir a definición, `Espacio+ca` para auto-imports
-- Personaliza atajos según tu workflow
-
----
-
-## 📝 Notas importantes
-
-- **Leader Key:** Configurada como `Espacio`
-- **Tema:** Dracula por defecto
-- **Lenguajes soportados:** Python, HTML, CSS, JavaScript, TypeScript
-- **Compatibilidad:** Ubuntu 20.04+
-- **Requisitos mínimos:** 4GB RAM, procesador dual-core
 
 ---
 
@@ -652,15 +636,21 @@ vimtutor
 ### Actualizar plugins
 
 ```vim
-# Dentro de Neovim
 :Lazy sync
+" Después de actualizar, commitea el lazy-lock.json al repo
 ```
 
 ### Actualizar LSPs
 
 ```vim
 :Mason
-# Presiona 'U' para actualizar todos
+" Presiona 'U' para actualizar todos
+```
+
+### Actualizar parsers de Treesitter
+
+```vim
+:TSUpdate
 ```
 
 ### Actualizar Neovim
@@ -670,18 +660,18 @@ sudo apt update
 sudo apt upgrade neovim
 ```
 
-### Hacer backup
+---
 
-```bash
-# Backup completo de configuración
-cp -r ~/.config/nvim ~/nvim-backup-$(date +%Y%m%d)
+## 📝 Notas importantes
 
-# Backup solo de archivos personalizados
-tar -czf nvim-config-backup.tar.gz ~/.config/nvim/lua/config/
-```
+- **Leader Key:** `Espacio`
+- **Tema:** Dracula
+- **Stack soportado:** Python / Django / DRF, JavaScript / TypeScript / React, HTML (+ templates Django), CSS/SCSS, JSON, YAML, Docker, docker-compose, nginx, Lua, Markdown
+- **Requisitos:** Neovim 0.11+, Ubuntu 20.04+, Node.js 18+ (recomendado 22)
+- **Workflow de linters:** cada proyecto lleva sus linters/formatters en su `.venv/` — abre nvim con el venv activado y ruff/djlint usan la config del proyecto
 
 ---
 
 **¡Happy coding! 🚀**
 
-*Última actualización: Febrero 2026*
+*Última actualización: Julio 2026*

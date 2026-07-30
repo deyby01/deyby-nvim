@@ -22,20 +22,20 @@ keymap("n", "<C-k>", "<C-w>k", opts)
 keymap("n", "<C-l>", "<C-w>l", opts)
 
 -- ==========================================
--- GESTIÓN DE VENTANAS (SPLITS)
+-- GESTIÓN DE VENTANAS (SPLITS) — grupo <leader>w
 -- ==========================================
 
 -- Panel nuevo a la derecha
-keymap("n", "<leader>v", ":rightbelow vnew<CR>", { noremap = true, silent = true, desc = "Panel derecha" })
+keymap("n", "<leader>wv", ":rightbelow vnew<CR>", { noremap = true, silent = true, desc = "Panel derecha" })
 
 -- Panel nuevo abajo
-keymap("n", "<leader>s", ":belowright new<CR>", { noremap = true, silent = true, desc = "Panel abajo" })
+keymap("n", "<leader>ws", ":belowright new<CR>", { noremap = true, silent = true, desc = "Panel abajo" })
+
+-- Cerrar todos excepto el actual
+keymap("n", "<leader>wo", ":only<CR>", { noremap = true, silent = true, desc = "Solo este panel" })
 
 -- Cerrar panel actual
 keymap("n", "<leader>q", ":close<CR>", { noremap = true, silent = true, desc = "Cerrar panel" })
-
--- Cerrar todos excepto el actual
-keymap("n", "<leader>o", ":only<CR>", { noremap = true, silent = true, desc = "Solo este panel" })
 
 -- Ajustar tamaño de NvimTree
 keymap("n", "<leader>+", ":NvimTreeResize +5<CR>", { desc = "NvimTree: aumentar ancho" })
@@ -69,36 +69,3 @@ end, { desc = "Editar .env" })
 -- Salida rápida de modo INSERT (alternativa a ESC)
 keymap('i', 'jk', '<Esc>', opts)
 keymap('i', 'kj', '<Esc>', opts)
-
--- ==========================================
--- C++ COMPILAR Y EJECUTAR
--- ==========================================
-keymap("n", "<leader>rr", function()
-    local file = vim.fn.expand("%:p")  -- ruta absoluta del .cpp
-    local name = vim.fn.expand("%:t:r") -- solo el nombre sin extensión
-    local out = "/tmp/" .. name
-    local cmd = string.format("g++ %s -o %s && %s", file, out, out)
-    vim.cmd("split | terminal " .. cmd)
-end, { desc = "C++: Compilar y ejecutar" })
-
--- Solo compilar (sin ejecutar)
-keymap("n", "<leader>rc", function()
-    local file = vim.fn.expand("%:p")
-    local name = vim.fn.expand("%:t:r")
-    local out = "/tmp/" .. name
-    local cmd = string.format("g++ %s -o %s", file, out)
-    vim.cmd("split | terminal " .. cmd)
-end, { desc = "C++: Solo compilar" })
-
--- Ejecutar con makefile en la carpeta actual todos los archivos .cpp
-keymap("n", "<leader>rm", function()
-    local dir = vim.fn.expand("%:p:h")  -- carpeta del archivo actual
-    local cmd = string.format("cd %s && make", dir)
-    vim.cmd("split | terminal " .. cmd)
-end, { desc = "C++: Ejecutar Makefile" })
-
-keymap("n", "<leader>rC", function()
-    local dir = vim.fn.expand("%:p:h")
-    local cmd = string.format("cd %s && make compile", dir)
-    vim.cmd("split | terminal " .. cmd)
-end, { desc = "C++: Solo compilar proyecto completo" })

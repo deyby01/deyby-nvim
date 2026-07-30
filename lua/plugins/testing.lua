@@ -11,6 +11,12 @@ return {
       "nvim-neotest/neotest-python",
       "nvim-neotest/nvim-nio",
     },
+    keys = {
+      { "<leader>nt", ":Neotest run<CR>", silent = true, desc = "Neotest: correr test bajo cursor" },
+      { "<leader>nf", function() require("neotest").run.run(vim.fn.expand("%")) end, desc = "Neotest: correr todos los tests del archivo" },
+      { "<leader>ns", function() require("neotest").summary.toggle() end, desc = "Neotest: toggle panel de resultados" },
+      { "<leader>no", function() require("neotest").output.open() end, desc = "Neotest: ver output del test" },
+    },
     config = function()
       require("neotest").setup({
         adapters = {
@@ -21,12 +27,6 @@ return {
           }),
         },
       })
-
-      -- Atajos
-      vim.keymap.set("n", "<leader>nt", ":Neotest run<CR>", { desc = "Neotest: correr test bajo cursor" })
-      vim.keymap.set("n", "<leader>nf", function() require("neotest").run.run(vim.fn.expand("%")) end, { desc = "Neotest: correr todos los tests del archivo" })
-      vim.keymap.set("n", "<leader>ns", function() require("neotest").summary.toggle() end, { desc = "Neotest: toggle panel de resultados" })
-      vim.keymap.set("n", "<leader>no", function() require("neotest").output.open() end, { desc = "Neotest: ver output del test" })
     end,
   },
 }

@@ -253,10 +253,12 @@ return {
           set_cursor = true,
           set_cursorline = true,
           set_number = true,
-          ignore_filetypes = {
-            "NvimTree",
-            "TelescopePrompt",
-            "dashboard",
+          ignore = {
+                filetypes = {
+                    "NvimTree",
+                    "TelescopePrompt",
+                    "dashboard",
+                },
           },
         })
       end,

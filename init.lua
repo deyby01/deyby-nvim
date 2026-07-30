@@ -17,5 +17,3 @@ require("config.autocmds")
 
 -- Cargar plugins
 require("plugins")
-
-print("✨Neovim configurado correctamente")

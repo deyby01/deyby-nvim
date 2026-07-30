@@ -1,5 +1,5 @@
 -- ==========================================
--- DEBUGGER (DAP)
+-- DEBUGGER (DAP) - PYTHON / DJANGO
 -- ==========================================
 
 return {
@@ -9,6 +9,15 @@ return {
       "rcarriga/nvim-dap-ui",
       "nvim-neotest/nvim-nio",
       "theHamsta/nvim-dap-virtual-text",
+      "mfussenegger/nvim-dap-python",
+    },
+    keys = {
+      { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Debug: toggle breakpoint" },
+      { "<leader>dc", function() require("dap").continue() end, desc = "Debug: continuar" },
+      { "<leader>do", function() require("dap").step_over() end, desc = "Debug: step over" },
+      { "<leader>di", function() require("dap").step_into() end, desc = "Debug: step into" },
+      { "<leader>dx", function() require("dap").terminate() end, desc = "Debug: terminar" },
+      { "<leader>du", function() require("dapui").toggle() end, desc = "Debug: toggle UI" },
     },
     config = function()
       local dap = require("dap")
@@ -44,29 +53,25 @@ return {
         commented = false,
       })
 
-      -- Configuración para C++
-      dap.adapters.codelldb = {
-        type = "server",
-        port = "${port}",
-        executable = {
-          command = vim.fn.stdpath("data") .. "/mason/bin/codelldb",
-          args = { "--port", "${port}" },
-        },
-      }
+      -- Python: usa el debugpy instalado por Mason
+      -- (dap-python detecta solo el .venv del proyecto para ejecutar tu código)
+      local mason_debugpy = vim.fn.stdpath("data") .. "/mason/packages/debugpy/venv/bin/python"
+      if vim.fn.executable(mason_debugpy) == 1 then
+        require("dap-python").setup(mason_debugpy)
+      else
+        require("dap-python").setup("python3")
+      end
 
-      dap.configurations.cpp = {
-        {
-          name = "Ejecutar programa",
-          type = "codelldb",
-          request = "launch",
-          program = "/tmp/programa",
-          cwd = "${workspaceFolder}",
-          stopOnEntry = false,
-          args = {},
-        },
-      }
-
-      dap.configurations.c = dap.configurations.cpp
+      -- Configuración extra: Django runserver con debugger
+      table.insert(dap.configurations.python, {
+        name = "Django runserver",
+        type = "python",
+        request = "launch",
+        program = vim.fn.getcwd() .. "/manage.py",
+        args = { "runserver", "--noreload" },
+        django = true,
+        justMyCode = false,
+      })
 
       -- Abrir/cerrar UI automáticamente
       dap.listeners.after.event_initialized["dapui_config"] = function()
@@ -78,14 +83,6 @@ return {
       dap.listeners.before.event_exited["dapui_config"] = function()
         dapui.close()
       end
-
-      -- Atajos
-      vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, { desc = "Debug: toggle breakpoint" })
-      vim.keymap.set("n", "<leader>dc", dap.continue, { desc = "Debug: continuar" })
-      vim.keymap.set("n", "<leader>do", dap.step_over, { desc = "Debug: step over" })
-      vim.keymap.set("n", "<leader>di", dap.step_into, { desc = "Debug: step into" })
-      vim.keymap.set("n", "<leader>dx", dap.terminate, { desc = "Debug: terminar" })
-      vim.keymap.set("n", "<leader>du", dapui.toggle, { desc = "Debug: toggle UI" })
     end,
   },
 }

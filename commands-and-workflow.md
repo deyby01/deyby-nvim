@@ -1,9 +1,10 @@
 # 📚 Guía de Referencia Completa - Neovim
 
-> **Última actualización:** Marzo 2026
+> **Última actualización:** Julio 2026
 > **Tema:** Dracula
 > **Leader Key:** `Espacio`
 > **Estructura:** Modular
+> **Stack:** Python / Django / DRF · JS / TS / React · Docker · nginx
 
 ---
 
@@ -19,9 +20,11 @@
 - [Git (Fugitive + GitSigns)](#-git-fugitive--gitsigns)
 - [Terminal (ToggleTerm)](#-terminal-toggleterm)
 - [LSP y Autocompletado](#-lsp-y-autocompletado)
-- [C++ - Compilar y Ejecutar](#-c---compilar-y-ejecutar)
+- [Snippets de Django y DRF](#-snippets-de-django-y-drf)
+- [Formateo (conform.nvim)](#-formateo-conformnvim)
 - [Debugger (nvim-dap)](#-debugger-nvim-dap)
 - [Navegación Rápida (Flash)](#-navegación-rápida-flash)
+- [Breadcrumbs (Dropbar)](#-breadcrumbs-dropbar)
 - [Surround](#-surround)
 - [TODO Comments](#-todo-comments)
 - [Dashboard](#-dashboard)
@@ -131,10 +134,10 @@
 
 | Atajo/Comando | Acción |
 |---------------|--------|
-| `Espacio+v` | Panel nuevo a la **derecha** ⭐ |
-| `Espacio+s` | Panel nuevo **abajo** ⭐ |
+| `Espacio+wv` | Panel nuevo a la **derecha** ⭐ |
+| `Espacio+ws` | Panel nuevo **abajo** ⭐ |
 | `Espacio+q` | **Cerrar** panel actual ⭐ |
-| `Espacio+o` | Cerrar **todos** excepto el actual ⭐ |
+| `Espacio+wo` | Cerrar **todos** excepto el actual ⭐ |
 | `:split` o `:sp` | Dividir **horizontalmente** |
 | `:vsplit` o `:vsp` | Dividir **verticalmente** |
 | `:close` | Cerrar ventana actual |
@@ -360,8 +363,6 @@ carpeta/                # Crear carpeta (termina con /)
 carpeta/archivo.py      # Crear carpeta + archivo
 ```
 
-> 💡 **Tip C++:** Al crear un archivo `.cpp` dentro de `week_*` o `tasks_unab_cplus/*/`, se crea automáticamente un `Makefile` en esa carpeta.
-
 ---
 
 ## 🎯 Marcadores con Harpoon
@@ -373,7 +374,7 @@ carpeta/archivo.py      # Crear carpeta + archivo
 | Atajo | Acción |
 |-------|--------|
 | `Espacio+a` | **Marcar** archivo actual ⭐ |
-| `Espacio+h` | **Ver lista** de archivos marcados ⭐ |
+| `Espacio+hh` | **Ver lista** de archivos marcados ⭐ |
 | `Espacio+1` | Saltar al archivo marcado **#1** |
 | `Espacio+2` | Saltar al archivo marcado **#2** |
 | `Espacio+3` | Saltar al archivo marcado **#3** |
@@ -400,7 +401,7 @@ Espacio+2           # models.py
 Espacio+3           # urls.py
 
 # 3. Ver/editar lista de marcados
-Espacio+h
+Espacio+hh
 ```
 
 ---
@@ -533,23 +534,29 @@ pytest -k "nombre_test"
 | `K` | **Hover** (mostrar documentación) ⭐ |
 | `Espacio+rn` | **Renombrar** símbolo ⭐ |
 | `Espacio+ca` | **Code actions** (auto-import, quick fixes) ⭐ |
-| `Espacio+f` | **Formatear** código |
+| `Espacio+cf` | **Formatear** código (conform → LSP fallback) |
 | `[d` | Ir al **diagnóstico anterior** (error/warning) |
 | `]d` | Ir al **siguiente diagnóstico** |
 
-### Autocompletado (nvim-cmp + Supermaven)
+### Autocompletado (nvim-cmp + Copilot)
+
+Las sugerencias de **GitHub Copilot** aparecen dentro del mismo menú de
+autocompletado (con el icono ), junto a las del LSP y los snippets.
+Todo se maneja con las mismas teclas:
 
 | Atajo | Acción |
 |-------|--------|
 | `Ctrl+Space` | Activar autocompletado **manual** |
-| `Tab` | **Aceptar sugerencia de Supermaven** o siguiente opción de cmp ⭐ |
-| `Ctrl+j` | Aceptar siguiente **palabra** de Supermaven |
-| `Ctrl+]` | **Descartar** sugerencia de Supermaven |
-| `Shift+Tab` | Sugerencia **anterior** de cmp ⭐ |
-| `Enter` | **Aceptar** sugerencia de cmp ⭐ |
+| `Tab` | **Siguiente** opción del menú (LSP, Copilot, snippets) ⭐ |
+| `Shift+Tab` | Opción **anterior** del menú ⭐ |
+| `Enter` | **Aceptar** la opción seleccionada (si no hay selección, salto de línea normal) ⭐ |
 | `Ctrl+e` | **Cerrar** autocompletado |
 | `Ctrl+f` | Scroll **down** en documentación |
 | `Ctrl+b` | Scroll **up** en documentación |
+
+> 💡 **Primera vez:** autentícate con `:Copilot auth`. Verifica el estado con `:Copilot status`.
+>
+> 🔒 Copilot solo está activo en los filetypes del stack (ver `lua/plugins/ai.lua`); en archivos como `.env` queda apagado para no enviar secretos.
 
 ### Uso de Code Actions (Auto-import)
 
@@ -571,17 +578,21 @@ User.objects.all()  # User no está importado
 # Buscar con / y presionar 'i' para instalar
 ```
 
-### LSPs instalados
+### LSPs instalados (automáticamente con Mason)
 
 | LSP | Lenguaje |
 |-----|----------|
 | `pyright` | Python (type checker) |
-| `ruff` | Python (linter + formatter) |
-| `clangd` | C / C++ |
-| `html` | HTML |
-| `cssls` | CSS / SCSS |
-| `ts_ls` | JavaScript / TypeScript |
-| `emmet_ls` | Emmet (HTML/CSS) |
+| `ruff` | Python (linter + formatter, usa el del `.venv` si está activado) |
+| `html` | HTML y templates de Django |
+| `cssls` | CSS / SCSS / LESS |
+| `ts_ls` | JavaScript / TypeScript / React |
+| `emmet_ls` | Emmet (HTML, templates, JSX/TSX) |
+| `jsonls` | JSON |
+| `yamlls` | YAML |
+| `dockerls` | Dockerfile |
+| `docker_compose_language_service` | docker-compose.yml |
+| `nginx_language_server` | nginx.conf |
 
 ### Verificar LSP activo
 
@@ -593,103 +604,97 @@ User.objects.all()  # User no está importado
 
 ---
 
-## ⚙️ C++ - Compilar y Ejecutar
+## 🐍 Snippets de Django y DRF
 
-### Atajos de C++
+Los snippets de **friendly-snippets** para Django están activados
+(via `filetype_extend` en `lua/plugins/lsp.lua`). Aparecen en el menú
+de autocompletado y se expanden con `Tab`/`Enter`.
 
-| Atajo | Acción |
-|-------|--------|
-| `Espacio+rr` | **Compilar y ejecutar** archivo actual (un solo .cpp) ⭐ |
-| `Espacio+rc` | **Solo compilar** archivo actual (sin ejecutar) |
-| `Espacio+rm` | **Compilar y ejecutar** todos los .cpp con Makefile ⭐ |
-| `Espacio+rC` | **Solo compilar** proyecto completo con Makefile |
+### En templates (`.html` de Django)
 
-### Makefile automático
+| Escribe | Se expande a |
+|---------|--------------|
+| `block` | `{% block ... %}{% endblock %}` |
+| `for` | `{% for ... in ... %}{% endfor %}` |
+| `if` | `{% if ... %}{% endif %}` |
+| `extends` | `{% extends "..." %}` |
+| `include` | `{% include "..." %}` |
+| `url` | `{% url '...' %}` |
+| `static` | `{% static '...' %}` |
+| `csrf` | `{% csrf_token %}` |
+| `var` | `{{ variable }}` |
+| `trans` | `{% trans "..." %}` |
 
-Al crear un archivo `.cpp` dentro de las carpetas:
-- `week_*/` → para ejercicios semanales
-- `tasks_unab_cplus/*/` → para tareas de la universidad
+> 💡 Los templates también tienen los snippets de HTML normal, Emmet
+> (`div.card>ul>li*3` + `Tab`) y el LSP de HTML.
 
-Se crea automáticamente un `Makefile` con esta estructura:
+### En archivos Python
 
-```makefile
-CXX = g++
-CXXFLAGS = -Wall -std=c++17
-TARGET = /tmp/programa
-SRCS = $(wildcard *.cpp)
+| Escribe | Se expande a |
+|---------|--------------|
+| `model` | Clase `models.Model` completa |
+| `form` / `modelform` | `forms.Form` / `forms.ModelForm` |
+| `view` / `listview` / `detailview` | Vistas basadas en clase |
+| `serializer` / `modelserializer` | Serializers de DRF |
+| `apiview` | APIView de DRF |
+| `url` / `path` | Rutas de urls.py |
 
-all:
-    $(CXX) $(CXXFLAGS) $(SRCS) -o $(TARGET) && $(TARGET)
+> 💡 Escribe parte del nombre y busca en el menú de cmp las entradas
+> con tipo **Snippet**. Salta entre placeholders con `Tab` / `Shift+Tab`.
 
-compile:
-    $(CXX) $(CXXFLAGS) $(SRCS) -o $(TARGET)
+---
 
-clean:
-    rm -f $(TARGET)
-```
+## 🪄 Formateo (conform.nvim)
 
-### Estructura recomendada para C++
+`Espacio+cf` formatea el archivo (o la selección en modo visual) con
+el formatter adecuado según el filetype. Si el formatter no está
+instalado, usa el **LSP como fallback**.
 
-```
-cpp-universidad/
-├── week_one/
-│   ├── Makefile          # Creado automáticamente
-│   ├── main.cpp
-│   ├── figura.h
-│   └── figura.cpp
-├── week_two/
-│   ├── Makefile          # Creado automáticamente
-│   └── main.cpp
-tasks_unab_cplus/
-├── first_task/
-│   ├── Makefile          # Creado automáticamente
-│   ├── main.cpp
-│   └── clase.h
-```
+| Filetype | Formatter |
+|----------|-----------|
+| Python | `ruff format` (el del `.venv` activado) |
+| JS / TS / React / CSS / SCSS / JSON / YAML | `prettierd` o `prettier` |
+| Templates de Django | `djlint` |
+| Otros | LSP fallback |
 
-### Workflow C++ con múltiples archivos
+> 💡 Como los formatters se resuelven desde el PATH, cada proyecto usa
+> **su propia configuración** (pyproject.toml, .prettierrc, etc.).
 
-```bash
-# 1. Crear carpeta en NvimTree
-# 2. Crear main.cpp → Makefile se genera solo
-# 3. Crear archivos .h y .cpp adicionales
-# 4. Compilar y ejecutar todo junto
-Espacio+rm          # Compila todos los .cpp y ejecuta
-
-# Si solo quieres ver errores sin ejecutar
-Espacio+rC          # Solo compila el proyecto completo
+```vim
+:ConformInfo        " Ver qué formatter se usaría en el buffer actual
 ```
 
 ---
 
 ## 🐛 Debugger (nvim-dap)
 
-Debugger integrado para C++ con breakpoints y ejecución paso a paso.
-
-> **Importante:** Antes de debuggear, compilar con `Espacio+rm` para generar `/tmp/programa`.
+Debugger integrado para **Python/Django** con breakpoints y ejecución paso a paso (debugpy).
 
 ### Atajos del Debugger
 
 | Atajo | Acción |
 |-------|--------|
 | `Espacio+db` | **Toggle breakpoint** (poner/quitar) ⭐ |
-| `Espacio+dc` | **Continuar** hasta siguiente breakpoint ⭐ |
+| `Espacio+dc` | **Continuar** / iniciar debug ⭐ |
 | `Espacio+do` | **Step over** (siguiente línea sin entrar a función) |
 | `Espacio+di` | **Step into** (entrar a función) |
 | `Espacio+dx` | **Terminar** sesión de debug |
 | `Espacio+du` | **Toggle UI** del debugger |
 
-### Workflow de debugging
+### Workflow de debugging con Django
 
 ```bash
-# 1. Compilar primero
-Espacio+rm
-
-# 2. Poner breakpoints en líneas importantes
+# 1. Poner breakpoints en la vista/función que quieres inspeccionar
 Espacio+db          # En la línea donde quieres pausar
 
-# 3. Iniciar debug
-Espacio+dc          # Abre la UI y ejecuta hasta el breakpoint
+# 2. Iniciar debug
+Espacio+dc          # Elige la configuración:
+                    #   - "Django runserver" → levanta manage.py runserver
+                    #     con el debugger adjunto
+                    #   - O la configuración de archivo/test que necesites
+
+# 3. Hacer la request desde el navegador/curl
+#    → nvim se pausa en tu breakpoint
 
 # 4. Inspeccionar variables en el panel izquierdo (Scopes)
 
@@ -701,6 +706,8 @@ Espacio+dc          # Continuar hasta siguiente breakpoint
 # 6. Terminar
 Espacio+dx
 ```
+
+> **Nota:** debugpy se instala vía Mason (`:MasonInstall debugpy` si hiciera falta). Para debuggear dentro de Docker se necesita configuración extra de attach remoto.
 
 ---
 
@@ -722,12 +729,22 @@ Espacio+dx
 s
 
 # 2. Escribe 2 letras de donde quieres ir
-# Ejemplo: quieres ir a una línea con "cout"
+# Ejemplo: quieres ir a una línea con "count"
 co
 
 # 3. Aparecen etiquetas en todas las coincidencias
 # Presiona la letra de la etiqueta y saltas directo ahí
 ```
+
+---
+
+## 🧭 Breadcrumbs (Dropbar)
+
+Barra superior con la ruta del archivo y el símbolo actual (clase → método), navegable.
+
+| Atajo | Acción |
+|-------|--------|
+| `Espacio+bp` | **Navegar** por el breadcrumb (elegir componente y saltar) |
 
 ---
 
@@ -766,12 +783,12 @@ Resalta y organiza notas en tu código.
 
 ### Uso en código
 
-```cpp
-// TODO: implementar el método calcularArea()
-// FIXME: este loop tiene off-by-one error
-// NOTE: esta clase hereda de Figura
-// HACK: solución temporal hasta el próximo sprint
-int main() { ... }
+```python
+# TODO: implementar el endpoint de estadísticas
+# FIXME: este queryset genera N+1 queries
+# NOTE: esta vista requiere autenticación por token
+# HACK: solución temporal hasta el próximo sprint
+def my_view(request): ...
 ```
 
 ### Buscar TODOs
@@ -1097,7 +1114,9 @@ tmux attach -t frontend
 | `:Lazy update` | **Actualizar** todos los plugins |
 | `:TSUpdate` | Actualizar **parsers** de Treesitter |
 | `:LspRestart` | **Reiniciar** LSP |
-| `:SupermavenUseFree` | Activar **Supermaven** gratis |
+| `:Copilot status` | Ver estado de **Copilot** |
+| `:Copilot auth` | **Autenticar** Copilot (primera vez) |
+| `:ConformInfo` | Ver **formatter** activo del buffer |
 | `:Octo pr list` | Listar **PRs** de GitHub |
 | `:Legendary` | Abrir **paleta** de comandos |
 
@@ -1254,6 +1273,13 @@ Espacio+tc              # Toggle colorizer (activar/desactivar)
 :ColorizerToggle        # Mismo efecto
 ```
 
+### Puro entretenimiento
+
+```vim
+Espacio+fml             # Make it rain: el código se derrite 🌧️
+Espacio+gol             # Game of Life en tu buffer
+```
+
 ### Utilidades varias
 
 ```vim
@@ -1386,13 +1412,14 @@ vimtutor                # Tutorial interactivo (30 min)
 ### Semana 2: Productividad
 - Domina Git: `]c` `[c` `Espacio+hp`
 - Usa Harpoon: marca archivos con `Espacio+a`
-- Aprende splits: `Espacio+v` `Espacio+s`
+- Aprende splits: `Espacio+wv` `Espacio+ws`
 - Practica terminal: `Ctrl+´`
 - Navega rápido con Flash: `s`
 
 ### Mes 1: Maestría
 - LSP completo: `gd` `gr` `Espacio+ca`
-- Debugger C++: `Espacio+db` `Espacio+dc`
+- Debugger Python/Django: `Espacio+db` `Espacio+dc`
+- Snippets de Django/DRF: `model`, `serializer`, `block`...
 - Tmux para múltiples proyectos
 - Macros para tareas repetitivas
 - Personaliza atajos según tu workflow
@@ -1402,4 +1429,4 @@ vimtutor                # Tutorial interactivo (30 min)
 **¡Happy coding! 🚀**
 
 *Guía viva - Se actualiza con cada mejora de configuración*
-*Última actualización: Marzo 2026*
+*Última actualización: Julio 2026*

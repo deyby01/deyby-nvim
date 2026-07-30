@@ -12,6 +12,7 @@
 - [Git - Flujo Diario](#-git---flujo-diario)
 - [Docker](#-docker)
 - [Django](#-django)
+- [Snippets y Copilot](#-snippets-y-copilot)
 - [Buscar y Reemplazar](#-buscar-y-reemplazar)
 - [Mover y Editar Código](#-mover-y-editar-código)
 - [Final del Día](#-final-del-día)
@@ -260,6 +261,58 @@ Espacio+nf                 # Correr todos los tests del archivo
 Espacio+ns                 # Ver panel de resultados
 ```
 
+### Debugger (breakpoints en vez de prints)
+
+```bash
+Espacio+db                 # Poner breakpoint en la línea
+Espacio+dc                 # Iniciar debug → elegir "Django runserver"
+# Hacer la request desde el navegador → se pausa en el breakpoint
+Espacio+do                 # Siguiente línea
+Espacio+dc                 # Continuar
+Espacio+dx                 # Terminar
+```
+
+---
+
+## 🤖 Snippets y Copilot
+
+### Snippets de Django en templates
+
+```bash
+# En un .html de Django, escribe y acepta desde el menú (Tab/Enter):
+block                      # {% block ... %}{% endblock %}
+for                        # {% for ... %}{% endfor %}
+if                         # {% if ... %}{% endif %}
+extends                    # {% extends "..." %}
+url                        # {% url '...' %}
+static                     # {% static '...' %}
+csrf                       # {% csrf_token %}
+
+# Emmet también funciona en templates:
+div.card>ul>li*3           # + aceptar → estructura HTML completa
+```
+
+### Snippets de Django/DRF en Python
+
+```bash
+model                      # Clase models.Model completa
+modelform                  # forms.ModelForm
+serializer                 # Serializer de DRF
+modelserializer            # ModelSerializer de DRF
+listview                   # Vista basada en clase
+```
+
+### Copilot
+
+```bash
+# Las sugerencias de Copilot () aparecen en el mismo menú del
+# autocompletado, junto al LSP y los snippets:
+Tab / Shift+Tab            # Moverse entre opciones
+Enter                      # Aceptar la seleccionada
+
+:Copilot status            # Verificar que está conectado
+```
+
 ---
 
 ## 🔍 Buscar y Reemplazar
@@ -350,7 +403,7 @@ ds"                        # Eliminar las comillas
 ### Formatear código
 
 ```bash
-Espacio+f                  # Formatear archivo completo con LSP ⭐
+Espacio+cf                 # Formatear archivo (conform: ruff/prettier/djlint, fallback LSP) ⭐
 gg=G                       # Auto-indentar todo el archivo
 ==                         # Auto-indentar línea actual
 ```
@@ -401,4 +454,4 @@ Espacio+ss                 # Guarda exactamente donde estás
 
 ---
 
-*Última actualización: Marzo 2026*
+*Última actualización: Julio 2026*

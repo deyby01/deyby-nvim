@@ -7,14 +7,41 @@ return {
   {
     "nvim-telescope/telescope.nvim",
     branch = "0.1.x",
-    dependencies = { "nvim-lua/plenary.nvim" },
+    cmd = "Telescope",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+    },
+    keys = {
+      { "<leader>ff", function() require("telescope.builtin").find_files() end, desc = "Buscar archivos" },
+      { "<leader>fg", function() require("telescope.builtin").live_grep() end, desc = "Buscar contenido" },
+      { "<leader>fb", function() require("telescope.builtin").buffers() end, desc = "Buscar buffers" },
+      {
+        "<leader>fp",
+        function()
+          require("telescope.builtin").find_files({
+            cwd = vim.fn.expand("~/Documents"),
+            hidden = true,
+          })
+        end,
+        desc = "Buscar archivos en todos los proyectos",
+      },
+      {
+        "<leader>fP",
+        function()
+          require("telescope.builtin").live_grep({
+            cwd = vim.fn.expand("~/Documents"),
+          })
+        end,
+        desc = "Buscar contenido en todos los proyectos",
+      },
+    },
     config = function()
-      local builtin = require("telescope.builtin")
       local actions = require("telescope.actions")
 
       require("telescope").setup({
         defaults = {
-          file_ignore_patterns = { "node_modules", ".git/", "dist/", "build/", "__pycache__", "*.pyc" },
+          file_ignore_patterns = { "node_modules", ".git/", "dist/", "build/", "__pycache__", "%.pyc" },
           mappings = {
             i = {
               ["<C-j>"] = actions.move_selection_next,
@@ -24,29 +51,8 @@ return {
         },
       })
 
-      -- Buscar archivos en proyecto actual
-      vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Buscar archivos" })
-
-      -- Buscar contenido en proyecto actual
-      vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Buscar contenido" })
-
-      -- Buscar archivos en TODOS los proyectos
-      vim.keymap.set("n", "<leader>fp", function()
-        builtin.find_files({
-          cwd = vim.fn.expand("~/Documents"),
-          hidden = true,
-        })
-      end, { desc = "Buscar archivos en todos los proyectos" })
-
-      -- Buscar contenido en TODOS los proyectos
-      vim.keymap.set("n", "<leader>fP", function()
-        builtin.live_grep({
-          cwd = vim.fn.expand("~/Documents"),
-        })
-      end, { desc = "Buscar contenido en todos los proyectos" })
-
-      -- Buscar entre buffers abiertos
-      vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Buscar buffers" })
+      -- Ordenador fzf nativo (mucho más rápido)
+      pcall(require("telescope").load_extension, "fzf")
     end
   },
 
@@ -54,6 +60,10 @@ return {
   {
     "nvim-tree/nvim-tree.lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },
+    cmd = { "NvimTreeToggle", "NvimTreeOpen", "NvimTreeResize" },
+    keys = {
+      { "<leader>e", ":NvimTreeToggle<CR>", silent = true, desc = "Toggle NvimTree" },
+    },
     config = function()
       require("nvim-tree").setup({
         view = {
@@ -77,8 +87,6 @@ return {
           ignore = false,
         },
       })
-
-      vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { noremap = true, silent = true, desc = "Toggle NvimTree" })
     end
   },
 
@@ -87,16 +95,17 @@ return {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
     dependencies = { "nvim-lua/plenary.nvim" },
+    keys = {
+      { "<leader>a", function() require("harpoon"):list():add() end, desc = "Harpoon: marcar archivo" },
+      { "<leader>1", function() require("harpoon"):list():select(1) end, desc = "Harpoon: archivo 1" },
+      { "<leader>2", function() require("harpoon"):list():select(2) end, desc = "Harpoon: archivo 2" },
+      { "<leader>3", function() require("harpoon"):list():select(3) end, desc = "Harpoon: archivo 3" },
+      { "<leader>4", function() require("harpoon"):list():select(4) end, desc = "Harpoon: archivo 4" },
+      -- <leader>hh (no <leader>h) para no bloquear los hunks de gitsigns
+      { "<leader>hh", function() local h = require("harpoon") h.ui:toggle_quick_menu(h:list()) end, desc = "Harpoon: ver lista" },
+    },
     config = function()
-      local harpoon = require("harpoon")
-      harpoon:setup()
-
-      vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end, { desc = "Harpoon: marcar archivo" })
-      vim.keymap.set("n", "<leader>1", function() harpoon:list():select(1) end, { desc = "Harpoon: archivo 1" })
-      vim.keymap.set("n", "<leader>2", function() harpoon:list():select(2) end, { desc = "Harpoon: archivo 2" })
-      vim.keymap.set("n", "<leader>3", function() harpoon:list():select(3) end, { desc = "Harpoon: archivo 3" })
-      vim.keymap.set("n", "<leader>4", function() harpoon:list():select(4) end, { desc = "Harpoon: archivo 4" })
-      vim.keymap.set("n", "<leader>h", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Harpoon: ver lista" })
+      require("harpoon"):setup()
     end
   },
 
@@ -112,13 +121,26 @@ return {
                 "lua",
                 "python",
                 "javascript",
+                "typescript",
+                "tsx",
                 "html",
                 "css",
+                "scss",
                 "htmldjango",
+                "json",
+                "yaml",
+                "toml",
+                "bash",
+                "dockerfile",
+                "nginx",
                 "markdown",
                 "markdown_inline",
-                "cpp",
-                "c",
+                "gitcommit",
+                "diff",
+                "vim",
+                "vimdoc",
+                "query",
+                "regex",
             },
             highlight = {
                 enable = true,
@@ -163,7 +185,6 @@ return {
             ts_config = {
                 lua = { "string" },
                 javascript = { "template_string" },
-                java = false,
             },
             disable_filetype = { "TelescopePrompt", "vim" },
             -- Comportamiento al presionar Enter
@@ -187,7 +208,6 @@ return {
 
         -- Reglas personalizadas para mejor comportamiento
         local Rule = require("nvim-autopairs.rule")
-        local cond = require("nvim-autopairs.conds")
 
         -- Agregar espacios entre paréntesis cuando presionas espacio
         local brackets = { { '(', ')' }, { '[', ']' }, { '{', '}' } }
@@ -294,7 +314,12 @@ return {
     {
       "folke/trouble.nvim",
       dependencies = { "nvim-tree/nvim-web-devicons" },
-      event = "BufReadPre",
+      cmd = "Trouble",
+      keys = {
+        { "<leader>xx", ":Trouble diagnostics toggle<CR>", silent = true, desc = "Trouble: toggle panel" },
+        { "<leader>xf", ":Trouble diagnostics toggle filter.buf=0<CR>", silent = true, desc = "Trouble: errores archivo actual" },
+        { "<leader>xq", ":Trouble qflist toggle<CR>", silent = true, desc = "Trouble: quickfix list" },
+      },
       config = function()
         require("trouble").setup({
           modes = {
@@ -304,18 +329,18 @@ return {
             },
           },
         })
-
-        -- Atajos
-        vim.keymap.set("n", "<leader>xx", ":Trouble diagnostics toggle<CR>", { desc = "Trouble: toggle panel" })
-        vim.keymap.set("n", "<leader>xf", ":Trouble diagnostics toggle filter.buf=0<CR>", { desc = "Trouble: errores archivo actual" })
-        vim.keymap.set("n", "<leader>xq", ":Trouble qflist toggle<CR>", { desc = "Trouble: quickfix list" })
       end,
     },
     -- Spectre: buscar y reemplazar en proyecto
     {
       "nvim-pack/nvim-spectre",
       dependencies = { "nvim-lua/plenary.nvim" },
-      event = "BufReadPre",
+      keys = {
+        { "<leader>S", function() require("spectre").toggle() end, desc = "Spectre: toggle" },
+        { "<leader>sw", function() require("spectre").open_visual({ select_word = true }) end, desc = "Spectre: buscar palabra bajo cursor" },
+        { "<leader>sw", function() require("spectre").open_visual() end, mode = "v", desc = "Spectre: buscar selección" },
+        { "<leader>sf", function() require("spectre").open_file_search({ select_word = true }) end, desc = "Spectre: buscar en archivo actual" },
+      },
       config = function()
         require("spectre").setup({
           color_devicons = true,
@@ -327,21 +352,15 @@ return {
             replace = "DiffDelete",
           },
         })
-
-        -- Atajos
-        vim.keymap.set("n", "<leader>S", function() require("spectre").toggle() end, { desc = "Spectre: toggle" })
-        vim.keymap.set("n", "<leader>sw", function() require("spectre").open_visual({ select_word = true }) end, { desc = "Spectre: buscar palabra bajo cursor" })
-        vim.keymap.set("v", "<leader>sw", function() require("spectre").open_visual() end, { desc = "Spectre: buscar selección" })
-        vim.keymap.set("n", "<leader>sf", function() require("spectre").open_file_search({ select_word = true }) end, { desc = "Spectre: buscar en archivo actual" })
       end,
     },
     -- Cellular Automaton (puro entretenimiento)
     {
       "eandrju/cellular-automaton.nvim",
       cmd = "CellularAutomaton",
-      config = function()
-        vim.keymap.set("n", "<leader>fml", ":CellularAutomaton make_it_rain<CR>", { desc = "Make it rain" })
-        vim.keymap.set("n", "<leader>gol", ":CellularAutomaton game_of_life<CR>", { desc = "Game of life" })
-      end,
+      keys = {
+        { "<leader>fml", ":CellularAutomaton make_it_rain<CR>", silent = true, desc = "Make it rain" },
+        { "<leader>gol", ":CellularAutomaton game_of_life<CR>", silent = true, desc = "Game of life" },
+      },
     },
 }

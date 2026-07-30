@@ -6,7 +6,7 @@ return {
     {
     "mrjones2014/legendary.nvim",
     version = "^2.1.0",
-    lazy = false,
+    event = "VeryLazy",
     dependencies = {
       "kkharji/sqlite.lua",
     },
