@@ -159,10 +159,16 @@ return {
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
     build = "cd app && npm install",
     ft = { "markdown" },
-    config = function()
-        vim.keymap.set('n', '<leader>mp', ':MarkdownPreview<CR>', { desc = 'Markdown Preview' })
-        vim.keymap.set('n', '<leader>ms', ':MarkdownPreviewStop<CR>', { desc = 'Stop Markdown Preview' })
-
+    -- Los atajos van en keys para que existan SIEMPRE, aunque el filetype no
+    -- sea markdown. Si estuvieran en config, en un archivo no detectado como
+    -- markdown el plugin no cargaría y la tecla no haría nada (fallo silencioso).
+    keys = {
+      { "<leader>mp", "<cmd>MarkdownPreview<cr>", desc = "Markdown Preview" },
+      { "<leader>ms", "<cmd>MarkdownPreviewStop<cr>", desc = "Stop Markdown Preview" },
+    },
+    -- init corre ANTES de cargar el plugin: las variables g:mkdp_* se leen
+    -- en el momento de la carga, así que en config llegarían tarde.
+    init = function()
         vim.g.mkdp_auto_start = 0
         vim.g.mkdp_auto_close = 1
         vim.g.mkdp_refresh_slow = 0

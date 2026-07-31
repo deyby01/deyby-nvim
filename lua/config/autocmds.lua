@@ -51,6 +51,17 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     desc = "Eliminar espacios en blanco al guardar",
 })
 
+-- Variantes de Markdown que Neovim no detecta solo
+-- (.MD en mayúsculas y .mdx caen en filetype "conf" por defecto)
+vim.filetype.add({
+    extension = {
+        MD = "markdown",
+        mdx = "markdown",
+        mdown = "markdown",
+        mkd = "markdown",
+    },
+})
+
 -- Detectar docker-compose para su language server
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     pattern = { "docker-compose*.yml", "docker-compose*.yaml", "compose*.yml", "compose*.yaml" },
