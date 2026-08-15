@@ -38,7 +38,7 @@
         ├── lsp.lua           # Mason, LSPs, nvim-cmp, conform, snippets
         ├── ai.lua            # Copilot + copilot-cmp
         ├── git.lua           # Fugitive, GitSigns, Diffview, git-conflict, Octo
-        ├── terminal.lua      # ToggleTerm, LazyDocker, tmux-navigator
+        ├── terminal.lua      # ToggleTerm, LazyDocker, Live Server, tmux-navigator
         ├── debug.lua         # DAP para Python/Django
         ├── testing.lua       # Neotest (pytest)
         ├── session.lua       # auto-session
@@ -139,7 +139,7 @@ Detalles en **[git-and-github.md](git-and-github.md)**.
 
 | Plugin | Qué hace | Carga |
 |--------|----------|-------|
-| [`toggleterm.nvim`](https://github.com/akinsho/toggleterm.nvim) | Terminal integrada + LazyDocker flotante | Inmediato |
+| [`toggleterm.nvim`](https://github.com/akinsho/toggleterm.nvim) | Terminal integrada + LazyDocker y Live Server flotantes | Inmediato |
 | [`vim-tmux-navigator`](https://github.com/christoomey/vim-tmux-navigator) | `Ctrl+hjkl` entre Neovim y tmux | Inmediato |
 | [`auto-session`](https://github.com/rmagatti/auto-session) | Guarda/restaura sesión por carpeta y rama | Inmediato |
 | [`legendary.nvim`](https://github.com/mrjones2014/legendary.nvim) | Paleta de comandos (`Ctrl+p`) | `VeryLazy` |

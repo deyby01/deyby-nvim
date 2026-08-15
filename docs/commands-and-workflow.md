@@ -42,7 +42,7 @@ Para el flujo de trabajo diario, mira **[daily-routine.md](daily-routine.md)**.
 - [Fugitive](#fugitive--status-y-commits) · [GitSigns](#gitsigns--hunks-y-blame) · [Diffview](#diffview--diffs-e-historial) · [git-conflict](#git-conflict--conflictos) · [Octo](#octo--github)
 
 **Entorno**
-- [ToggleTerm](#toggleterm--terminal) · [Docker](#docker--lazydocker) · [tmux](#tmux) · [auto-session](#auto-session--sesiones) · [Legendary](#legendary--paleta-de-comandos) · [Dashboard](#dashboard) · [which-key](#which-key)
+- [ToggleTerm](#toggleterm--terminal) · [Docker](#docker--lazydocker) · [HTML — Live Server](#html--live-server) · [tmux](#tmux) · [auto-session](#auto-session--sesiones) · [Legendary](#legendary--paleta-de-comandos) · [Dashboard](#dashboard) · [which-key](#which-key)
 
 **Ejecución**
 - [nvim-dap](#nvim-dap--debugger) · [Neotest](#neotest--tests) · [Markdown Preview](#markdown-preview) · [Colorizer](#colorizer) · [Extras](#extras)
@@ -866,6 +866,51 @@ Los archivos de Docker tienen autocompletado y diagnósticos:
 
 ---
 
+## HTML — Live Server
+
+**Herramienta:** [live-server](https://github.com/tapio/live-server) vía `npx` + `toggleterm.nvim` · **Activa:** al pulsar `Espacio+lv` · **Requiere:** Node.js (ya lo tienes)
+
+Equivalente a la extensión Live Server de VSCode: sirve tus archivos HTML/CSS y
+**recarga el navegador solo** cada vez que guardas. Pensado para cursos o
+prácticas de HTML/CSS puro que no usan Docker ni un backend.
+
+| Atajo | Acción |
+|-------|--------|
+| `Espacio+lv` | Abrir **Live Server** en terminal flotante — sirve la carpeta del archivo actual y abre el navegador |
+
+### Cómo se usa
+
+```
+1. Abre tu index.html
+2. Espacio+lv           → arranca el servidor y abre el navegador solo
+3. Esc                  → sales de la terminal flotante, sigue sirviendo en fondo
+4. Edita y guarda tu .html o .css
+5. Mira el navegador: se refrescó solo
+```
+
+`Espacio+lv` otra vez la vuelve a mostrar/ocultar (igual que `Espacio+ld` con
+LazyDocker) sin reiniciar el servidor.
+
+### 🖥️ No está "dentro" de Neovim — y así debe ser
+
+Neovim corre en una terminal de texto: no puede dibujar un navegador real
+adentro. Lo que hace este atajo es levantar el servidor y abrir tu navegador
+del sistema **al lado** de la ventana de Neovim — visualmente es la misma
+experiencia que Live Server en VSCode (código a un lado, resultado al otro),
+solo que el navegador es una ventana aparte en vez de un panel embebido.
+
+### Detalles técnicos
+
+- Sirve **la carpeta**, no solo el archivo — si tienes `index.html` + `style.css`
+  en la misma carpeta, los enlaces relativos funcionan igual que en producción
+- El servidor arranca sirviendo la carpeta del archivo que tenías abierto **la
+  primera vez** que pulsas `Espacio+lv`. Si cambias a un curso/carpeta distinta,
+  reinicia Neovim para que vuelva a capturar la carpeta correcta
+- Usa `npx --yes live-server`, no una instalación global — no necesitas
+  `sudo` ni tocar nada del sistema
+
+---
+
 ## tmux
 
 **Plugin de integración:** `vim-tmux-navigator` · **Activa:** inmediato
@@ -1134,6 +1179,7 @@ Todos los atajos con `Espacio`, ordenados. **74 en total.**
 | `Espacio+lc` | Legendary | Ver comandos |
 | `Espacio+ld` | ToggleTerm | LazyDocker |
 | `Espacio+lk` | Legendary | Ver atajos |
+| `Espacio+lv` | Live Server | Preview HTML/CSS con auto-recarga |
 | `Espacio+mp` | Markdown Preview | Abrir preview |
 | `Espacio+ms` | Markdown Preview | Detener preview |
 | `Espacio+nf` | Neotest | Tests del archivo |

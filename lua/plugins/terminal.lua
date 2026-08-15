@@ -31,6 +31,22 @@ return {
         })
         vim.keymap.set("n", "<leader>ld", function() lazydocker:toggle() end, {noremap = true, silent = true, desc = "LazyDocker"})
 
+        -- Live Server: preview de HTML/CSS con auto-recarga en el navegador
+        -- (equivalente a la extensión Live Server de VSCode). Sirve la carpeta
+        -- del archivo que tenías abierto la primera vez que lo activas.
+        local live_server
+        vim.keymap.set("n", "<leader>lv", function()
+            if not live_server then
+                local dir = vim.fn.expand("%:p:h")
+                live_server = Terminal:new({
+                    cmd = "npx --yes live-server " .. vim.fn.shellescape(dir),
+                    hidden = true,
+                    direction = "float",
+                })
+            end
+            live_server:toggle()
+        end, { noremap = true, silent = true, desc = "Live Server: preview HTML/CSS" })
+
         -- Terminal horizontal
         vim.keymap.set("n", "<leader>tt", ":ToggleTerm<CR>", {noremap = true, silent = true, desc = "Toggle terminal"})
 
