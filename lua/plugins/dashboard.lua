@@ -153,13 +153,13 @@ return {
         },
       })
 
-      vim.api.nvim_set_hl(0, "DashboardHeader",    { fg = "#bd93f9" })
-      vim.api.nvim_set_hl(0, "DashboardIcon",      { fg = "#ff79c6" })
-      vim.api.nvim_set_hl(0, "DashboardDesc",      { fg = "#f8f8f2" })
-      vim.api.nvim_set_hl(0, "DashboardKey",       { fg = "#50fa7b" })
-      vim.api.nvim_set_hl(0, "DashboardFooter",    { fg = "#6272a4" })
-      vim.api.nvim_set_hl(0, "DashboardSeparator", { fg = "#6272a4" })
-      vim.api.nvim_set_hl(0, "DashboardRecent",    { fg = "#8be9fd" })
+      vim.api.nvim_set_hl(0, "DashboardHeader",    { fg = "#88C0D0" })
+      vim.api.nvim_set_hl(0, "DashboardIcon",      { fg = "#81A1C1" })
+      vim.api.nvim_set_hl(0, "DashboardDesc",      { fg = "#D8DEE9" })
+      vim.api.nvim_set_hl(0, "DashboardKey",       { fg = "#A3BE8C" })
+      vim.api.nvim_set_hl(0, "DashboardFooter",    { fg = "#4C566A" })
+      vim.api.nvim_set_hl(0, "DashboardSeparator", { fg = "#4C566A" })
+      vim.api.nvim_set_hl(0, "DashboardRecent",    { fg = "#8FBCBB" })
     end,
   },
 }

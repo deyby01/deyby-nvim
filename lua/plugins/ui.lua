@@ -3,16 +3,24 @@
 -- ==========================================
 
 return {
-    -- Tema: Dracula
+    -- Tema: Nordic
     {
-    "dracula/vim",
-    name = "dracula",
-    priority = 1000,
-    config = function()
-      vim.cmd.colorscheme("dracula")
-    end
+      "AlexvZyl/nordic.nvim",
+      lazy = false,
+      priority = 1000,
+      config = function()
+        require("nordic").setup({
+          bold_keywords = false,
+          italic_comments = true,
+          transparent_bg = true,
+          bright_border = true,
+          reduced_blue = true,
+          cursorline = { theme = "dark", blend = 0.85 },
+          telescope = { style = "flat" },
+        })
+        require("nordic").load()
+      end,
     },
-
     -- Barra de estado (lualine)
     {
     'nvim-lualine/lualine.nvim',
@@ -20,7 +28,7 @@ return {
     config = function()
         require('lualine').setup({
             options = {
-                theme = 'dracula',
+                theme = 'nordic',
                 component_separators = { left = '|', right = '|'},
                 section_separators = { left = '', right = ''},
             },
@@ -127,13 +135,13 @@ return {
 
         local hooks = require("ibl.hooks")
         hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
-            vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#FF6B6B", bold = true })
-            vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#FFD93D", bold = true })
-            vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#6BCF7F", bold = true })
-            vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#FFA500", bold = true })
-            vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#00D9FF", bold = true })
-            vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C77DFF", bold = true })
-            vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#00F5D4", bold = true })
+            vim.api.nvim_set_hl(0, "RainbowRed",    { fg = "#BF616A", bold = true })
+            vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#EBCB8B", bold = true })
+            vim.api.nvim_set_hl(0, "RainbowBlue",   { fg = "#81A1C1", bold = true })
+            vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D08770", bold = true })
+            vim.api.nvim_set_hl(0, "RainbowGreen",  { fg = "#A3BE8C", bold = true })
+            vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#B48EAD", bold = true })
+            vim.api.nvim_set_hl(0, "RainbowCyan",   { fg = "#88C0D0", bold = true })
         end)
 
         require("ibl").setup({
@@ -244,10 +252,10 @@ return {
       config = function()
         require("modes").setup({
           colors = {
-            copy   = "#FFD93D",
-            delete = "#FF6B6B",
-            insert = "#50fa7b",
-            visual = "#FFA500",
+            copy   = "#EBCB8B",
+            delete = "#BF616A",
+            insert = "#A3BE8C",
+            visual = "#D08770",
           },
           line_opacity = 0.15,
           set_cursor = true,
