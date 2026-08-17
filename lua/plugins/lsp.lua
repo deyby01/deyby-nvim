@@ -1,16 +1,16 @@
 -- ==========================================
--- LSP Y AUTOCOMPLETADO
+-- LSP, COMPLETION AND FORMATTING
 -- ==========================================
 
 return {
-  -- Mason: Instalador de LSP (repos nuevos: mason-org)
+  -- Mason: installs language servers, linters and debuggers
   {
     "mason-org/mason.nvim",
     cmd = { "Mason", "MasonInstall", "MasonUpdate", "MasonUninstall" },
     opts = {},
   },
 
-  -- Mason-lspconfig (v2: automatic_enable activa los servidores instalados)
+  -- mason-lspconfig (v2: automatic_enable turns on whatever Mason installed)
   {
     "mason-org/mason-lspconfig.nvim",
     dependencies = { "mason-org/mason.nvim" },
@@ -45,7 +45,7 @@ return {
 
         vim.lsp.config("*", { capabilities = capabilities })
 
-        -- Diagnósticos inline
+        -- Diagnostics display
         vim.diagnostic.config({
             virtual_text = false,
             signs = true,
@@ -54,9 +54,9 @@ return {
             severity_sort = true,
         })
 
-        -- Ruff (Linter + Formatter Python)
-        -- Se resuelve desde el PATH: si el .venv está activado, usa el ruff
-        -- del proyecto con su configuración local
+        -- Ruff (Python linter + formatter)
+        -- Resolved from PATH: with the project's .venv active it uses that
+        -- project's ruff and its local configuration
         vim.lsp.config("ruff", {
             cmd = { "ruff", "server" },
             filetypes = { "python" },
@@ -69,7 +69,7 @@ return {
             },
         })
 
-        -- Pyright (Type Checker Python)
+        -- Pyright (Python type checker)
         vim.lsp.config("pyright", {
             cmd = { "pyright-langserver", "--stdio" },
             filetypes = { "python" },
@@ -85,7 +85,7 @@ return {
             },
         })
 
-        -- HTML (incluye templates de Django)
+        -- HTML (including Django templates)
         vim.lsp.config("html", {
             cmd = { "vscode-html-language-server", "--stdio" },
             filetypes = { "html", "htmldjango" },
@@ -98,7 +98,7 @@ return {
                 html = {
                     format = {
                         indentInnerHtml = true,
-                        tabSize = 4,              -- 4 espacios
+                        tabSize = 4,              -- 4 spaces
                         insertSpaces = true,
                         wrapLineLength = 120,
                         endWithNewline = true,
@@ -113,13 +113,13 @@ return {
             filetypes = { "css", "scss", "less" },
         })
 
-        -- JavaScript/TypeScript/React
+        -- JavaScript / TypeScript / React
         vim.lsp.config("ts_ls", {
             cmd = { "typescript-language-server", "--stdio" },
             filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
         })
 
-        -- Emmet (expansión de tags: div.card>ul>li*3, etc.)
+        -- Emmet (abbreviation expansion: div.card>ul>li*3, ...)
         vim.lsp.config("emmet_ls", {
             cmd = { "emmet-ls", "--stdio" },
             filetypes = {
@@ -128,7 +128,7 @@ return {
             },
         })
 
-        -- Keymaps de LSP
+        -- LSP keymaps
         local function setup_lsp_keymaps(bufnr)
             local opts = { noremap = true, silent = true, buffer = bufnr }
             vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
@@ -152,8 +152,8 @@ return {
     end
   },
 
-  -- Conform: formateo por filetype (usa los formatters del .venv/PATH,
-  -- con fallback al LSP si no existen)
+  -- Conform: per-filetype formatting (uses the formatters from your
+  -- .venv/PATH, falling back to the LSP when they aren't installed)
   {
     "stevearc/conform.nvim",
     keys = {
@@ -161,7 +161,7 @@ return {
         "<leader>cf",
         function() require("conform").format({ async = true }) end,
         mode = { "n", "v" },
-        desc = "Formatear archivo/selección",
+        desc = "Format file/selection",
       },
     },
     opts = {
@@ -183,7 +183,7 @@ return {
     },
   },
 
-  -- nvim-cmp
+  -- nvim-cmp: completion engine
   {
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
@@ -202,11 +202,11 @@ return {
         local luasnip = require("luasnip")
         local lspkind = require("lspkind")
 
-        -- Activar snippets de Django (friendly-snippets los trae, pero
-        -- hay que extender los filetypes para que aparezcan).
-        -- IMPORTANTE: antes de lazy_load(), si no, no se cargan.
-        --   htmldjango -> tags de template ({% block %}, {% for %}...) + HTML normal
-        --   python     -> modelos, forms, views, serializers DRF...
+        -- Enable the Django snippets. friendly-snippets ships them, but the
+        -- filetypes have to be extended for them to show up.
+        -- IMPORTANT: this must run before lazy_load(), otherwise they never load.
+        --   htmldjango -> template tags ({% block %}, {% for %}...) plus plain HTML
+        --   python     -> models, forms, views, DRF serializers...
         luasnip.filetype_extend("htmldjango", { "html" })
         luasnip.filetype_extend("python", { "django", "django-rest" })
 
@@ -227,7 +227,7 @@ return {
                 ["<C-f>"] = cmp.mapping.scroll_docs(4),
                 ["<C-Space>"] = cmp.mapping.complete(),
                 ["<C-e>"] = cmp.mapping.abort(),
-                -- select = false: Enter solo confirma si seleccionaste algo
+                -- select = false: Enter only confirms an explicit selection
                 ["<CR>"] = cmp.mapping.confirm({ select = false }),
                 ["<Tab>"] = cmp.mapping(function(fallback)
                     if cmp.visible() then

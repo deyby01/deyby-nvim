@@ -1,9 +1,11 @@
 -- ==========================================
--- PLUGINS DEL EDITOR
+-- EDITOR PLUGINS
 -- ==========================================
 
+local user = require("config.user")
+
 return {
-  -- Telescope: Fuzzy finder
+  -- Telescope: fuzzy finder
   {
     "nvim-telescope/telescope.nvim",
     branch = "0.1.x",
@@ -13,27 +15,27 @@ return {
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     },
     keys = {
-      { "<leader>ff", function() require("telescope.builtin").find_files() end, desc = "Buscar archivos" },
-      { "<leader>fg", function() require("telescope.builtin").live_grep() end, desc = "Buscar contenido" },
-      { "<leader>fb", function() require("telescope.builtin").buffers() end, desc = "Buscar buffers" },
+      { "<leader>ff", function() require("telescope.builtin").find_files() end, desc = "Find files" },
+      { "<leader>fg", function() require("telescope.builtin").live_grep() end, desc = "Search text" },
+      { "<leader>fb", function() require("telescope.builtin").buffers() end, desc = "Find buffers" },
       {
         "<leader>fp",
         function()
           require("telescope.builtin").find_files({
-            cwd = vim.fn.expand("~/Documents"),
+            cwd = user.projects_path(),
             hidden = true,
           })
         end,
-        desc = "Buscar archivos en todos los proyectos",
+        desc = "Find files across all projects",
       },
       {
         "<leader>fP",
         function()
           require("telescope.builtin").live_grep({
-            cwd = vim.fn.expand("~/Documents"),
+            cwd = user.projects_path(),
           })
         end,
-        desc = "Buscar contenido en todos los proyectos",
+        desc = "Search text across all projects",
       },
     },
     config = function()
@@ -51,12 +53,12 @@ return {
         },
       })
 
-      -- Ordenador fzf nativo (mucho más rápido)
+      -- Native fzf sorter (much faster)
       pcall(require("telescope").load_extension, "fzf")
     end
   },
 
-  -- NvimTree: Explorador de archivos
+  -- NvimTree: file explorer
   {
     "nvim-tree/nvim-tree.lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -90,26 +92,26 @@ return {
     end
   },
 
-  -- Harpoon: Marcar archivos frecuentes
+  -- Harpoon: bookmark frequently used files
   {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
     dependencies = { "nvim-lua/plenary.nvim" },
     keys = {
-      { "<leader>a", function() require("harpoon"):list():add() end, desc = "Harpoon: marcar archivo" },
-      { "<leader>1", function() require("harpoon"):list():select(1) end, desc = "Harpoon: archivo 1" },
-      { "<leader>2", function() require("harpoon"):list():select(2) end, desc = "Harpoon: archivo 2" },
-      { "<leader>3", function() require("harpoon"):list():select(3) end, desc = "Harpoon: archivo 3" },
-      { "<leader>4", function() require("harpoon"):list():select(4) end, desc = "Harpoon: archivo 4" },
-      -- <leader>hh (no <leader>h) para no bloquear los hunks de gitsigns
-      { "<leader>hh", function() local h = require("harpoon") h.ui:toggle_quick_menu(h:list()) end, desc = "Harpoon: ver lista" },
+      { "<leader>a", function() require("harpoon"):list():add() end, desc = "Harpoon: mark file" },
+      { "<leader>1", function() require("harpoon"):list():select(1) end, desc = "Harpoon: file 1" },
+      { "<leader>2", function() require("harpoon"):list():select(2) end, desc = "Harpoon: file 2" },
+      { "<leader>3", function() require("harpoon"):list():select(3) end, desc = "Harpoon: file 3" },
+      { "<leader>4", function() require("harpoon"):list():select(4) end, desc = "Harpoon: file 4" },
+      -- <leader>hh (not <leader>h) so it doesn't shadow the gitsigns hunk maps
+      { "<leader>hh", function() local h = require("harpoon") h.ui:toggle_quick_menu(h:list()) end, desc = "Harpoon: show list" },
     },
     config = function()
       require("harpoon"):setup()
     end
   },
 
-  -- Treesitter: Mejor syntax highlighting
+  -- Treesitter: better syntax highlighting
   {
     'nvim-treesitter/nvim-treesitter',
     branch = 'master',
@@ -159,15 +161,15 @@ return {
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
     build = "cd app && npm install",
     ft = { "markdown" },
-    -- Los atajos van en keys para que existan SIEMPRE, aunque el filetype no
-    -- sea markdown. Si estuvieran en config, en un archivo no detectado como
-    -- markdown el plugin no cargaría y la tecla no haría nada (fallo silencioso).
+    -- Keymaps live in `keys` so they ALWAYS exist, even when the filetype is
+    -- not markdown. Inside `config` they would never be registered for a file
+    -- that isn't detected as markdown, and the key would silently do nothing.
     keys = {
       { "<leader>mp", "<cmd>MarkdownPreview<cr>", desc = "Markdown Preview" },
       { "<leader>ms", "<cmd>MarkdownPreviewStop<cr>", desc = "Stop Markdown Preview" },
     },
-    -- init corre ANTES de cargar el plugin: las variables g:mkdp_* se leen
-    -- en el momento de la carga, así que en config llegarían tarde.
+    -- `init` runs BEFORE the plugin loads: the g:mkdp_* variables are read at
+    -- load time, so setting them in `config` would be too late.
     init = function()
         vim.g.mkdp_auto_start = 0
         vim.g.mkdp_auto_close = 1
@@ -176,7 +178,7 @@ return {
     end
   },
 
-  -- Auto-cerrar paréntesis, llaves, comillas
+  -- Auto-close brackets, braces and quotes
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
@@ -187,13 +189,13 @@ return {
         local cmp = require("cmp")
 
         autopairs.setup({
-            check_ts = true,  -- Usar treesitter
+            check_ts = true,  -- Use treesitter
             ts_config = {
                 lua = { "string" },
                 javascript = { "template_string" },
             },
             disable_filetype = { "TelescopePrompt", "vim" },
-            -- Comportamiento al presionar Enter
+            -- Alt+e to wrap the following text with the pair
             fast_wrap = {
                 map = '<M-e>',
                 chars = { '{', '[', '(', '"', "'" },
@@ -206,16 +208,16 @@ return {
             },
         })
 
-        -- Integración con nvim-cmp
+        -- nvim-cmp integration
         cmp.event:on(
             "confirm_done",
             cmp_autopairs.on_confirm_done()
         )
 
-        -- Reglas personalizadas para mejor comportamiento
+        -- Custom rules for nicer behaviour
         local Rule = require("nvim-autopairs.rule")
 
-        -- Agregar espacios entre paréntesis cuando presionas espacio
+        -- Symmetric spaces inside brackets when you press space
         local brackets = { { '(', ')' }, { '[', ']' }, { '{', '}' } }
         autopairs.add_rules({
             Rule(' ', ' ')
@@ -229,7 +231,7 @@ return {
                 end)
         })
 
-        -- Auto-indentar al presionar Enter entre llaves/paréntesis/corchetes
+        -- Auto-indent when pressing Enter between brackets
         for _, bracket in pairs(brackets) do
             autopairs.add_rules({
                 Rule(bracket[1] .. ' ', ' ' .. bracket[2])
@@ -241,14 +243,14 @@ return {
             })
         end
 
-        -- Regla especial para Python (f-strings)
+        -- Special rule for Python f-strings
         autopairs.add_rules({
             Rule("f'", "'", "python"),
             Rule('f"', '"', "python"),
         })
     end
     },
-    -- Comentar código fácilmente
+    -- Comment code easily
     {
         "numToStr/Comment.nvim",
         event = { "BufReadPre", "BufNewFile" },
@@ -256,18 +258,18 @@ return {
             "JoosepAlviste/nvim-ts-context-commentstring",
         },
         config = function()
-            -- Configurar ts_context_commentstring PRIMERO
+            -- Configure ts_context_commentstring FIRST
             require("ts_context_commentstring").setup({
                 enable_autocmd = false,
             })
 
-            -- Luego configurar Comment.nvim
+            -- Then configure Comment.nvim
             require("Comment").setup({
                 pre_hook = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook(),
             })
         end,
     },
-    -- Navegación rápida
+    -- Fast motion
     {
         "folke/flash.nvim",
         event = "VeryLazy",
@@ -283,8 +285,8 @@ return {
             },
         })
 
-        -- Atajos
-        vim.keymap.set({ "n", "x", "o" }, "s", function() require("flash").jump() end, { desc = "Flash: saltar" })
+        -- Keymaps
+        vim.keymap.set({ "n", "x", "o" }, "s", function() require("flash").jump() end, { desc = "Flash: jump" })
         vim.keymap.set({ "n", "x", "o" }, "S", function() require("flash").treesitter() end, { desc = "Flash: treesitter" })
     end,
     },
@@ -304,8 +306,8 @@ return {
                 },
             })
 
-            -- Buscar todos los TODOs del proyecto
-            vim.keymap.set("n", "<leader>ft", ":TodoTelescope<CR>", { desc = "Buscar TODOs" })
+            -- Search every TODO in the project
+            vim.keymap.set("n", "<leader>ft", ":TodoTelescope<CR>", { desc = "Search TODOs" })
         end,
     },
     -- Surround
@@ -316,14 +318,14 @@ return {
             require("nvim-surround").setup()
         end,
     },
-    -- Trouble: panel de errores y warnings
+    -- Trouble: errors and warnings panel
     {
       "folke/trouble.nvim",
       dependencies = { "nvim-tree/nvim-web-devicons" },
       cmd = "Trouble",
       keys = {
         { "<leader>xx", ":Trouble diagnostics toggle<CR>", silent = true, desc = "Trouble: toggle panel" },
-        { "<leader>xf", ":Trouble diagnostics toggle filter.buf=0<CR>", silent = true, desc = "Trouble: errores archivo actual" },
+        { "<leader>xf", ":Trouble diagnostics toggle filter.buf=0<CR>", silent = true, desc = "Trouble: current file diagnostics" },
         { "<leader>xq", ":Trouble qflist toggle<CR>", silent = true, desc = "Trouble: quickfix list" },
       },
       config = function()
@@ -337,15 +339,15 @@ return {
         })
       end,
     },
-    -- Spectre: buscar y reemplazar en proyecto
+    -- Spectre: project-wide search and replace
     {
       "nvim-pack/nvim-spectre",
       dependencies = { "nvim-lua/plenary.nvim" },
       keys = {
         { "<leader>S", function() require("spectre").toggle() end, desc = "Spectre: toggle" },
-        { "<leader>sw", function() require("spectre").open_visual({ select_word = true }) end, desc = "Spectre: buscar palabra bajo cursor" },
-        { "<leader>sw", function() require("spectre").open_visual() end, mode = "v", desc = "Spectre: buscar selección" },
-        { "<leader>sf", function() require("spectre").open_file_search({ select_word = true }) end, desc = "Spectre: buscar en archivo actual" },
+        { "<leader>sw", function() require("spectre").open_visual({ select_word = true }) end, desc = "Spectre: search word under cursor" },
+        { "<leader>sw", function() require("spectre").open_visual() end, mode = "v", desc = "Spectre: search selection" },
+        { "<leader>sf", function() require("spectre").open_file_search({ select_word = true }) end, desc = "Spectre: search in current file" },
       },
       config = function()
         require("spectre").setup({
@@ -360,7 +362,7 @@ return {
         })
       end,
     },
-    -- Cellular Automaton (puro entretenimiento)
+    -- Cellular Automaton (pure fun)
     {
       "eandrju/cellular-automaton.nvim",
       cmd = "CellularAutomaton",

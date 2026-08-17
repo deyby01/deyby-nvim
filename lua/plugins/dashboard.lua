@@ -1,6 +1,9 @@
 -- ==========================================
--- DASHBOARD (PANTALLA DE INICIO)
+-- DASHBOARD (START SCREEN)
 -- ==========================================
+
+local user = require("config.user")
+
 return {
   {
     "nvimdev/dashboard-nvim",
@@ -16,12 +19,12 @@ return {
         quit    = "\u{f011} ",
       }
 
-      -- Construir center con recent files funcionales
+      -- Build the center menu, including working recent-file entries
       local center = {
         {
           icon = icons.files,
           icon_hl = "DashboardIcon",
-          desc = "Buscar archivo          ",
+          desc = "Find file               ",
           desc_hl = "DashboardDesc",
           key = "f",
           key_hl = "DashboardKey",
@@ -30,15 +33,15 @@ return {
         {
           icon = icons.search,
           icon_hl = "DashboardIcon",
-          desc = "Abrir proyecto          ",
+          desc = "Open project            ",
           desc_hl = "DashboardDesc",
           key = "r",
           key_hl = "DashboardKey",
           action = function()
             require("telescope.builtin").find_files({
-              cwd = vim.fn.expand("~/Documents"),
-              find_command = { "find", vim.fn.expand("~/Documents"), "-maxdepth", "1", "-type", "d" },
-              prompt_title = "Abrir proyecto",
+              cwd = user.projects_path(),
+              find_command = { "find", user.projects_path(), "-maxdepth", "1", "-type", "d" },
+              prompt_title = "Open project",
               attach_mappings = function(_, map)
                 local actions = require("telescope.actions")
                 local action_state = require("telescope.actions.state")
@@ -56,7 +59,7 @@ return {
         {
           icon = icons.text,
           icon_hl = "DashboardIcon",
-          desc = "Buscar texto            ",
+          desc = "Search text             ",
           desc_hl = "DashboardDesc",
           key = "g",
           key_hl = "DashboardKey",
@@ -65,7 +68,7 @@ return {
         {
           icon = icons.config,
           icon_hl = "DashboardIcon",
-          desc = "Configuración           ",
+          desc = "Configuration           ",
           desc_hl = "DashboardDesc",
           key = "c",
           key_hl = "DashboardKey",
@@ -83,13 +86,13 @@ return {
         {
           icon = icons.quit,
           icon_hl = "DashboardIcon",
-          desc = "Salir                   ",
+          desc = "Quit                    ",
           desc_hl = "DashboardDesc",
           key = "q",
           key_hl = "DashboardKey",
           action = "quit",
         },
-        -- Separador Recent Files
+        -- Recent files separator
         {
           icon = " ",
           icon_hl = "DashboardIcon",
@@ -101,7 +104,7 @@ return {
         },
       }
 
-      -- Agregar recent files con atajos funcionales
+      -- Add recent files with working shortcut keys
       local oldfiles = vim.v.oldfiles or {}
       for i = 1, math.min(5, #oldfiles) do
         local file = oldfiles[i]
@@ -117,6 +120,16 @@ return {
         })
       end
 
+      -- Banner + greeting, both driven by lua/config/user.lua
+      local header = { "", "", "", "", "", "" }
+      for _, line in ipairs(user.dashboard_header) do
+        table.insert(header, line)
+      end
+      table.insert(header, "")
+      table.insert(header, "               Welcome back, " .. user.display_name())
+      table.insert(header, "")
+      table.insert(header, "")
+
       require("dashboard").setup({
         theme = "doom",
         hide = {
@@ -126,28 +139,11 @@ return {
         },
         config = {
           key_format = " %s",
-          header = {
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "  ██████╗ ███████╗██╗   ██╗██████╗ ██╗   ██╗      ██████╗ ███████╗██╗   ██╗",
-            "  ██╔══██╗██╔════╝╚██╗ ██╔╝██╔══██╗╚██╗ ██╔╝      ██╔══██╗██╔════╝╚██╗ ██╔╝",
-            "  ██║  ██║█████╗   ╚████╔╝ ██████╔╝ ╚████╔╝ █████╗██║  ██║█████╗   ╚████╔╝ ",
-            "  ██║  ██║██╔══╝    ╚██╔╝  ██╔══██╗  ╚██╔╝  ╚════╝██║  ██║██╔══╝    ╚██╔╝  ",
-            "  ██████╔╝███████╗   ██║   ██████╔╝   ██║         ██████╔╝███████╗   ██║   ",
-            "  ╚═════╝ ╚══════╝   ╚═╝   ╚═════╝    ╚═╝         ╚═════╝ ╚══════╝   ╚═╝   ",
-            "",
-            "               Bienvenido de vuelta, deyby-dev               ",
-            "",
-            "",
-          },
+          header = header,
           center = center,
           footer = {
             "",
-            "  nvim · deyby-dev · 2026",
+            "  nvim · " .. user.display_name(),
             "",
           },
         },

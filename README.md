@@ -2,63 +2,66 @@
 
 # ⚡ Neovim IDE — Python · Django · React
 
-**Configuración modular de Neovim lista para desarrollo web moderno.**
-Arranca en ~60ms, con IA integrada, LSP automático y todo el flujo de Git sin salir del editor.
+**A modular Neovim setup, ready for modern web development.**
+Starts in ~60ms, with AI in the completion menu, automatic LSP install and the whole Git workflow without leaving the editor.
 
 [![Neovim](https://img.shields.io/badge/Neovim-0.11%2B-57A143?style=flat-square&logo=neovim&logoColor=white)](https://neovim.io)
 [![Lua](https://img.shields.io/badge/Lua-2C2D72?style=flat-square&logo=lua&logoColor=white)](https://www.lua.org)
 [![lazy.nvim](https://img.shields.io/badge/lazy.nvim-managed-blueviolet?style=flat-square)](https://github.com/folke/lazy.nvim)
-[![Startup](https://img.shields.io/badge/startup-~60ms-success?style=flat-square)](docs/plugins.md#rendimiento-y-lazy-loading)
+[![Startup](https://img.shields.io/badge/startup-~60ms-success?style=flat-square)](docs/plugins.md#performance-and-lazy-loading)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04%2B-E95420?style=flat-square&logo=ubuntu&logoColor=white)](https://ubuntu.com)
 
-[Instalación](#-instalación) · [Características](#-características) · [Comandos](#-comandos-básicos) · [Documentación](#-documentación)
+[Install](#-install) · [Features](#-features) · [Commands](#-essential-commands) · [Docs](#-documentation)
 
 </div>
 
 ---
 
-## 🎯 Para quién es
+## 🎯 Who this is for
 
-Pensada para desarrolladores que trabajan con **Python/Django/DRF**,
-**JavaScript/TypeScript/React**, **Docker** y **nginx**. Si tu stack es otro,
-sirve igual como base: agregar servidores de lenguaje es cambiar una línea
-([cómo](docs/lsp-and-completion.md#agregar-un-servidor-nuevo)).
+Built for developers working with **Python/Django/DRF**,
+**JavaScript/TypeScript/React**, **Docker** and **nginx**. If your stack is
+different it still works as a base: adding a language server is a one-line
+change ([how](docs/lsp-and-completion.md#adding-a-new-server)).
+
+Everything personal lives in a single file — [`lua/config/user.lua`](lua/config/user.lua) —
+so cloning and making it yours takes about a minute.
 
 ---
 
-## ✨ Características
+## ✨ Features
 
 | | |
 |---|---|
-| ⚡ **Arranque en ~60ms** | 56 plugins, solo 12 cargan al inicio |
-| 🤖 **Copilot en el autocompletado** | Las sugerencias de IA salen en el mismo menú que el LSP, no como texto fantasma aparte |
-| 🧠 **11 LSPs automáticos** | Mason los instala solo en la primera ejecución |
-| 🐍 **Snippets de Django y DRF** | `model`, `serializer`, `{% block %}`, `{% for %}`... ~360 en total |
-| 🪄 **Formateo por proyecto** | Usa el ruff/prettier de tu `.venv`, con fallback al LSP |
-| 🐞 **Debugger de Django** | Breakpoints reales en vistas, con `manage.py runserver` |
-| 🔀 **Git completo** | Status, hunks, diffs entre ramas, conflictos, PRs y reviews |
-| 🎨 **UI cuidada** | Dracula, breadcrumbs, diagnósticos inline, which-key |
-| ✅ **Sin colisiones de teclas** | 74 atajos verificados, ninguno se pisa |
+| ⚡ **~60ms startup** | 56 plugins, only 12 load at boot |
+| 🤖 **Copilot inside completion** | AI suggestions appear in the same menu as the LSP, not as separate ghost text |
+| 🧠 **11 LSPs, installed for you** | Mason sets them up on first launch |
+| 🐍 **Django and DRF snippets** | `model`, `serializer`, `{% block %}`, `{% for %}`... ~360 in total |
+| 🪄 **Per-project formatting** | Uses the ruff/prettier from your `.venv`, falling back to the LSP |
+| 🐞 **Django debugger** | Real breakpoints in views, with `manage.py runserver` |
+| 🔀 **Complete Git workflow** | Status, hunks, branch diffs, conflicts, PRs and reviews |
+| 🖥️ **Live preview** | Docker containers and HTML/CSS live-reload, without leaving nvim |
+| ✅ **No key collisions** | 77 shortcuts, verified — none shadows another |
 
 ---
 
-## 📋 Requisitos
+## 📋 Requirements
 
-| Requisito | Mínimo | Por qué |
-|-----------|--------|---------|
-| **Neovim** | 0.11+ | Usa la API moderna `vim.lsp.config` |
-| **build-essential** | — | Compila `fzf-native` y los parsers de Treesitter |
-| **Node.js** | 18+ (rec. 22) | Copilot y LSPs web |
-| **ripgrep** + **fd** | — | Búsquedas de Telescope |
-| **Nerd Font** | — | Iconos de la interfaz |
+| Requirement | Minimum | Why |
+|-------------|---------|-----|
+| **Neovim** | 0.11+ | Uses the modern `vim.lsp.config` API |
+| **build-essential** | — | Compiles `fzf-native` and the Treesitter parsers |
+| **Node.js** | 22+ | Copilot requires it; also powers the web LSPs |
+| **ripgrep** + **fd** | — | Telescope searching |
+| **A Nerd Font** | — | Interface icons |
 
-Opcionales: `tmux`, `lazydocker`, `gh` (para PRs), suscripción de GitHub Copilot.
+Optional: `tmux`, `lazydocker`, `gh` (for PRs), an active GitHub Copilot subscription.
 
 ---
 
-## 🚀 Instalación
+## 🚀 Install
 
-### 1. Dependencias
+### 1. Dependencies
 
 ```bash
 sudo apt update && sudo apt install -y git build-essential ripgrep fd-find
@@ -71,7 +74,13 @@ sudo ln -s /usr/bin/fdfind /usr/local/bin/fd
 sudo add-apt-repository ppa:neovim-ppa/unstable -y && sudo apt update && sudo apt install neovim -y
 ```
 
-### 3. Nerd Font
+### 3. Node.js 22+
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && nvm install 22
+```
+
+### 4. A Nerd Font
 
 ```bash
 mkdir -p ~/.local/share/fonts && cd ~/.local/share/fonts \
@@ -79,172 +88,183 @@ mkdir -p ~/.local/share/fonts && cd ~/.local/share/fonts \
   && unzip JetBrainsMono.zip -d JetBrainsMono && rm JetBrainsMono.zip && fc-cache -fv
 ```
 
-Luego actívala en las preferencias de tu terminal.
+Then select it in your terminal preferences.
 
-### 4. Clonar la configuración
+### 5. Clone the config
 
 ```bash
 mv ~/.config/nvim ~/.config/nvim.backup 2>/dev/null; git clone https://github.com/deyby01/deyby-nvim.git ~/.config/nvim
 ```
 
-### 5. Primera ejecución
+### 6. Make it yours
+
+Open [`lua/config/user.lua`](lua/config/user.lua) and set your projects folder
+and your default git branch. That's the only file you need to touch.
+
+```lua
+M.projects_dir    = "~/Documents"   -- where you keep your code
+M.git_base_branch = "development"   -- "main", "develop", ...
+```
+
+### 7. First launch
 
 ```bash
 nvim
 ```
 
-Espera 2-3 minutos: se instalan los plugins, se compilan los parsers y **Mason
-instala los 11 LSPs automáticamente**. Cierra con `:qa` y vuelve a abrir.
+Give it 2-3 minutes: plugins install, parsers compile and **Mason installs the
+11 language servers automatically**. Quit with `:qa` and reopen.
 
-### 6. Autenticar Copilot (opcional)
+### 8. Authenticate Copilot (optional)
 
 ```vim
 :Copilot auth
 ```
 
-> 📖 **Guía detallada, alternativas y verificación:** [docs/installation.md](docs/installation.md)
+> 📖 **Step-by-step guide, alternatives and verification:** [docs/installation.md](docs/installation.md)
 
 ---
 
-## 🔑 Comandos básicos
+## 🔑 Essential commands
 
-**Leader key:** `Espacio`
+**Leader key:** `Space`
 
-### Lo esencial
+### The basics
 
-| Atajo | Acción |
-|-------|--------|
-| `Espacio+ff` | Buscar archivos |
-| `Espacio+fg` | Buscar texto en el proyecto |
-| `Espacio+e` | Explorador de archivos |
-| `Espacio+gs` | Git status |
-| `Espacio+ld` | Docker: contenedores y logs (LazyDocker) |
-| `Ctrl+´` | Terminal integrada |
-| `Ctrl+s` / `Ctrl+q` | Guardar / salir sin guardar |
-| `jk` | Salir de modo insert |
-| `Ctrl+p` | **Buscar cualquier comando** (si olvidas un atajo) |
+| Shortcut | Action |
+|----------|--------|
+| `Space+ff` | Find files |
+| `Space+fg` | Search text in the project |
+| `Space+e` | File explorer |
+| `Space+gs` | Git status |
+| `Space+ld` | Docker: containers and logs (LazyDocker) |
+| `Space+lv` | Live Server: HTML/CSS preview with auto-reload |
+| `Ctrl+´` | Integrated terminal |
+| `Ctrl+s` / `Ctrl+q` | Save / quit without saving |
+| `jk` | Leave insert mode |
+| `Ctrl+p` | **Search any command** (when you forget a shortcut) |
 
-### Código
+### Code
 
-| Atajo | Acción |
-|-------|--------|
-| `gd` / `gr` | Ir a la definición / ver referencias |
-| `K` | Documentación del símbolo |
-| `Espacio+ca` | Code actions (auto-import, quick fixes) |
-| `Espacio+cf` | Formatear |
-| `Espacio+rn` | Renombrar en todo el proyecto |
-| `Espacio+xx` | Panel de errores |
-| `Tab` / `Enter` | Navegar / aceptar el autocompletado |
+| Shortcut | Action |
+|----------|--------|
+| `gd` / `gr` | Go to definition / find references |
+| `K` | Symbol documentation |
+| `Space+ca` | Code actions (auto-import, quick fixes) |
+| `Space+cf` | Format |
+| `Space+rn` | Rename across the project |
+| `Space+xx` | Diagnostics panel |
+| `Tab` / `Enter` | Navigate / accept completion |
 
-### Navegación rápida
+### Fast movement
 
-| Atajo | Acción |
-|-------|--------|
-| `s` + 2 letras | Saltar a cualquier punto visible |
-| `Espacio+a` | Marcar archivo (Harpoon) |
-| `Espacio+1..4` | Ir al archivo marcado |
-| `Ctrl+h/j/k/l` | Moverse entre splits y paneles de tmux |
+| Shortcut | Action |
+|----------|--------|
+| `s` + 2 letters | Jump anywhere on screen |
+| `Space+a` | Mark file (Harpoon) |
+| `Space+1..4` | Jump to a marked file |
+| `Ctrl+h/j/k/l` | Move between splits and tmux panes |
 
-> 💡 **No hace falta memorizar nada:** pulsa `Espacio` y espera — which-key
-> muestra las opciones. O usa `Ctrl+p` para buscar por nombre.
+> 💡 **Nothing to memorize:** press `Space` and wait — which-key lists the
+> options. Or hit `Ctrl+p` to search commands by name.
 
-> 📖 **Los 74 atajos, agrupados por herramienta:** [docs/commands-and-workflow.md](docs/commands-and-workflow.md)
-
----
-
-## 📚 Documentación
-
-| Documento | Contenido |
-|-----------|-----------|
-| 📦 **[Instalación](docs/installation.md)** | Guía paso a paso, opcionales, verificación y cómo volver atrás |
-| ⌨️ **[Referencia de comandos](docs/commands-and-workflow.md)** | Todos los atajos agrupados por herramienta, con cheatsheet alfabético |
-| 🔁 **[Rutina diaria](docs/daily-routine.md)** | Los flujos reales de un dev: explorar código, debuggear, commitear, revisar PRs |
-| 🤖 **[IA — Copilot](docs/ai-copilot.md)** | Integración con cmp, filetypes, seguridad y alternativas gratuitas |
-| 🧠 **[LSP y autocompletado](docs/lsp-and-completion.md)** | Servidores, linters por `.venv`, formateo y snippets |
-| 🐍 **[Django y DRF](docs/django.md)** | Snippets, templates, debugger y tests |
-| 🔀 **[Git y GitHub](docs/git-and-github.md)** | Fugitive, GitSigns, Diffview, conflictos y Octo |
-| 🖥️ **[tmux](docs/tmux.md)** | Configuración, sesiones y navegación unificada |
-| 🔌 **[Plugins](docs/plugins.md)** | Los 56 plugins, estructura, lazy-loading y cómo agregar/quitar |
-| 🐛 **[Solución de problemas](docs/troubleshooting.md)** | Diagnóstico de los fallos más comunes |
+> 📖 **All 77 shortcuts, grouped by tool:** [docs/commands-and-workflow.md](docs/commands-and-workflow.md)
 
 ---
 
-## 📁 Estructura
+## 📚 Documentation
+
+| Document | Contents |
+|----------|----------|
+| 📦 **[Installation](docs/installation.md)** | Step-by-step setup, optional tools, verification and how to roll back |
+| ⌨️ **[Command reference](docs/commands-and-workflow.md)** | Every shortcut grouped by tool, plus an alphabetical cheatsheet |
+| 🔁 **[Daily routine](docs/daily-routine.md)** | A developer's real flows: exploring code, debugging, committing, reviewing PRs |
+| 🤖 **[AI — Copilot](docs/ai-copilot.md)** | cmp integration, filetypes, privacy and free alternatives |
+| 🧠 **[LSP and completion](docs/lsp-and-completion.md)** | Servers, per-`.venv` linters, formatting and snippets |
+| 🐍 **[Django and DRF](docs/django.md)** | Snippets, templates, debugger and tests |
+| 🔀 **[Git and GitHub](docs/git-and-github.md)** | Fugitive, GitSigns, Diffview, conflicts and Octo |
+| 🖥️ **[tmux](docs/tmux.md)** | Setup, sessions and unified navigation |
+| 🔌 **[Plugins](docs/plugins.md)** | All 56 plugins, structure, lazy-loading and how to add or remove |
+| 🐛 **[Troubleshooting](docs/troubleshooting.md)** | Diagnosing the most common failures |
+
+---
+
+## 📁 Structure
 
 ```
 ~/.config/nvim/
-├── init.lua              # Punto de entrada
-├── lazy-lock.json        # Versiones exactas de los plugins
+├── init.lua              # entry point
+├── lazy-lock.json        # exact plugin versions
 ├── lua/
-│   ├── config/           # options · keymaps · autocmds
-│   └── plugins/          # Un archivo por categoría (ui, editor, lsp, git...)
-└── docs/                 # Esta documentación
+│   ├── config/
+│   │   ├── user.lua      # ← the only file you need to edit
+│   │   ├── options.lua
+│   │   ├── keymaps.lua
+│   │   └── autocmds.lua
+│   └── plugins/          # one file per category (ui, editor, lsp, git, ...)
+└── docs/                 # this documentation
 ```
 
-Cada archivo de `lua/plugins/` cubre una categoría: comentando un `import` en
-`lua/plugins/init.lua` desactivas el grupo completo.
+Each file under `lua/plugins/` covers one category: commenting out an `import`
+in `lua/plugins/init.lua` disables that whole group.
 
-> 📖 **Detalle de cada módulo:** [docs/plugins.md](docs/plugins.md#estructura-de-archivos)
-
----
-
-## 🔧 Personalizar
-
-**Cambiar el tema:** edita `lua/plugins/ui.lua`.
-
-**Agregar un lenguaje:** añade el servidor a `ensure_installed` en
-`lua/plugins/lsp.lua` — Mason lo instala y activa solo.
-
-**Agregar un plugin:** créalo en el archivo de su categoría dentro de
-`lua/plugins/`.
-
-> ⚠️ **Si el plugin trae atajos, ponlos en `keys`, no dentro de `config`** — o
-> quedarán muertos. La explicación está en
-> [docs/plugins.md](docs/plugins.md#-regla-de-oro-atajos-en-keys-no-en-config).
+> 📖 **What each module does:** [docs/plugins.md](docs/plugins.md#file-structure)
 
 ---
 
-## 🔄 Mantener actualizado
+## 🔧 Customizing
 
-Como `~/.config/nvim` **es** el repositorio clonado, actualizar es un `git pull`:
+**Your settings:** everything personal — projects folder, git base branch,
+dashboard banner and name — lives in [`lua/config/user.lua`](lua/config/user.lua).
+
+**Change the theme:** edit `lua/plugins/ui.lua`.
+
+**Add a language:** add the server to `ensure_installed` in
+`lua/plugins/lsp.lua` — Mason installs and enables it for you.
+
+**Add a plugin:** create it in the file matching its category under `lua/plugins/`.
+
+> ⚠️ **If the plugin ships keymaps, put them in `keys`, not inside `config`** —
+> otherwise they silently never register. The full explanation is in
+> [docs/plugins.md](docs/plugins.md#-golden-rule-keymaps-go-in-keys-not-config).
+
+---
+
+## 🔄 Staying up to date
+
+Since `~/.config/nvim` **is** the cloned repository, updating is a `git pull`:
 
 ```bash
 cd ~/.config/nvim && git pull
 ```
 
-Y si haces cambios, los subes desde ahí mismo:
+### Monthly routine
 
-```bash
-cd ~/.config/nvim && git add -A && git commit -m "feat: ..." && git push
-```
-
-### Rutina mensual
-
-| Qué | Cómo |
-|-----|------|
+| What | How |
+|------|-----|
 | **Neovim** | `sudo apt update && sudo apt upgrade neovim -y` |
-| **Plugins** | `:Lazy sync` — luego commitea `lazy-lock.json` |
-| **LSPs** | `:Mason` → pulsa `U` |
+| **Plugins** | `:Lazy sync` — then commit `lazy-lock.json` |
+| **LSPs** | `:Mason` → press `U` |
 | **Treesitter** | `:TSUpdate` |
 
-`lazy-lock.json` fija las versiones exactas: commitéalo tras cada `:Lazy sync`
-para que la config sea reproducible entre máquinas. Si una actualización rompe
-algo, `:Lazy restore` te devuelve a las versiones del lock.
+`lazy-lock.json` pins exact versions: commit it after each `:Lazy sync` so the
+setup stays reproducible across machines. If an update breaks something,
+`:Lazy restore` puts you back on the locked versions.
 
 ---
 
-## 🤝 Contribuir
+## 🤝 Contributing
 
-Los issues y PRs son bienvenidos. Si algo no funciona en tu entorno, revisa
-primero **[troubleshooting.md](docs/troubleshooting.md)** e incluye en el issue
-la salida de `nvim --version` y `:checkhealth`.
+Issues and PRs are welcome. If something doesn't work in your environment,
+check **[troubleshooting.md](docs/troubleshooting.md)** first and include the
+output of `nvim --version` and `:checkhealth` in the issue.
 
 ---
 
 <div align="center">
 
-**Si te sirvió, deja una ⭐**
+**If this helped, leave a ⭐**
 
-Hecho con ☕ por [deyby01](https://github.com/deyby01) · *Julio 2026*
+Built with ☕ by [deyby01](https://github.com/deyby01)
 
 </div>

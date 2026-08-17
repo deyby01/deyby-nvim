@@ -1,314 +1,315 @@
-# 🔀 Git y GitHub
+# 🔀 Git and GitHub
 
-> Todo el flujo de Git sin salir del editor: status, hunks, diffs, conflictos, PRs y reviews.
+> The whole Git workflow without leaving the editor: status, hunks, diffs,
+> conflicts, PRs and reviews.
 
 **Plugins:** `vim-fugitive` · `gitsigns.nvim` · `diffview.nvim` · `git-conflict.nvim` · `octo.nvim`
-**Archivo de config:** [`lua/plugins/git.lua`](../lua/plugins/git.lua)
+**Config file:** [`lua/plugins/git.lua`](../lua/plugins/git.lua)
 
 ---
 
-## 📋 Contenido
+## 📋 Contents
 
-- [Qué herramienta usar para qué](#qué-herramienta-usar-para-qué)
-- [Fugitive — status y comandos](#fugitive--status-y-comandos)
-- [GitSigns — cambios línea por línea](#gitsigns--cambios-línea-por-línea)
-- [Diffview — comparar ramas](#diffview--comparar-ramas)
-- [git-conflict — resolver conflictos](#git-conflict--resolver-conflictos)
-- [Octo — PRs e Issues de GitHub](#octo--prs-e-issues-de-github)
-- [Flujos completos](#flujos-completos)
-
----
-
-## Qué herramienta usar para qué
-
-Los cinco plugins se solapan un poco. Guía rápida:
-
-| Quiero... | Herramienta | Atajo |
-|-----------|-------------|-------|
-| Ver qué archivos cambié y hacer commit | **Fugitive** | `Espacio+gs` |
-| Ver/stagear cambios de la línea donde estoy | **GitSigns** | `Espacio+hp` `Espacio+hs` |
-| Comparar mi rama contra `development` | **Diffview** | `Espacio+gd` |
-| Ver el historial de un archivo | **Diffview** | `Espacio+gh` |
-| Resolver un conflicto de merge | **git-conflict** | `Espacio+co` `Espacio+ct` |
-| Crear o revisar un PR | **Octo** | `Espacio+opc` `Espacio+opr` |
+- [Which tool for what](#which-tool-for-what)
+- [Fugitive — status and commits](#fugitive--status-and-commits)
+- [GitSigns — hunks and blame](#gitsigns--hunks-and-blame)
+- [Diffview — branch diffs and history](#diffview--branch-diffs-and-history)
+- [git-conflict — merge conflicts](#git-conflict--merge-conflicts)
+- [Octo — GitHub PRs and issues](#octo--github-prs-and-issues)
+- [Complete flows](#complete-flows)
 
 ---
 
-## Fugitive — status y comandos
+## Which tool for what
 
-El "panel de control" de Git. `Espacio+gs` abre el status interactivo.
+The five plugins overlap a little. Quick guide:
 
-### Atajos
+| I want to... | Tool | Shortcut |
+|--------------|------|----------|
+| See what files I changed and commit | **Fugitive** | `Space+gs` |
+| See/stage the change on the line I'm on | **GitSigns** | `Space+hp` `Space+hs` |
+| Compare my branch against the base branch | **Diffview** | `Space+gd` |
+| See a file's history | **Diffview** | `Space+gh` |
+| Resolve a merge conflict | **git-conflict** | `Space+co` `Space+ct` |
+| Create or review a PR | **Octo** | `Space+opc` `Space+opr` |
 
-| Atajo | Acción |
-|-------|--------|
-| `Espacio+gs` | **Git status** (panel interactivo) |
-| `Espacio+gu` | Deshacer cambios del **archivo actual** |
-| `Espacio+gU` | Deshacer **TODOS** los cambios ⚠️ |
+> ℹ️ The Diffview shortcuts compare against the branch set in
+> [`lua/config/user.lua`](../lua/config/user.lua) as `git_base_branch`
+> (`development` by default — change it to `main` or whatever your team uses).
 
-### Dentro del panel de status
+---
 
-| Tecla | Acción |
-|-------|--------|
-| `s` | **Stage** el archivo bajo el cursor |
-| `u` | **Unstage** el archivo |
+## Fugitive — status and commits
+
+Git's "control panel". `Space+gs` opens the interactive status.
+
+### Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Space+gs` | **Git status** (interactive panel) |
+| `Space+gu` | Discard changes in the **current file** |
+| `Space+gU` | Discard **ALL** changes ⚠️ |
+
+### Inside the status panel
+
+| Key | Action |
+|-----|--------|
+| `s` | **Stage** the file under the cursor |
+| `u` | **Unstage** the file |
 | `-` | Toggle stage/unstage |
-| `=` | Ver el **diff** inline del archivo |
-| `cc` | Crear **commit** (abre buffer de mensaje) |
-| `ca` | **Amend** al último commit |
-| `X` | Descartar los cambios del archivo ⚠️ |
-| `dd` | Ver el diff en un split |
-| `dv` | Ver el diff en split vertical |
-| `q` | Cerrar el panel |
+| `=` | Show the file's inline **diff** |
+| `cc` | Create a **commit** (opens a message buffer) |
+| `ca` | **Amend** the last commit |
+| `X` | Discard the file's changes ⚠️ |
+| `dd` | Open the diff in a split |
+| `dv` | Open the diff in a vertical split |
+| `q` | Close the panel |
 
-> 💡 Al hacer `cc`, escribe el mensaje y guarda con `Ctrl+s`. Para cancelar el
-> commit, cierra el buffer sin guardar (`:q!`).
+> 💡 After `cc`, write the message and save with `Ctrl+s`. To cancel the
+> commit, close the buffer without saving (`:q!`).
 
-### Comandos
+### Commands
 
-| Comando | Acción |
+| Command | Action |
 |---------|--------|
-| `:Git` | Igual que `Espacio+gs` |
-| `:Git add %` | Stage del archivo actual |
-| `:Git commit -m "mensaje"` | Commit directo |
-| `:Git push origin mi-rama` | Push |
-| `:Git pull origin development` | Pull |
-| `:Git checkout -b feature/algo` | Crear rama |
-| `:Git log --oneline` | Historial |
-| `:Git blame` | Quién escribió cada línea |
-| `:Git restore archivo` | Descartar cambios |
+| `:Git` | Same as `Space+gs` |
+| `:Git add %` | Stage the current file |
+| `:Git commit -m "message"` | Commit directly |
+| `:Git push origin my-branch` | Push |
+| `:Git pull origin main` | Pull |
+| `:Git checkout -b feature/thing` | Create a branch |
+| `:Git log --oneline` | History |
+| `:Git blame` | Who wrote each line |
+| `:Git restore file` | Discard changes |
 
 ---
 
-## GitSigns — cambios línea por línea
+## GitSigns — hunks and blame
 
-Muestra en la columna izquierda qué líneas agregaste (`│`), modificaste (`│`)
-o borraste (`_`), y permite operar hunk por hunk.
+Shows in the left gutter which lines you added (`│`), changed (`│`) or deleted
+(`_`), and lets you act hunk by hunk.
 
-### Atajos
+### Shortcuts
 
-| Atajo | Acción |
-|-------|--------|
-| `]c` | Ir al **siguiente** cambio |
-| `[c` | Ir al cambio **anterior** |
-| `Espacio+hp` | **Preview** del hunk (ver el diff en un popup) |
-| `Espacio+hs` | **Stage** solo este hunk |
-| `Espacio+hr` | **Reset** solo este hunk |
-| `Espacio+hb` | **Blame** de la línea actual (completo) |
-| `Espacio+hd` | **Diff** del archivo completo |
-| `Espacio+tb` | Toggle del blame inline en todas las líneas |
+| Shortcut | Action |
+|----------|--------|
+| `]c` | Go to the **next** change |
+| `[c` | Go to the **previous** change |
+| `Space+hp` | **Preview** the hunk (diff in a popup) |
+| `Space+hs` | **Stage** just this hunk |
+| `Space+hr` | **Reset** just this hunk |
+| `Space+hb` | **Blame** the current line (full) |
+| `Space+hd` | **Diff** the whole file |
+| `Space+tb` | Toggle inline blame on every line |
 
-> 💡 **Blame inline activo por defecto**: al final de cada línea aparece en gris
-> quién la escribió y cuándo. `Espacio+tb` lo apaga si molesta.
+> 💡 **Inline blame is on by default**: the end of each line shows in grey who
+> wrote it and when. `Space+tb` turns it off if it gets noisy.
 
-### Por qué stagear por hunks
+### Why stage by hunks
 
-Si tocaste tres cosas distintas en un archivo, puedes hacer tres commits
-limpios en vez de uno mezclado:
+If you touched three unrelated things in one file, you can make three clean
+commits instead of one mixed bag:
 
 ```
-]c              → primer cambio
-Espacio+hp      → revisar que sea lo que quieres
-Espacio+hs      → stagear solo ese
-]c              → siguiente cambio... (o dejarlo para otro commit)
-Espacio+gs → cc → commitear solo lo stageado
+]c              → first change
+Space+hp        → check it's what you want
+Space+hs        → stage only that one
+]c              → next change... (or leave it for another commit)
+Space+gs → cc   → commit only what's staged
 ```
 
 ---
 
-## Diffview — comparar ramas
+## Diffview — branch diffs and history
 
-Vista de diff completa, tipo GitHub, para comparar ramas y ver historiales.
+A full, GitHub-style diff view for comparing branches and browsing history.
 
-### Atajos
+### Shortcuts
 
-| Atajo | Acción |
-|-------|--------|
-| `Espacio+gd` | Diff contra **`development`** local |
-| `Espacio+gD` | Diff contra **`origin/development`** |
-| `Espacio+gw` | Diff del **working tree** (cambios sin commitear) |
-| `Espacio+gh` | **Historial** del archivo actual |
-| `Espacio+gf` | Todos los **commits** desde `development` hasta `HEAD` |
-| `Espacio+gq` | **Cerrar** Diffview |
+| Shortcut | Action |
+|----------|--------|
+| `Space+gd` | Diff against the local **base branch** |
+| `Space+gD` | Diff against **`origin/<base branch>`** |
+| `Space+gw` | Diff the **working tree** (uncommitted changes) |
+| `Space+gh` | **History** of the current file |
+| `Space+gf` | All **commits** from the base branch to `HEAD` |
+| `Space+gq` | **Close** Diffview |
 
-### Dentro de Diffview
+### Inside Diffview
 
-| Tecla | Acción |
-|-------|--------|
-| `Tab` | Siguiente archivo del diff |
-| `Shift+Tab` | Archivo anterior |
-| `j` / `k` + `Enter` | Navegar y abrir en el panel de archivos |
-| `-` | Stage/unstage el archivo |
-| `X` | Restaurar el archivo |
-| `g?` | Ayuda con todos los atajos |
+| Key | Action |
+|-----|--------|
+| `Tab` | Next file in the diff |
+| `Shift+Tab` | Previous file |
+| `j` / `k` + `Enter` | Navigate and open from the file panel |
+| `-` | Stage/unstage the file |
+| `X` | Restore the file |
+| `g?` | Help with every shortcut |
 
-> ⚠️ **Los atajos asumen una rama base llamada `development`**. Si tu equipo usa
-> `main` o `develop`, cámbialos en la sección `keys` de diffview en
-> [`lua/plugins/git.lua`](../lua/plugins/git.lua).
-
-### Comandos
+### Commands
 
 ```vim
-:DiffviewOpen                     " working tree
-:DiffviewOpen main                " contra main
-:DiffviewOpen HEAD~3              " contra 3 commits atrás
-:DiffviewOpen feature-a..feature-b  " entre dos ramas
-:DiffviewFileHistory %            " historial del archivo actual
-:DiffviewFileHistory              " historial del repo completo
+:DiffviewOpen                       " working tree
+:DiffviewOpen main                  " against main
+:DiffviewOpen HEAD~3                " against 3 commits back
+:DiffviewOpen feature-a..feature-b  " between two branches
+:DiffviewFileHistory %              " current file history
+:DiffviewFileHistory                " whole repo history
 :DiffviewClose
 ```
 
 ---
 
-## git-conflict — resolver conflictos
+## git-conflict — merge conflicts
 
-Cuando hay un conflicto de merge o rebase, resalta las tres partes con colores
-y permite elegir con un atajo.
+When a merge or rebase conflicts, it highlights the three sides in color and
+lets you pick with a shortcut.
 
-### Atajos
+### Shortcuts
 
-| Atajo | Acción |
-|-------|--------|
-| `Espacio+co` | Elegir **nuestro** cambio (current / HEAD) |
-| `Espacio+ct` | Elegir **su** cambio (incoming) |
-| `Espacio+cb` | Elegir **ambos** |
-| `Espacio+cn` | Ir al **siguiente** conflicto |
-| `Espacio+cp` | Ir al conflicto **anterior** |
-| `Espacio+cl` | **Listar** todos los conflictos (quickfix) |
+| Shortcut | Action |
+|----------|--------|
+| `Space+co` | Choose **ours** (current / HEAD) |
+| `Space+ct` | Choose **theirs** (incoming) |
+| `Space+cb` | Choose **both** |
+| `Space+cn` | **Next** conflict |
+| `Space+cp` | **Previous** conflict |
+| `Space+cl` | **List** every conflict (quickfix) |
 
 ### Workflow
 
 ```bash
-# 1. El merge falla
-:Git merge development
+# 1. The merge fails
+:Git merge main
 # → CONFLICT
 
-# 2. Ver todos los conflictos del repo
-Espacio+cl
+# 2. See every conflict in the repo
+Space+cl
 
-# 3. Por cada conflicto
-Espacio+cn      → saltar al siguiente
-Espacio+co      → me quedo con lo mío
-Espacio+ct      → me quedo con lo de la otra rama
-Espacio+cb      → me quedo con ambos y edito a mano
+# 3. For each one
+Space+cn        → jump to the next
+Space+co        → keep mine
+Space+ct        → keep the other branch's
+Space+cb        → keep both and edit by hand
 
-# 4. Verificar que no queden marcadores
-Espacio+cl      → debe estar vacío
+# 4. Check no markers are left
+Space+cl        → should be empty
 
-# 5. Commitear la resolución
-Espacio+gs → s → cc
+# 5. Commit the resolution
+Space+gs → s → cc
 ```
 
-> 💡 **"Ours" vs "Theirs" en rebase está invertido** respecto a merge: durante
-> un rebase, "ours" es la rama base y "theirs" son *tus* commits. Si dudas, mira
-> el contenido, no la etiqueta.
+> 💡 **"Ours" vs "theirs" is inverted during a rebase**: there, "ours" is the
+> base branch and "theirs" is *your* commits. When in doubt, read the content,
+> not the label.
 
 ---
 
-## Octo — PRs e Issues de GitHub
+## Octo — GitHub PRs and issues
 
-### Requisito
+### Requirement
 
 ```bash
 sudo apt install gh -y
 gh auth login
 ```
 
-### Atajos
+### Shortcuts
 
-| Atajo | Acción |
-|-------|--------|
-| `Espacio+opr` | **Listar** Pull Requests |
-| `Espacio+opc` | **Crear** un Pull Request |
-| `Espacio+ois` | **Listar** Issues |
-| `Espacio+oic` | **Crear** un Issue |
-| `Espacio+or` | **Iniciar** un code review |
+| Shortcut | Action |
+|----------|--------|
+| `Space+opr` | **List** pull requests |
+| `Space+opc` | **Create** a pull request |
+| `Space+ois` | **List** issues |
+| `Space+oic` | **Create** an issue |
+| `Space+or` | **Start** a code review |
 
-### Comandos
+### Commands
 
 ```vim
 :Octo pr list
 :Octo pr create
-:Octo pr checkout        " cambiar a la rama del PR
+:Octo pr checkout        " switch to the PR's branch
 :Octo pr merge
 :Octo issue list
 :Octo issue create
 :Octo review start
-:Octo review submit      " enviar el review
+:Octo review submit      " send the review
 :Octo review discard
-:Octo comment add        " comentar en la línea actual
+:Octo comment add        " comment on the current line
 ```
 
-### Dentro de un PR o Issue
+### Inside a PR or issue
 
-| Tecla | Acción |
-|-------|--------|
-| `<localleader>ca` | Agregar comentario |
-| `<localleader>ic` | Cerrar issue |
-| `<localleader>po` | Abrir el PR en el navegador |
-| `<localleader>rp` | Solicitar review |
+| Key | Action |
+|-----|--------|
+| `<localleader>ca` | Add a comment |
+| `<localleader>ic` | Close the issue |
+| `<localleader>po` | Open the PR in the browser |
+| `<localleader>rp` | Request a review |
 
-> El `localleader` también es `Espacio` en esta configuración.
+> `localleader` is also `Space` in this configuration.
 
 ---
 
-## Flujos completos
+## Complete flows
 
-### Empezar una tarea
+### Starting a task
 
 ```bash
-:Git checkout development
-:Git pull origin development
-:Git checkout -b feature/nombre-tarea
+:Git checkout main
+:Git pull origin main
+:Git checkout -b feature/task-name
 ```
 
-### Durante el desarrollo
+### While developing
 
 ```bash
-]c / [c            # navegar mis cambios
-Espacio+hp         # revisar cada hunk
-Espacio+gw         # ver el diff completo del working tree
-Espacio+gs         # status general
+]c / [c            # walk through my changes
+Space+hp           # review each hunk
+Space+gw           # full working-tree diff
+Space+gs           # overall status
 ```
 
-### Commit y push
+### Commit and push
 
 ```bash
-Espacio+gs         # abrir status
-s                  # stagear archivos (o Espacio+hs por hunks)
-cc                 # commit → escribir mensaje → Ctrl+s
-:Git push origin feature/nombre-tarea
+Space+gs           # open status
+s                  # stage files (or Space+hs by hunk)
+cc                 # commit → write message → Ctrl+s
+:Git push origin feature/task-name
 ```
 
-### Crear el PR
+### Opening the PR
 
 ```bash
-Espacio+opc        # desde Neovim
+Space+opc          # from Neovim
 
-# o desde la terminal
-gh pr create --base development --title "..." --body "..."
+# or from the terminal
+gh pr create --base main --title "..." --body "..."
 ```
 
-### Revisar un PR asignado
+### Reviewing an assigned PR
 
 ```bash
-Espacio+opr        # listar PRs
-# Enter en el PR que te toca
-Espacio+or         # iniciar review
-Espacio+gD         # ver el diff contra origin/development
-# comentar con :Octo comment add
+Space+opr          # list PRs
+# Enter on the one assigned to you
+Space+or           # start the review
+Space+gD           # see the diff against origin/<base branch>
+# comment with :Octo comment add
 :Octo review submit
 ```
 
-### Antes de pedir merge — auto-review
+### Before requesting a merge — self review
 
 ```bash
-Espacio+gf         # ver TODOS mis commits desde development
-Espacio+gd         # diff completo contra development
+Space+gf           # every commit of mine since the base branch
+Space+gd           # full diff against the base branch
 ```
 
-Revisar tu propio diff antes de pedir review ahorra rondas de comentarios.
+Reviewing your own diff before asking for review saves rounds of comments.
 
 ---
 
-[⬅️ Volver al README](../README.md) · [tmux ➡️](tmux.md)
+[⬅️ Back to the README](../README.md) · [tmux ➡️](tmux.md)

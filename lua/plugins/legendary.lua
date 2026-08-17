@@ -1,5 +1,5 @@
 -- ==========================================
--- LEGENDARY (PALETA DE COMANDOS)
+-- LEGENDARY (COMMAND PALETTE)
 -- ==========================================
 
 return {
@@ -24,10 +24,10 @@ return {
         },
       })
 
-      -- Atajo principal
-      vim.keymap.set("n", "<C-p>", ":Legendary<CR>", { desc = "Legendary: paleta de comandos" })
-      vim.keymap.set("n", "<leader>lk", ":Legendary keymaps<CR>", { desc = "Legendary: ver atajos" })
-      vim.keymap.set("n", "<leader>lc", ":Legendary commands<CR>", { desc = "Legendary: ver comandos" })
+      -- Main shortcut
+      vim.keymap.set("n", "<C-p>", ":Legendary<CR>", { desc = "Legendary: command palette" })
+      vim.keymap.set("n", "<leader>lk", ":Legendary keymaps<CR>", { desc = "Legendary: browse keymaps" })
+      vim.keymap.set("n", "<leader>lc", ":Legendary commands<CR>", { desc = "Legendary: browse commands" })
     end,
     },
 }

@@ -1,201 +1,209 @@
-# 🔌 Plugins y Estructura
+# 🔌 Plugins and Structure
 
-> Los 56 plugins de esta configuración, qué hace cada uno, cuándo carga y cómo
-> agregar o quitar.
+> The 56 plugins in this configuration, what each one does, when it loads, and
+> how to add or remove them.
 
-**Gestor:** [`lazy.nvim`](https://github.com/folke/lazy.nvim) · **Bootstrap:** [`lua/plugins/init.lua`](../lua/plugins/init.lua)
-
----
-
-## 📋 Contenido
-
-- [Estructura de archivos](#estructura-de-archivos)
-- [Lista de plugins](#lista-de-plugins)
-- [Rendimiento y lazy-loading](#rendimiento-y-lazy-loading)
-- [Agregar un plugin](#agregar-un-plugin)
-- [🚨 Regla de oro: atajos en `keys`](#-regla-de-oro-atajos-en-keys-no-en-config)
-- [Quitar un plugin](#quitar-un-plugin)
-- [Actualizar plugins](#actualizar-plugins)
+**Manager:** [`lazy.nvim`](https://github.com/folke/lazy.nvim) · **Bootstrap:** [`lua/plugins/init.lua`](../lua/plugins/init.lua)
 
 ---
 
-## Estructura de archivos
+## 📋 Contents
+
+- [File structure](#file-structure)
+- [Plugin list](#plugin-list)
+- [Performance and lazy-loading](#performance-and-lazy-loading)
+- [Adding a plugin](#adding-a-plugin)
+- [🚨 Golden rule: keymaps go in `keys`, not `config`](#-golden-rule-keymaps-go-in-keys-not-config)
+- [Removing a plugin](#removing-a-plugin)
+- [Updating plugins](#updating-plugins)
+
+---
+
+## File structure
 
 ```
 ~/.config/nvim/
-├── init.lua                  # Punto de entrada: carga los 4 módulos
-├── lazy-lock.json            # Versiones exactas (reproducibilidad)
+├── init.lua                  # entry point: loads the four modules
+├── lazy-lock.json            # exact versions (reproducibility)
 └── lua/
     ├── config/
-    │   ├── options.lua       # Opciones de Vim (números, indentación, tiempos)
-    │   ├── keymaps.lua       # Atajos globales (no de plugins)
-    │   └── autocmds.lua      # Autocomandos (autoguardado, trailing spaces)
+    │   ├── user.lua          # ← YOUR settings: projects dir, git branch, name
+    │   ├── options.lua       # Vim options (numbers, indentation, timings)
+    │   ├── keymaps.lua       # global keymaps (non-plugin)
+    │   └── autocmds.lua      # autocommands (auto-save, trailing whitespace)
     └── plugins/
-        ├── init.lua          # Bootstrap de lazy.nvim + imports
-        ├── ui.lua            # Tema, lualine, colorizer, indent, dropbar, modes
+        ├── init.lua          # lazy.nvim bootstrap + imports
+        ├── ui.lua            # theme, lualine, colorizer, indent, dropbar, modes
         ├── ui_extra.lua      # Noice, which-key
         ├── editor.lua        # Telescope, NvimTree, Harpoon, Treesitter, Trouble, Spectre
         ├── lsp.lua           # Mason, LSPs, nvim-cmp, conform, snippets
         ├── ai.lua            # Copilot + copilot-cmp
         ├── git.lua           # Fugitive, GitSigns, Diffview, git-conflict, Octo
         ├── terminal.lua      # ToggleTerm, LazyDocker, Live Server, tmux-navigator
-        ├── debug.lua         # DAP para Python/Django
+        ├── debug.lua         # DAP for Python/Django
         ├── testing.lua       # Neotest (pytest)
         ├── session.lua       # auto-session
-        ├── dashboard.lua     # Pantalla de inicio
-        └── legendary.lua     # Paleta de comandos
+        ├── dashboard.lua     # start screen
+        └── legendary.lua     # command palette
 ```
 
-### Por qué modular
+### Why modular
 
-Cada archivo devuelve una tabla de especificaciones de lazy.nvim y se importa en
-[`lua/plugins/init.lua`](../lua/plugins/init.lua). Ventajas: sabes exactamente
-dónde buscar, puedes desactivar una categoría completa comentando un `import`, y
-los conflictos de merge son mínimos.
+Each file returns a table of lazy.nvim specs and is imported in
+[`lua/plugins/init.lua`](../lua/plugins/init.lua). The benefits: you always
+know where to look, you can disable a whole category by commenting one
+`import`, and merge conflicts stay small.
+
+### Where personal settings live
+
+Everything user-specific — projects directory, git base branch, dashboard name
+and banner — lives in [`lua/config/user.lua`](../lua/config/user.lua). No
+personal paths are hardcoded anywhere else, so a fresh clone works after
+editing that one file.
 
 ---
 
-## Lista de plugins
+## Plugin list
 
-### 🎨 Interfaz
+### 🎨 Interface
 
-| Plugin | Qué hace | Carga |
-|--------|----------|-------|
-| [`dracula/vim`](https://github.com/dracula/vim) | Tema de colores | Inmediato (`priority = 1000`) |
-| [`lualine.nvim`](https://github.com/nvim-lualine/lualine.nvim) | Barra de estado: rama, diff, diagnósticos | Inmediato |
-| [`nvim-web-devicons`](https://github.com/nvim-tree/nvim-web-devicons) | Iconos por tipo de archivo | Dependencia |
-| [`nvim-colorizer.lua`](https://github.com/NvChad/nvim-colorizer.lua) | Preview de colores CSS/hex | `BufReadPre` |
-| [`indent-blankline.nvim`](https://github.com/lukas-reineke/indent-blankline.nvim) | Guías de indentación con scope arcoíris | Inmediato |
-| [`rainbow-delimiters.nvim`](https://github.com/HiPhish/rainbow-delimiters.nvim) | Paréntesis y tags por color de nivel | `BufReadPost` |
-| [`dropbar.nvim`](https://github.com/Bekaboo/dropbar.nvim) | Breadcrumbs navegables (`Espacio+bp`) | `BufReadPre` |
-| [`modes.nvim`](https://github.com/mvllow/modes.nvim) | Color de cursor/línea según el modo | `BufReadPre` |
-| [`tiny-inline-diagnostic.nvim`](https://github.com/rachartier/tiny-inline-diagnostic.nvim) | Diagnósticos inline legibles | `BufReadPre` |
-| [`noice.nvim`](https://github.com/folke/noice.nvim) | Rediseño de cmdline, mensajes y popups | `VeryLazy` |
-| [`nvim-notify`](https://github.com/rcarriga/nvim-notify) | Notificaciones flotantes | Dependencia |
-| [`nui.nvim`](https://github.com/MunifTanjim/nui.nvim) | Componentes UI | Dependencia |
-| [`which-key.nvim`](https://github.com/folke/which-key.nvim) | Muestra atajos disponibles al pulsar el prefijo | `VeryLazy` |
-| [`dashboard-nvim`](https://github.com/nvimdev/dashboard-nvim) | Pantalla de inicio | `VimEnter` |
+| Plugin | What it does | Loads |
+|--------|--------------|-------|
+| [`nordic.nvim`](https://github.com/AlexvZyl/nordic.nvim) | Color scheme | Immediately (`priority = 1000`) |
+| [`lualine.nvim`](https://github.com/nvim-lualine/lualine.nvim) | Statusline: branch, diff, diagnostics | Immediately |
+| [`nvim-web-devicons`](https://github.com/nvim-tree/nvim-web-devicons) | Filetype icons | Dependency |
+| [`nvim-colorizer.lua`](https://github.com/NvChad/nvim-colorizer.lua) | CSS/hex color previews | `BufReadPre` |
+| [`indent-blankline.nvim`](https://github.com/lukas-reineke/indent-blankline.nvim) | Indent guides with rainbow scope | Immediately |
+| [`rainbow-delimiters.nvim`](https://github.com/HiPhish/rainbow-delimiters.nvim) | Brackets and tags colored by depth | `BufReadPost` |
+| [`dropbar.nvim`](https://github.com/Bekaboo/dropbar.nvim) | Navigable breadcrumbs (`Space+bp`) | `BufReadPre` |
+| [`modes.nvim`](https://github.com/mvllow/modes.nvim) | Cursor/line color per vim mode | `BufReadPre` |
+| [`tiny-inline-diagnostic.nvim`](https://github.com/rachartier/tiny-inline-diagnostic.nvim) | Readable inline diagnostics | `BufReadPre` |
+| [`noice.nvim`](https://github.com/folke/noice.nvim) | Redesigned cmdline, messages and popups | `VeryLazy` |
+| [`nvim-notify`](https://github.com/rcarriga/nvim-notify) | Floating notifications | Dependency |
+| [`nui.nvim`](https://github.com/MunifTanjim/nui.nvim) | UI components | Dependency |
+| [`which-key.nvim`](https://github.com/folke/which-key.nvim) | Shows available keys after a prefix | `VeryLazy` |
+| [`dashboard-nvim`](https://github.com/nvimdev/dashboard-nvim) | Start screen | `VimEnter` |
 
 ### ✏️ Editor
 
-| Plugin | Qué hace | Carga |
-|--------|----------|-------|
-| [`telescope.nvim`](https://github.com/nvim-telescope/telescope.nvim) | Fuzzy finder de archivos y contenido | `keys` + `cmd` |
-| [`telescope-fzf-native.nvim`](https://github.com/nvim-telescope/telescope-fzf-native.nvim) | Ordenador nativo en C (mucho más rápido) | Dependencia (compila con `make`) |
-| [`nvim-tree.lua`](https://github.com/nvim-tree/nvim-tree.lua) | Explorador de archivos lateral | `keys` + `cmd` |
-| [`harpoon`](https://github.com/ThePrimeagen/harpoon) | Marcadores de archivos frecuentes | `keys` |
-| [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) | Parsing real del código: highlighting e indentación | Inmediato |
-| [`flash.nvim`](https://github.com/folke/flash.nvim) | Salto a cualquier punto con 2 teclas (`s`) | `VeryLazy` |
-| [`nvim-surround`](https://github.com/kylechui/nvim-surround) | Manipular comillas, paréntesis, tags | `VeryLazy` |
-| [`Comment.nvim`](https://github.com/numToStr/Comment.nvim) | Comentar con `gcc` / `gc` | `BufReadPre` |
-| [`nvim-ts-context-commentstring`](https://github.com/JoosepAlviste/nvim-ts-context-commentstring) | Comentario correcto según el contexto (HTML vs Django vs JS) | Dependencia |
-| [`nvim-autopairs`](https://github.com/windwp/nvim-autopairs) | Cierra paréntesis, comillas, llaves | `InsertEnter` |
-| [`todo-comments.nvim`](https://github.com/folke/todo-comments.nvim) | Resalta y busca `TODO`, `FIXME`, `HACK` | `BufReadPre` |
-| [`trouble.nvim`](https://github.com/folke/trouble.nvim) | Panel de errores y warnings | `keys` + `cmd` |
-| [`nvim-spectre`](https://github.com/nvim-pack/nvim-spectre) | Buscar y reemplazar en todo el proyecto | `keys` |
-| [`markdown-preview.nvim`](https://github.com/iamcco/markdown-preview.nvim) | Preview de Markdown en el navegador | `ft = markdown` |
-| [`plenary.nvim`](https://github.com/nvim-lua/plenary.nvim) | Librería base de utilidades Lua | Dependencia |
-| [`cellular-automaton.nvim`](https://github.com/eandrju/cellular-automaton.nvim) | Puro entretenimiento (`Espacio+fml`) | `keys` + `cmd` |
+| Plugin | What it does | Loads |
+|--------|--------------|-------|
+| [`telescope.nvim`](https://github.com/nvim-telescope/telescope.nvim) | Fuzzy finder for files and content | `keys` + `cmd` |
+| [`telescope-fzf-native.nvim`](https://github.com/nvim-telescope/telescope-fzf-native.nvim) | Native C sorter (much faster) | Dependency (compiled with `make`) |
+| [`nvim-tree.lua`](https://github.com/nvim-tree/nvim-tree.lua) | Side file explorer | `keys` + `cmd` |
+| [`harpoon`](https://github.com/ThePrimeagen/harpoon) | Bookmarks for frequent files | `keys` |
+| [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) | Real parsing: highlighting and indentation | Immediately |
+| [`flash.nvim`](https://github.com/folke/flash.nvim) | Jump anywhere in two keystrokes (`s`) | `VeryLazy` |
+| [`nvim-surround`](https://github.com/kylechui/nvim-surround) | Manipulate quotes, brackets, tags | `VeryLazy` |
+| [`Comment.nvim`](https://github.com/numToStr/Comment.nvim) | Comment with `gcc` / `gc` | `BufReadPre` |
+| [`nvim-ts-context-commentstring`](https://github.com/JoosepAlviste/nvim-ts-context-commentstring) | Context-correct comments (HTML vs Django vs JS) | Dependency |
+| [`nvim-autopairs`](https://github.com/windwp/nvim-autopairs) | Closes brackets, quotes, braces | `InsertEnter` |
+| [`todo-comments.nvim`](https://github.com/folke/todo-comments.nvim) | Highlights and finds `TODO`, `FIXME`, `HACK` | `BufReadPre` |
+| [`trouble.nvim`](https://github.com/folke/trouble.nvim) | Errors and warnings panel | `keys` + `cmd` |
+| [`nvim-spectre`](https://github.com/nvim-pack/nvim-spectre) | Project-wide search and replace | `keys` |
+| [`markdown-preview.nvim`](https://github.com/iamcco/markdown-preview.nvim) | Markdown preview in the browser | `ft = markdown` + `keys` |
+| [`plenary.nvim`](https://github.com/nvim-lua/plenary.nvim) | Shared Lua utility library | Dependency |
+| [`cellular-automaton.nvim`](https://github.com/eandrju/cellular-automaton.nvim) | Pure fun (`Space+fml`) | `keys` + `cmd` |
 
-### 🧠 LSP y autocompletado
+### 🧠 LSP and completion
 
-| Plugin | Qué hace | Carga |
-|--------|----------|-------|
-| [`nvim-lspconfig`](https://github.com/neovim/nvim-lspconfig) | Configuración de servidores LSP | `BufReadPre` |
-| [`mason.nvim`](https://github.com/mason-org/mason.nvim) | Instalador de LSPs, linters y debuggers | `cmd` |
-| [`mason-lspconfig.nvim`](https://github.com/mason-org/mason-lspconfig.nvim) | Puente Mason ↔ lspconfig, auto-instala servidores | Dependencia |
-| [`nvim-cmp`](https://github.com/hrsh7th/nvim-cmp) | Motor de autocompletado | `InsertEnter` |
-| [`cmp-nvim-lsp`](https://github.com/hrsh7th/cmp-nvim-lsp) | Fuente: LSP | Dependencia |
-| [`cmp-buffer`](https://github.com/hrsh7th/cmp-buffer) | Fuente: palabras del buffer | Dependencia |
-| [`cmp-path`](https://github.com/hrsh7th/cmp-path) | Fuente: rutas de archivos | Dependencia |
-| [`LuaSnip`](https://github.com/L3MON4D3/LuaSnip) | Motor de snippets | Dependencia |
-| [`cmp_luasnip`](https://github.com/saadparwaiz1/cmp_luasnip) | Fuente: snippets | Dependencia |
-| [`friendly-snippets`](https://github.com/rafamadriz/friendly-snippets) | Colección de snippets (Django, DRF, HTML...) | Dependencia |
-| [`lspkind.nvim`](https://github.com/onsails/lspkind.nvim) | Iconos por tipo en el menú de cmp | Dependencia |
-| [`conform.nvim`](https://github.com/stevearc/conform.nvim) | Formateo por filetype con fallback al LSP | `keys` |
+| Plugin | What it does | Loads |
+|--------|--------------|-------|
+| [`nvim-lspconfig`](https://github.com/neovim/nvim-lspconfig) | Language server configuration | `BufReadPre` |
+| [`mason.nvim`](https://github.com/mason-org/mason.nvim) | Installs LSPs, linters and debuggers | `cmd` |
+| [`mason-lspconfig.nvim`](https://github.com/mason-org/mason-lspconfig.nvim) | Mason ↔ lspconfig bridge, auto-installs servers | Dependency |
+| [`nvim-cmp`](https://github.com/hrsh7th/nvim-cmp) | Completion engine | `InsertEnter` |
+| [`cmp-nvim-lsp`](https://github.com/hrsh7th/cmp-nvim-lsp) | Source: LSP | Dependency |
+| [`cmp-buffer`](https://github.com/hrsh7th/cmp-buffer) | Source: buffer words | Dependency |
+| [`cmp-path`](https://github.com/hrsh7th/cmp-path) | Source: filesystem paths | Dependency |
+| [`LuaSnip`](https://github.com/L3MON4D3/LuaSnip) | Snippet engine | Dependency |
+| [`cmp_luasnip`](https://github.com/saadparwaiz1/cmp_luasnip) | Source: snippets | Dependency |
+| [`friendly-snippets`](https://github.com/rafamadriz/friendly-snippets) | Snippet collection (Django, DRF, HTML...) | Dependency |
+| [`lspkind.nvim`](https://github.com/onsails/lspkind.nvim) | Kind icons in the cmp menu | Dependency |
+| [`conform.nvim`](https://github.com/stevearc/conform.nvim) | Per-filetype formatting with LSP fallback | `keys` |
 
-### 🤖 IA
+### 🤖 AI
 
-| Plugin | Qué hace | Carga |
-|--------|----------|-------|
-| [`copilot.lua`](https://github.com/zbirenbaum/copilot.lua) | Cliente de GitHub Copilot | `InsertEnter` |
-| [`copilot-cmp`](https://github.com/zbirenbaum/copilot-cmp) | Copilot como fuente de nvim-cmp | Dependencia |
+| Plugin | What it does | Loads |
+|--------|--------------|-------|
+| [`copilot.lua`](https://github.com/zbirenbaum/copilot.lua) | GitHub Copilot client | `InsertEnter` |
+| [`copilot-cmp`](https://github.com/zbirenbaum/copilot-cmp) | Copilot as an nvim-cmp source | Dependency |
 
-Detalles en **[ai-copilot.md](ai-copilot.md)**.
+Details in **[ai-copilot.md](ai-copilot.md)**.
 
 ### 🔀 Git
 
-| Plugin | Qué hace | Carga |
-|--------|----------|-------|
-| [`vim-fugitive`](https://github.com/tpope/vim-fugitive) | Comandos de Git y panel de status | `cmd` |
-| [`gitsigns.nvim`](https://github.com/lewis6991/gitsigns.nvim) | Cambios en la columna, stage por hunk, blame | `BufReadPre` |
-| [`diffview.nvim`](https://github.com/sindrets/diffview.nvim) | Diffs entre ramas e historial de archivos | `keys` + `cmd` |
-| [`git-conflict.nvim`](https://github.com/akinsho/git-conflict.nvim) | Resolver conflictos de merge visualmente | `BufReadPre` |
-| [`octo.nvim`](https://github.com/pwntester/octo.nvim) | PRs e Issues de GitHub | `keys` + `cmd` |
+| Plugin | What it does | Loads |
+|--------|--------------|-------|
+| [`vim-fugitive`](https://github.com/tpope/vim-fugitive) | Git commands and status panel | `cmd` |
+| [`gitsigns.nvim`](https://github.com/lewis6991/gitsigns.nvim) | Gutter changes, per-hunk staging, blame | `BufReadPre` |
+| [`diffview.nvim`](https://github.com/sindrets/diffview.nvim) | Branch diffs and file history | `keys` + `cmd` |
+| [`git-conflict.nvim`](https://github.com/akinsho/git-conflict.nvim) | Resolve merge conflicts visually | `BufReadPre` |
+| [`octo.nvim`](https://github.com/pwntester/octo.nvim) | GitHub PRs and issues | `keys` + `cmd` |
 
-Detalles en **[git-and-github.md](git-and-github.md)**.
+Details in **[git-and-github.md](git-and-github.md)**.
 
-### 🖥️ Terminal y sesiones
+### 🖥️ Terminal and sessions
 
-| Plugin | Qué hace | Carga |
-|--------|----------|-------|
-| [`toggleterm.nvim`](https://github.com/akinsho/toggleterm.nvim) | Terminal integrada + LazyDocker y Live Server flotantes | Inmediato |
-| [`vim-tmux-navigator`](https://github.com/christoomey/vim-tmux-navigator) | `Ctrl+hjkl` entre Neovim y tmux | Inmediato |
-| [`auto-session`](https://github.com/rmagatti/auto-session) | Guarda/restaura sesión por carpeta y rama | Inmediato |
-| [`legendary.nvim`](https://github.com/mrjones2014/legendary.nvim) | Paleta de comandos (`Ctrl+p`) | `VeryLazy` |
-| [`sqlite.lua`](https://github.com/kkharji/sqlite.lua) | Persistencia de Legendary | Dependencia |
+| Plugin | What it does | Loads |
+|--------|--------------|-------|
+| [`toggleterm.nvim`](https://github.com/akinsho/toggleterm.nvim) | Integrated terminal + floating LazyDocker and Live Server | Immediately |
+| [`vim-tmux-navigator`](https://github.com/christoomey/vim-tmux-navigator) | `Ctrl+hjkl` across Neovim and tmux | Immediately |
+| [`auto-session`](https://github.com/rmagatti/auto-session) | Saves/restores a session per folder and branch | Immediately |
+| [`legendary.nvim`](https://github.com/mrjones2014/legendary.nvim) | Command palette (`Ctrl+p`) | `VeryLazy` |
+| [`sqlite.lua`](https://github.com/kkharji/sqlite.lua) | Legendary persistence | Dependency |
 
-### 🐞 Debug y tests
+### 🐞 Debug and tests
 
-| Plugin | Qué hace | Carga |
-|--------|----------|-------|
-| [`nvim-dap`](https://github.com/mfussenegger/nvim-dap) | Cliente de Debug Adapter Protocol | `keys` |
-| [`nvim-dap-ui`](https://github.com/rcarriga/nvim-dap-ui) | Paneles de scopes, stacks, breakpoints, REPL | Dependencia |
-| [`nvim-dap-python`](https://github.com/mfussenegger/nvim-dap-python) | Adaptador de Python/debugpy | Dependencia |
-| [`nvim-dap-virtual-text`](https://github.com/theHamsta/nvim-dap-virtual-text) | Valor de las variables junto a cada línea | Dependencia |
-| [`neotest`](https://github.com/nvim-neotest/neotest) | Runner de tests con resultados inline | `keys` |
-| [`neotest-python`](https://github.com/nvim-neotest/neotest-python) | Adaptador de pytest | Dependencia |
-| [`nvim-nio`](https://github.com/nvim-neotest/nvim-nio) | Librería async | Dependencia |
+| Plugin | What it does | Loads |
+|--------|--------------|-------|
+| [`nvim-dap`](https://github.com/mfussenegger/nvim-dap) | Debug Adapter Protocol client | `keys` |
+| [`nvim-dap-ui`](https://github.com/rcarriga/nvim-dap-ui) | Scopes, stacks, breakpoints, REPL panels | Dependency |
+| [`nvim-dap-python`](https://github.com/mfussenegger/nvim-dap-python) | Python/debugpy adapter | Dependency |
+| [`nvim-dap-virtual-text`](https://github.com/theHamsta/nvim-dap-virtual-text) | Variable values next to each line | Dependency |
+| [`neotest`](https://github.com/nvim-neotest/neotest) | Test runner with inline results | `keys` |
+| [`neotest-python`](https://github.com/nvim-neotest/neotest-python) | pytest adapter | Dependency |
+| [`nvim-nio`](https://github.com/nvim-neotest/nvim-nio) | Async library | Dependency |
 
-Detalles en **[django.md](django.md#debugger)**.
+Details in **[django.md](django.md#debugger)**.
 
 ---
 
-## Rendimiento y lazy-loading
+## Performance and lazy-loading
 
-**Arranque actual: ~63ms** con 56 plugins. Solo 12 cargan al inicio; el resto
-espera un evento, comando o atajo.
+**Current startup: ~60ms** with 56 plugins. Only 12 load at boot; the rest wait
+for an event, command or keypress.
 
-### Tipos de trigger
+### Trigger types
 
-| Trigger | Cuándo carga | Ejemplo |
-|---------|--------------|---------|
-| `keys` | Al pulsar el atajo | Telescope, Harpoon, Trouble |
-| `cmd` | Al ejecutar el comando | Mason, Fugitive, Octo |
-| `ft` | Al abrir ese filetype | markdown-preview |
-| `event = "InsertEnter"` | Al entrar a modo insert | nvim-cmp, Copilot, autopairs |
-| `event = "BufReadPre"` | Al abrir un archivo | LSP, gitsigns, colorizer |
-| `event = "VeryLazy"` | Tras terminar el arranque | which-key, noice, flash |
-| `lazy = false` | Inmediato | tema, lualine, treesitter, auto-session |
+| Trigger | When it loads | Example |
+|---------|---------------|---------|
+| `keys` | On pressing the shortcut | Telescope, Harpoon, Trouble |
+| `cmd` | On running the command | Mason, Fugitive, Octo |
+| `ft` | On opening that filetype | markdown-preview |
+| `event = "InsertEnter"` | On entering insert mode | nvim-cmp, Copilot, autopairs |
+| `event = "BufReadPre"` | On opening a file | LSP, gitsigns, colorizer |
+| `event = "VeryLazy"` | After startup finishes | which-key, noice, flash |
+| `lazy = false` | Immediately | theme, lualine, treesitter, auto-session |
 
-### Medir el arranque
+### Measuring startup
 
 ```bash
 nvim --startuptime /tmp/start.log +q && tail -1 /tmp/start.log
 ```
 
-O dentro de Neovim:
+Or inside Neovim:
 
 ```vim
 :Lazy profile
 ```
 
-Muestra el tiempo de carga por plugin, ordenado.
+Shows load time per plugin, sorted.
 
-### Plugins de Vim desactivados
+### Disabled Vim plugins
 
-En [`lua/plugins/init.lua`](../lua/plugins/init.lua) se desactivan los plugins
-heredados que no se usan y que suman al arranque:
+[`lua/plugins/init.lua`](../lua/plugins/init.lua) disables the legacy plugins
+we don't use, which otherwise add to startup:
 
 ```lua
 performance = {
@@ -205,65 +213,65 @@ performance = {
 },
 ```
 
-> ⚠️ `netrwPlugin` desactivado significa que `:Explore` y `gx` (abrir URL) no
-> funcionan. NvimTree reemplaza al primero; para el segundo, quita `netrwPlugin`
-> de la lista o instala un plugin de URLs.
+> ⚠️ Disabling `netrwPlugin` means `:Explore` and `gx` (open URL) stop working.
+> NvimTree replaces the first; for the second, drop `netrwPlugin` from the list
+> or install a URL-opening plugin.
 
 ---
 
-## Agregar un plugin
+## Adding a plugin
 
-**1.** Elige el archivo por categoría (`editor.lua`, `ui.lua`, `git.lua`...).
+**1.** Pick the file matching the category (`editor.lua`, `ui.lua`, `git.lua`...).
 
-**2.** Agrega la especificación:
+**2.** Add the spec:
 
 ```lua
 return {
-  -- ... plugins existentes ...
+  -- ... existing plugins ...
 
   {
-    "autor/nombre-plugin",
-    event = "VeryLazy",              -- o cmd / keys / ft
+    "author/plugin-name",
+    event = "VeryLazy",              -- or cmd / keys / ft
     dependencies = { "nvim-lua/plenary.nvim" },
-    opts = {                         -- equivale a require("plugin").setup(opts)
-      alguna_opcion = true,
+    opts = {                         -- equivalent to require("plugin").setup(opts)
+      some_option = true,
     },
   },
 }
 ```
 
-**3.** Reinicia Neovim. lazy.nvim detecta el cambio e instala.
+**3.** Restart Neovim. lazy.nvim detects the change and installs it.
 
-**4.** Commitea `lazy-lock.json` para fijar la versión instalada.
+**4.** Commit `lazy-lock.json` to pin the installed version.
 
 ### `opts` vs `config`
 
 ```lua
--- Preferido: opts (más limpio, lazy hace el setup)
+-- Preferred: opts (cleaner, lazy runs setup for you)
 { "folke/trouble.nvim", opts = { modes = { ... } } }
 
--- Solo si necesitas lógica extra
+-- Only when you need extra logic
 {
   "folke/trouble.nvim",
   config = function()
     require("trouble").setup({ ... })
-    -- algo más que no cabe en opts
+    -- something else that doesn't fit in opts
   end,
 }
 ```
 
 ---
 
-## 🚨 Regla de oro: atajos en `keys`, no en `config`
+## 🚨 Golden rule: keymaps go in `keys`, not `config`
 
-**El error más común y difícil de detectar** en configs con lazy-loading.
+**The most common and hardest-to-spot mistake** in lazy-loaded configs.
 
-Si un plugin carga por comando y defines sus atajos dentro de `config`, esos
-atajos **no existen** hasta que el plugin cargue... pero el plugin no carga hasta
-que ejecutes el comando a mano. Atajos muertos, sin ningún error visible.
+If a plugin loads on a command and you define its keymaps inside `config`,
+those keymaps **don't exist** until the plugin loads... but the plugin doesn't
+load until you run the command by hand. Dead keys, with no visible error.
 
 ```lua
--- ❌ MAL: <leader>gd nunca se registra
+-- ❌ WRONG: <leader>gd is never registered
 {
   "sindrets/diffview.nvim",
   cmd = "DiffviewOpen",
@@ -272,7 +280,7 @@ que ejecutes el comando a mano. Atajos muertos, sin ningún error visible.
   end,
 }
 
--- ✅ BIEN: lazy registra el atajo al arrancar y carga el plugin al pulsarlo
+-- ✅ RIGHT: lazy registers the key at startup and loads the plugin on press
 {
   "sindrets/diffview.nvim",
   cmd = "DiffviewOpen",
@@ -282,79 +290,79 @@ que ejecutes el comando a mano. Atajos muertos, sin ningún error visible.
 }
 ```
 
-### Excepciones válidas
+### Valid exceptions
 
-Atajos en `config` **está bien** cuando:
+Keymaps in `config` are **fine** when:
 
-- El plugin no es lazy (`lazy = false`) — ej. `auto-session`
-- Carga por evento temprano (`BufReadPre`, `VeryLazy`) — ej. `flash`, `todo-comments`
-- Son **buffer-local** creados al adjuntarse — ej. `gitsigns` en `on_attach`,
-  keymaps de LSP en `LspAttach`
+- The plugin isn't lazy (`lazy = false`) — e.g. `auto-session`
+- It loads on an early event (`BufReadPre`, `VeryLazy`) — e.g. `flash`, `todo-comments`
+- They're **buffer-local**, created on attach — e.g. `gitsigns`'s `on_attach`,
+  LSP keymaps in `LspAttach`
 
-### Verificar que un atajo existe
+### Verifying a keymap exists
 
 ```vim
 :verbose nmap <leader>gd
 ```
 
-Muestra si está mapeado y desde qué archivo. Si no aparece nada, está muerto.
-También puedes buscarlo con `Ctrl+p` (Legendary) o `Espacio+lk`.
+Shows whether it's mapped and from which file. Nothing printed means it's dead.
+You can also search for it with `Ctrl+p` (Legendary) or `Space+lk`.
 
 ---
 
-## Quitar un plugin
+## Removing a plugin
 
-**1.** Borra o comenta su bloque en el archivo correspondiente.
+**1.** Delete or comment out its block in the matching file.
 
-**2.** Limpia los archivos descargados:
+**2.** Clean up the downloaded files:
 
 ```vim
 :Lazy clean
 ```
 
-**3.** Si dejó atajos o comandos documentados, actualiza
+**3.** If it left documented keymaps or commands behind, update
 [`commands-and-workflow.md`](commands-and-workflow.md).
 
-### Desactivar una categoría completa
+### Disabling a whole category
 
-Comenta el `import` en [`lua/plugins/init.lua`](../lua/plugins/init.lua):
+Comment out the `import` in [`lua/plugins/init.lua`](../lua/plugins/init.lua):
 
 ```lua
 require("lazy").setup({
     { import = "plugins.ui" },
-    -- { import = "plugins.debug" },   -- ← desactivado
+    -- { import = "plugins.debug" },   -- ← disabled
     { import = "plugins.testing" },
 }, { ... })
 ```
 
 ---
 
-## Actualizar plugins
+## Updating plugins
 
 ```vim
-:Lazy sync      " actualizar + limpiar + instalar faltantes
-:Lazy update    " solo actualizar
-:Lazy check     " ver qué hay disponible sin aplicar
+:Lazy sync      " update + clean + install missing
+:Lazy update    " update only
+:Lazy check     " see what's available without applying
 ```
 
-Después de actualizar:
+After updating:
 
 ```bash
-# Commitear el lock actualizado
+# Commit the updated lock
 git add lazy-lock.json
 git commit -m "chore: Update plugin versions"
 ```
 
-### Volver a una versión que funcionaba
+### Rolling back to a working version
 
 ```vim
-:Lazy restore   " reinstala exactamente lo que dice lazy-lock.json
+:Lazy restore   " reinstall exactly what lazy-lock.json says
 ```
 
-Por eso `lazy-lock.json` está en el repo: si una actualización rompe algo,
-`git checkout` del lock + `:Lazy restore` te devuelve al estado anterior.
+That's why `lazy-lock.json` is committed: if an update breaks something,
+`git checkout` the lock plus `:Lazy restore` returns you to the previous state.
 
-### Actualizar parsers de Treesitter
+### Updating Treesitter parsers
 
 ```vim
 :TSUpdate
@@ -362,4 +370,4 @@ Por eso `lazy-lock.json` está en el repo: si una actualización rompe algo,
 
 ---
 
-[⬅️ Volver al README](../README.md) · [Solución de problemas ➡️](troubleshooting.md)
+[⬅️ Back to the README](../README.md) · [Troubleshooting ➡️](troubleshooting.md)

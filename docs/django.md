@@ -1,33 +1,34 @@
-# 🐍 Django, DRF y Templates
+# 🐍 Django, DRF and Templates
 
-> Snippets, templates, debugger y tests para el stack Django.
+> Snippets, templates, debugger and tests for the Django stack.
 
-**Relacionado:** [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua) · [`lua/plugins/debug.lua`](../lua/plugins/debug.lua) · [`lua/plugins/testing.lua`](../lua/plugins/testing.lua)
+**Related:** [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua) · [`lua/plugins/debug.lua`](../lua/plugins/debug.lua) · [`lua/plugins/testing.lua`](../lua/plugins/testing.lua)
 
 ---
 
-## 📋 Contenido
+## 📋 Contents
 
 - [Snippets](#snippets)
-- [Templates de Django](#templates-de-django)
-- [Emmet en templates](#emmet-en-templates)
+- [Django templates](#django-templates)
+- [Emmet in templates](#emmet-in-templates)
 - [Debugger](#debugger)
-- [Tests con Neotest](#tests-con-neotest)
-- [Formateo](#formateo)
-- [Workflow típico](#workflow-típico)
+- [Tests with Neotest](#tests-with-neotest)
+- [Formatting](#formatting)
+- [Typical workflow](#typical-workflow)
+- [Frequent Django commands](#frequent-django-commands)
 
 ---
 
 ## Snippets
 
-Provistos por `friendly-snippets` y activados con `filetype_extend`.
-Escribe el prefijo, busca la entrada **Snippet** en el menú y acepta con `Enter`.
-Salta entre placeholders con `Tab` / `Shift+Tab`.
+Provided by `friendly-snippets` and enabled via `filetype_extend`.
+Type the prefix, find the **Snippet** entry in the menu and accept with `Enter`.
+Move between placeholders with `Tab` / `Shift+Tab`.
 
-### En templates (`.html` de Django)
+### In templates (Django `.html`)
 
-| Escribe | Se expande a |
-|---------|--------------|
+| Type | Expands to |
+|------|------------|
 | `block` | `{% block ... %}{% endblock %}` |
 | `extends` | `{% extends "..." %}` |
 | `include` | `{% include "..." %}` |
@@ -43,173 +44,174 @@ Salta entre placeholders con `Tab` / `Shift+Tab`.
 | `with` | `{% with ... %}{% endwith %}` |
 | `load` | `{% load ... %}` |
 
-### En Python — Models
+### In Python — Models
 
-| Escribe | Se expande a |
-|---------|--------------|
-| `model` | Clase `models.Model` con `Meta` y `__str__` |
+| Type | Expands to |
+|------|------------|
+| `model` | A `models.Model` class with `Meta` and `__str__` |
 | `char` / `text` / `int` | `CharField` / `TextField` / `IntegerField` |
-| `fk` | `ForeignKey` con `on_delete` |
+| `fk` | `ForeignKey` with `on_delete` |
 | `m2m` | `ManyToManyField` |
 | `o2o` | `OneToOneField` |
-| `datetime` | `DateTimeField` con `auto_now_add` |
+| `datetime` | `DateTimeField` with `auto_now_add` |
 
-### En Python — Forms y Views
+### In Python — Forms and views
 
-| Escribe | Se expande a |
-|---------|--------------|
+| Type | Expands to |
+|------|------------|
 | `form` | `forms.Form` |
-| `modelform` | `forms.ModelForm` con `Meta` |
-| `view` | Función vista |
-| `listview` | `ListView` basada en clase |
+| `modelform` | `forms.ModelForm` with `Meta` |
+| `view` | Function-based view |
+| `listview` | Class-based `ListView` |
 | `detailview` | `DetailView` |
-| `createview` / `updateview` | Vistas de escritura |
+| `createview` / `updateview` | Write views |
 
-### En Python — DRF
+### In Python — DRF
 
-| Escribe | Se expande a |
-|---------|--------------|
+| Type | Expands to |
+|------|------------|
 | `serializer` | `serializers.Serializer` |
-| `modelserializer` | `serializers.ModelSerializer` con `Meta` |
-| `apiview` | `APIView` con métodos HTTP |
+| `modelserializer` | `serializers.ModelSerializer` with `Meta` |
+| `apiview` | `APIView` with HTTP methods |
 | `viewset` | `ModelViewSet` |
 
-### En Python — URLs
+### In Python — URLs
 
-| Escribe | Se expande a |
-|---------|--------------|
+| Type | Expands to |
+|------|------------|
 | `path` | `path('...', view, name='...')` |
-| `urlpatterns` | Lista `urlpatterns` completa |
+| `urlpatterns` | A complete `urlpatterns` list |
 | `include` | `include('app.urls')` |
 
-> 💡 No memorices la lista: escribe las primeras letras (`ser`, `mod`, `blo`)
-> y mira lo que ofrece el menú. Son ~360 snippets entre templates y Python.
+> 💡 Don't memorize the list: type the first few letters (`ser`, `mod`, `blo`)
+> and look at what the menu offers. There are ~360 across templates and Python.
 
 ---
 
-## Templates de Django
+## Django templates
 
-### Detección de filetype
+### Filetype detection
 
-Neovim detecta `htmldjango` automáticamente cuando el archivo contiene
-sintaxis de template (`{% ... %}`, `{{ ... }}`). Para verificar:
+Neovim detects `htmldjango` automatically when the file contains template
+syntax (`{% ... %}`, `{{ ... }}`). To check:
 
 ```vim
 :set filetype?
 ```
 
-Si un template queda como `html` plano (por ejemplo, uno que solo tiene HTML
-todavía), fuérzalo:
+If a template stays as plain `html` — for example one that only has HTML so
+far — force it:
 
 ```vim
 :set filetype=htmldjango
 ```
 
-### Qué está activo en un template
+### What's active in a template
 
-| Herramienta | Aporta |
-|-------------|--------|
-| **LSP `html`** | Autocompletado de tags, atributos, validación |
-| **LSP `emmet_ls`** | Expansión de abreviaturas |
-| **Snippets Django + HTML** | 168 snippets combinados |
-| **Copilot** | Sugerencias de IA (`htmldjango` habilitado) |
-| **Treesitter `htmldjango`** | Highlighting correcto de `{% %}` y `{{ }}` |
-| **rainbow-delimiters** | Tags HTML coloreados por nivel de anidación |
-| **colorizer** | Preview de colores CSS inline |
+| Tool | What it brings |
+|------|----------------|
+| **`html` LSP** | Tag and attribute completion, validation |
+| **`emmet_ls` LSP** | Abbreviation expansion |
+| **Django + HTML snippets** | 168 combined snippets |
+| **Copilot** | AI suggestions (`htmldjango` is enabled) |
+| **Treesitter `htmldjango`** | Correct highlighting for `{% %}` and `{{ }}` |
+| **rainbow-delimiters** | HTML tags colored by nesting level |
+| **colorizer** | Inline CSS color previews |
 
-### Comentar en templates
+### Commenting in templates
 
-`gcc` respeta el contexto gracias a `nvim-ts-context-commentstring`:
+`gcc` respects the context thanks to `nvim-ts-context-commentstring`:
 
-- Dentro de HTML → `<!-- ... -->`
-- Dentro de un bloque Django → `{# ... #}`
-- Dentro de `<script>` → `// ...`
-- Dentro de `<style>` → `/* ... */`
+- Inside HTML → `<!-- ... -->`
+- Inside a Django block → `{# ... #}`
+- Inside `<script>` → `// ...`
+- Inside `<style>` → `/* ... */`
 
 ---
 
-## Emmet en templates
+## Emmet in templates
 
-Escribe la abreviatura y acéptala desde el menú de cmp:
+Type the abbreviation and accept it from the cmp menu:
 
-| Abreviatura | Genera |
-|-------------|--------|
+| Abbreviation | Produces |
+|--------------|----------|
 | `div.card` | `<div class="card"></div>` |
-| `ul>li*3` | `<ul>` con 3 `<li>` |
-| `div#main>p.text*2` | Div con id y 2 párrafos con clase |
+| `ul>li*3` | A `<ul>` with three `<li>` |
+| `div#main>p.text*2` | Div with an id and two classed paragraphs |
 | `a[href=#]` | `<a href="#"></a>` |
-| `form>input:text+button` | Form con input y botón |
+| `form>input:text+button` | A form with an input and a button |
 
-Funciona en `html`, `htmldjango`, `css`, `scss`, `javascript`, `javascriptreact`
-y `typescriptreact`.
+Works in `html`, `htmldjango`, `css`, `scss`, `javascript`, `javascriptreact`
+and `typescriptreact`.
 
 ---
 
 ## Debugger
 
-Debugger real con breakpoints, en vez de `print()`. Usa `debugpy` vía `nvim-dap-python`.
+A real debugger with breakpoints, instead of `print()`. Uses `debugpy` via
+`nvim-dap-python`.
 
-### Atajos
+### Shortcuts
 
-| Atajo | Acción |
-|-------|--------|
-| `Espacio+db` | Poner / quitar **breakpoint** |
-| `Espacio+dc` | **Continuar** — o iniciar y elegir configuración |
-| `Espacio+do` | **Step over** (siguiente línea) |
-| `Espacio+di` | **Step into** (entrar a la función) |
-| `Espacio+dx` | Terminar la sesión |
-| `Espacio+du` | Toggle de la UI |
+| Shortcut | Action |
+|----------|--------|
+| `Space+db` | Toggle **breakpoint** |
+| `Space+dc` | **Continue** — or start and pick a configuration |
+| `Space+do` | **Step over** (next line) |
+| `Space+di` | **Step into** (enter the function) |
+| `Space+dx` | Terminate the session |
+| `Space+du` | Toggle the UI |
 
-### Configuraciones disponibles
+### Available configurations
 
-Al pulsar `Espacio+dc` sin sesión activa, se elige entre:
+Pressing `Space+dc` with no active session lets you choose:
 
-| Configuración | Qué hace |
-|---------------|----------|
-| **Django runserver** | Levanta `manage.py runserver --noreload` con el debugger adjunto |
-| **Launch file** | Ejecuta el archivo actual |
-| **Attach remote** | Se conecta a un debugpy que ya está escuchando |
+| Configuration | What it does |
+|---------------|--------------|
+| **Django runserver** | Runs `manage.py runserver --noreload` with the debugger attached |
+| **Launch file** | Runs the current file |
+| **Attach remote** | Connects to a debugpy already listening |
 
-### Workflow con Django
+### Django workflow
 
 ```
-1. Espacio+db          → breakpoint en la vista que quieres inspeccionar
-2. Espacio+dc          → elegir "Django runserver"
-3. Hacer la request desde el navegador o curl
-   → Neovim se pausa en tu breakpoint
-4. Inspeccionar variables en el panel Scopes (izquierda)
-5. Espacio+do / Espacio+di  → avanzar paso a paso
-6. Espacio+dc          → continuar hasta el siguiente breakpoint
-7. Espacio+dx          → terminar
+1. Space+db          → breakpoint in the view you want to inspect
+2. Space+dc          → choose "Django runserver"
+3. Make the request from the browser or curl
+   → Neovim pauses on your breakpoint
+4. Inspect variables in the Scopes panel (left)
+5. Space+do / Space+di  → step through
+6. Space+dc          → continue to the next breakpoint
+7. Space+dx          → finish
 ```
 
-> ⚠️ **`--noreload` es necesario**: el autoreload de Django reinicia el proceso
-> y el debugger pierde el attach. La config ya lo incluye.
+> ⚠️ **`--noreload` is required**: Django's autoreload restarts the process and
+> the debugger loses its attachment. The config already includes it.
 
-### Paneles de la UI
+### UI panels
 
-| Panel | Contenido |
-|-------|-----------|
-| **Scopes** | Variables locales y globales en el punto de pausa |
-| **Breakpoints** | Todos los breakpoints activos |
-| **Stacks** | Call stack — cómo se llegó hasta aquí |
-| **Watches** | Expresiones que quieras vigilar |
-| **REPL** | Consola Python en el contexto pausado |
+| Panel | Contents |
+|-------|----------|
+| **Scopes** | Local and global variables at the pause point |
+| **Breakpoints** | All active breakpoints |
+| **Stacks** | Call stack — how execution got here |
+| **Watches** | Expressions you want to track |
+| **REPL** | A Python console in the paused context |
 
-Además, `nvim-dap-virtual-text` muestra el valor de cada variable **al lado de
-su línea** mientras estás pausado.
+On top of that, `nvim-dap-virtual-text` shows each variable's value **next to
+its line** while you're paused.
 
-### Debugging dentro de Docker
+### Debugging inside Docker
 
-Requiere configuración extra de attach remoto. En el contenedor:
+Needs extra remote-attach configuration. In the container:
 
 ```python
-# Al inicio de manage.py o settings.py
+# At the top of manage.py or settings.py
 import debugpy
 debugpy.listen(("0.0.0.0", 5678))
 ```
 
-Expón el puerto en `docker-compose.yml` y agrega a
+Expose the port in `docker-compose.yml` and add this to
 [`lua/plugins/debug.lua`](../lua/plugins/debug.lua):
 
 ```lua
@@ -219,72 +221,72 @@ table.insert(dap.configurations.python, {
   request = "attach",
   connect = { host = "127.0.0.1", port = 5678 },
   pathMappings = {
-    { localRoot = vim.fn.getcwd(), remoteRoot = "/app" },  -- ajusta remoteRoot
+    { localRoot = vim.fn.getcwd(), remoteRoot = "/app" },  -- adjust remoteRoot
   },
 })
 ```
 
 ---
 
-## Tests con Neotest
+## Tests with Neotest
 
-Adaptador `neotest-python` con `pytest`, apuntando a `.venv/bin/python`.
+The `neotest-python` adapter running `pytest`, pointed at `.venv/bin/python`.
 
-### Atajos
+### Shortcuts
 
-| Atajo | Acción |
-|-------|--------|
-| `Espacio+nt` | Correr el test **bajo el cursor** |
-| `Espacio+nf` | Correr todos los tests **del archivo** |
-| `Espacio+ns` | Toggle del panel de resultados |
-| `Espacio+no` | Ver el **output** del test fallido |
+| Shortcut | Action |
+|----------|--------|
+| `Space+nt` | Run the test **under the cursor** |
+| `Space+nf` | Run every test **in the file** |
+| `Space+ns` | Toggle the results panel |
+| `Space+no` | Show the **output** of a failing test |
 
-Los resultados aparecen inline: ✅ pasó, ❌ falló, junto a cada test.
+Results appear inline: ✅ passed, ❌ failed, next to each test.
 
 ### Workflow
 
 ```
-1. Espacio+ff           → abrir el test_*.py
-2. Cursor en un test
-3. Espacio+nt           → correr solo ese test
-4. Espacio+no           → si falla, ver el traceback completo
-5. Espacio+ns           → panel con todos los resultados
+1. Space+ff           → open the test_*.py
+2. Cursor on a test
+3. Space+nt           → run just that test
+4. Space+no           → if it fails, read the full traceback
+5. Space+ns           → panel with every result
 ```
 
-### Desde la terminal
+### From the terminal
 
-`Ctrl+´` abre la terminal integrada:
+`Ctrl+´` opens the integrated terminal:
 
 ```bash
-pytest                          # todos
-pytest apps/mi_app/             # una app
-pytest -k "nombre_del_test"     # por nombre
+pytest                          # everything
+pytest apps/my_app/             # one app
+pytest -k "test_name"           # by name
 pytest -v                       # verbose
-pytest --lf                     # solo los que fallaron la última vez
+pytest --lf                     # only what failed last run
 ```
 
-### Si usas el runner de Django en vez de pytest
+### If you use Django's runner instead of pytest
 
-Edita [`lua/plugins/testing.lua`](../lua/plugins/testing.lua):
+Edit [`lua/plugins/testing.lua`](../lua/plugins/testing.lua):
 
 ```lua
 require("neotest-python")({
-  runner = "django",     -- en vez de "pytest"
+  runner = "django",     -- instead of "pytest"
   python = ".venv/bin/python",
 })
 ```
 
 ---
 
-## Formateo
+## Formatting
 
-| Filetype | Formatter | Instalación |
-|----------|-----------|-------------|
-| `python` | `ruff format` | `pip install ruff` (en el `.venv`) |
+| Filetype | Formatter | Install |
+|----------|-----------|---------|
+| `python` | `ruff format` | `pip install ruff` (inside the `.venv`) |
 | `htmldjango` | `djlint` | `pip install djlint` |
 
-`Espacio+cf` formatea. Como se resuelven desde el `PATH`, cada proyecto usa su
-propia configuración (`pyproject.toml`, `.djlintrc`).
+`Space+cf` formats. Since they're resolved from `PATH`, each project uses its
+own configuration (`pyproject.toml`, `.djlintrc`).
 
 ```toml
 # pyproject.toml
@@ -296,69 +298,69 @@ profile = "django"
 indent = 4
 ```
 
-Más detalles en **[lsp-and-completion.md](lsp-and-completion.md#formateo-con-conformnvim)**.
+More detail in **[lsp-and-completion.md](lsp-and-completion.md#formatting-with-conformnvim)**.
 
 ---
 
-## Workflow típico
+## Typical workflow
 
 ```bash
-# 1. Entrar al proyecto con el venv activado
-cd ~/Documents/mi-proyecto
+# 1. Enter the project with the venv active
+cd ~/projects/my-project
 source .venv/bin/activate
 nvim
 
-# 2. Marcar los archivos que vas a tocar (Harpoon)
-Espacio+ff → models.py    → Espacio+a
-Espacio+ff → views.py     → Espacio+a
-Espacio+ff → serializers.py → Espacio+a
-# Ahora saltas con Espacio+1 / 2 / 3
+# 2. Mark the files you'll be touching (Harpoon)
+Space+ff → models.py      → Space+a
+Space+ff → views.py       → Space+a
+Space+ff → serializers.py → Space+a
+# Now jump with Space+1 / 2 / 3
 
-# 3. Escribir código
-model                     # snippet de modelo
-Espacio+ca                # auto-import de lo que falte
-Tab                       # aceptar LSP / Copilot / snippet
+# 3. Write code
+model                     # model snippet
+Space+ca                  # auto-import whatever is missing
+Tab                       # accept LSP / Copilot / snippet
 
-# 4. Formatear y revisar
-Espacio+cf                # ruff format
-Espacio+xf                # errores del archivo actual
+# 4. Format and review
+Space+cf                  # ruff format
+Space+xf                  # current file diagnostics
 
-# 5. Levantar el servidor en un split
+# 5. Start the server in a split
 Ctrl+´
 python manage.py runserver
 
-# 6. Correr los tests
-Espacio+nf
+# 6. Run the tests
+Space+nf
 
-# 7. Si algo no cuadra, debugger en vez de prints
-Espacio+db → Espacio+dc → "Django runserver"
+# 7. If something's off, debugger instead of prints
+Space+db → Space+dc → "Django runserver"
 ```
 
-Rutina completa del día a día en **[daily-routine.md](daily-routine.md)**.
+The full day-to-day routine is in **[daily-routine.md](daily-routine.md)**.
 
 ---
 
-## Comandos de Django frecuentes
+## Frequent Django commands
 
-Desde la terminal integrada (`Ctrl+´`):
+From the integrated terminal (`Ctrl+´`):
 
 ```bash
-# Migraciones
+# Migrations
 python manage.py makemigrations
 python manage.py migrate
 python manage.py showmigrations
 
-# Shell y utilidades
+# Shell and utilities
 python manage.py shell
 python manage.py createsuperuser
 python manage.py check
 python manage.py collectstatic
 
-# Con Docker
+# With Docker
 docker compose exec web python manage.py migrate
 docker compose exec web python manage.py shell
 ```
 
 ---
 
-[⬅️ Volver al README](../README.md) · [Git y GitHub ➡️](git-and-github.md)
+[⬅️ Back to the README](../README.md) · [Git and GitHub ➡️](git-and-github.md)

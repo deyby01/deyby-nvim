@@ -12,10 +12,10 @@ return {
       "nvim-neotest/nvim-nio",
     },
     keys = {
-      { "<leader>nt", ":Neotest run<CR>", silent = true, desc = "Neotest: correr test bajo cursor" },
-      { "<leader>nf", function() require("neotest").run.run(vim.fn.expand("%")) end, desc = "Neotest: correr todos los tests del archivo" },
-      { "<leader>ns", function() require("neotest").summary.toggle() end, desc = "Neotest: toggle panel de resultados" },
-      { "<leader>no", function() require("neotest").output.open() end, desc = "Neotest: ver output del test" },
+      { "<leader>nt", ":Neotest run<CR>", silent = true, desc = "Neotest: run nearest test" },
+      { "<leader>nf", function() require("neotest").run.run(vim.fn.expand("%")) end, desc = "Neotest: run all tests in file" },
+      { "<leader>ns", function() require("neotest").summary.toggle() end, desc = "Neotest: toggle results panel" },
+      { "<leader>no", function() require("neotest").output.open() end, desc = "Neotest: show test output" },
     },
     config = function()
       require("neotest").setup({

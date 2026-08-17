@@ -1,365 +1,389 @@
-# 🔁 Rutina Diaria de un Developer
+# 🔁 A Developer's Daily Routine
 
-> Los flujos reales del día a día, en el orden en que ocurren.
-> Para la referencia completa de atajos, mira **[commands-and-workflow.md](commands-and-workflow.md)**.
-
----
-
-## 📋 Contenido
-
-1. [Arrancar el día](#1-arrancar-el-día)
-2. [Empezar una tarea nueva](#2-empezar-una-tarea-nueva)
-3. [Entender código ajeno](#3-entender-código-ajeno)
-4. [Escribir código](#4-escribir-código)
-5. [Cuando algo no funciona](#5-cuando-algo-no-funciona)
-6. [Trabajar con Docker](#6-trabajar-con-docker)
-7. [Refactorizar](#7-refactorizar)
-8. [Antes de commitear](#8-antes-de-commitear)
-9. [Commit y push](#9-commit-y-push)
-10. [Abrir el Pull Request](#10-abrir-el-pull-request)
-11. [Revisar el PR de otra persona](#11-revisar-el-pr-de-otra-persona)
-12. [Resolver conflictos](#12-resolver-conflictos)
-13. [Cerrar el día](#13-cerrar-el-día)
-14. [Los 15 atajos que usarás el 90% del tiempo](#los-15-atajos-que-usarás-el-90-del-tiempo)
+> The real day-to-day flows, in the order they happen.
+> For the complete shortcut reference, see **[commands-and-workflow.md](commands-and-workflow.md)**.
 
 ---
 
-## 1. Arrancar el día
+## 📋 Contents
+
+1. [Start the day](#1-start-the-day)
+2. [Start a new task](#2-start-a-new-task)
+3. [Understand someone else's code](#3-understand-someone-elses-code)
+4. [Write code](#4-write-code)
+5. [When something breaks](#5-when-something-breaks)
+6. [Work with Docker](#6-work-with-docker)
+7. [Preview HTML/CSS](#7-preview-htmlcss)
+8. [Refactor](#8-refactor)
+9. [Before committing](#9-before-committing)
+10. [Commit and push](#10-commit-and-push)
+11. [Open the pull request](#11-open-the-pull-request)
+12. [Review someone else's PR](#12-review-someone-elses-pr)
+13. [Resolve conflicts](#13-resolve-conflicts)
+14. [End the day](#14-end-the-day)
+15. [The 15 shortcuts you'll use 90% of the time](#the-15-shortcuts-youll-use-90-of-the-time)
+
+---
+
+## 1. Start the day
 
 ```bash
-# Sesión de tmux (el servidor sobrevive al cierre de la terminal)
-tmux new -s mi-proyecto
+# tmux session (the server survives closing the terminal)
+tmux new -s my-project
 
-cd ~/Documents/mi-proyecto
-source .venv/bin/activate     # importante: los linters vienen del venv
+cd ~/projects/my-project
+source .venv/bin/activate     # important: linters come from the venv
 nvim
 ```
 
-auto-session restaura los archivos que tenías abiertos en esta carpeta y rama.
+auto-session restores the files you had open in this folder and branch.
 
 ```
-Espacio+gs        # ¿en qué estado quedó el repo?
-:Git pull origin development
-Espacio+opr       # ¿tengo PRs pendientes de revisar?
+Space+gs        # what state did the repo end in?
+:Git pull origin main
+Space+opr       # any PRs waiting on my review?
 ```
 
-> 💡 Si no usas tmux, `Espacio+ld` te da LazyDocker y `Ctrl+´` una terminal
-> integrada. tmux solo hace falta cuando quieres que un proceso sobreviva.
+> 💡 If you don't use tmux, `Space+ld` gives you LazyDocker and `Ctrl+´` an
+> integrated terminal. tmux is only needed when a process must outlive nvim.
 
 ---
 
-## 2. Empezar una tarea nueva
+## 2. Start a new task
 
 ```
-:Git checkout development
-:Git pull origin development
-:Git checkout -b feature/nombre-tarea
+:Git checkout main
+:Git pull origin main
+:Git checkout -b feature/task-name
 ```
 
-Marca los archivos que vas a tocar para saltar entre ellos sin buscar:
+Mark the files you'll be touching so you can hop without searching:
 
 ```
-Espacio+ff  → models.py       → Espacio+a
-Espacio+ff  → views.py        → Espacio+a
-Espacio+ff  → serializers.py  → Espacio+a
-Espacio+ff  → tests.py        → Espacio+a
+Space+ff  → models.py       → Space+a
+Space+ff  → views.py        → Space+a
+Space+ff  → serializers.py  → Space+a
+Space+ff  → tests.py        → Space+a
 
-# Ahora:
-Espacio+1  Espacio+2  Espacio+3  Espacio+4
+# Now:
+Space+1  Space+2  Space+3  Space+4
 ```
 
-Levanta el servidor en un panel aparte:
+Start the server in its own pane:
 
 ```
-Ctrl+a -                       # panel de tmux abajo
+Ctrl+a -                       # tmux pane below
 python manage.py runserver
-Ctrl+k                         # volver a Neovim
+Ctrl+k                         # back to Neovim
 ```
 
 ---
 
-## 3. Entender código ajeno
+## 3. Understand someone else's code
 
-Lo que más hace un dev: leer código que no escribió.
+The thing developers do most: read code they didn't write.
 
-| Quiero... | Atajo |
-|-----------|-------|
-| Ver qué hace esta función | `K` (hover) |
-| Ir a donde está definida | `gd` |
-| Ver **quién la llama** | `gr` (referencias) |
-| Volver de donde vine | `Ctrl+o` |
-| Buscar un texto en todo el proyecto | `Espacio+fg` |
-| Ver la estructura del archivo | `Espacio+bp` (breadcrumbs) |
-| Saber quién escribió esta línea y por qué | `Espacio+hb` (blame) |
-| Ver el historial completo del archivo | `Espacio+gh` |
+| I want to... | Shortcut |
+|--------------|----------|
+| See what this function does | `K` (hover) |
+| Go to where it's defined | `gd` |
+| See **who calls it** | `gr` (references) |
+| Get back to where I was | `Ctrl+o` |
+| Search text across the project | `Space+fg` |
+| See the file's structure | `Space+bp` (breadcrumbs) |
+| Know who wrote this line and why | `Space+hb` (blame) |
+| See the file's full history | `Space+gh` |
 
-### Flujo de exploración típico
+### A typical exploration flow
 
 ```
-Espacio+fg  → buscar "PedidoSerializer"
-Enter       → abrir el resultado
-gd          → ir a la definición de la clase base
-Ctrl+o      → volver
-gr          → ver todos los sitios que la usan
-Espacio+hb  → ¿por qué se escribió así? (blame → commit → PR)
+Space+fg   → search "OrderSerializer"
+Enter      → open the result
+gd         → jump to the base class definition
+Ctrl+o     → back
+gr         → every place that uses it
+Space+hb   → why was it written this way? (blame → commit → PR)
 ```
 
-> 💡 **`Ctrl+o` / `Ctrl+i`** navegan el jumplist (atrás/adelante). Son la clave
-> para explorar sin perderte.
+> 💡 **`Ctrl+o` / `Ctrl+i`** walk the jumplist (back/forward). They're the key
+> to exploring without getting lost.
 
 ---
 
-## 4. Escribir código
+## 4. Write code
 
-### El ciclo básico
-
-```
-i                    # entrar a insert
-{escribir}           # LSP + Copilot + snippets sugieren en el mismo menú
-Tab / Shift+Tab      # moverse entre opciones
-Enter                # aceptar
-jk                   # salir de insert (se autoguarda)
-```
-
-### Acelerar con snippets
+### The basic cycle
 
 ```
-model          → clase models.Model completa
-serializer     → ModelSerializer de DRF
-listview       → vista basada en clase
-block          → {% block %}{% endblock %} (en templates)
-div.card>ul>li*3  → estructura HTML (Emmet)
+i                    # enter insert
+{type}               # LSP + Copilot + snippets share one menu
+Tab / Shift+Tab      # move between entries
+Enter                # accept
+jk                   # leave insert (auto-saves)
 ```
 
-Lista completa en **[django.md](django.md#snippets)**.
-
-### Cuando falta un import
+### Going faster with snippets
 
 ```
-Espacio+ca     → code actions → "Import X from Y"
+model          → full models.Model class
+serializer     → DRF ModelSerializer
+listview       → class-based view
+block          → {% block %}{% endblock %} (in templates)
+div.card>ul>li*3  → HTML structure (Emmet)
 ```
 
-### Formatear antes de seguir
+Full list in **[django.md](django.md#snippets)**.
+
+### When an import is missing
 
 ```
-Espacio+cf     → ruff / prettier / djlint según el filetype
+Space+ca     → code actions → "Import X from Y"
 ```
 
-### Edición que ahorra tiempo
+### Format before moving on
 
-| Necesito | Cómo |
-|----------|------|
-| Cambiar una palabra completa | `ciw` |
-| Cambiar hasta el final de línea | `C` |
-| Duplicar una línea | `yy` `p` |
-| Comentar la línea / selección | `gcc` / `gc` en visual |
-| Envolver en comillas | `ysiw"` |
-| Cambiar `'` por `"` | `cs'"` |
-| Indentar varias líneas | `V` `j j` `>` (y `.` para repetir) |
-| Editar N líneas a la vez | `Ctrl+v` → `j j` → `I` → texto → `Esc` |
-| Saltar a un punto visible | `s` + 2 letras |
-| **Repetir lo último** | `.` |
+```
+Space+cf     → ruff / prettier / djlint, depending on the filetype
+```
+
+### Editing that saves time
+
+| I need to | How |
+|-----------|-----|
+| Change a whole word | `ciw` |
+| Change to end of line | `C` |
+| Duplicate a line | `yy` `p` |
+| Comment line / selection | `gcc` / `gc` in visual |
+| Wrap in quotes | `ysiw"` |
+| Change `'` to `"` | `cs'"` |
+| Indent several lines | `V` `j j` `>` (then `.` to repeat) |
+| Edit N lines at once | `Ctrl+v` → `j j` → `I` → text → `Esc` |
+| Jump to a visible spot | `s` + 2 letters |
+| **Repeat the last thing** | `.` |
 
 ---
 
-## 5. Cuando algo no funciona
+## 5. When something breaks
 
-### Primero: ¿qué dice el editor?
-
-```
-Espacio+xf     # errores del archivo actual
-Espacio+xx     # errores de todo el proyecto
-]d / [d        # saltar entre ellos
-```
-
-### Debugger en vez de prints
+### First: what does the editor say?
 
 ```
-Espacio+db     # breakpoint en la línea sospechosa
-Espacio+dc     # iniciar → "Django runserver"
-# hacer la request desde el navegador → se pausa ahí
-Espacio+do     # avanzar línea por línea
-# inspeccionar variables en el panel Scopes
-Espacio+dx     # terminar
+Space+xf     # current file diagnostics
+Space+xx     # whole project
+]d / [d      # jump between them
 ```
 
-Detalles en **[django.md](django.md#debugger)**.
-
-### Los tests
+### Debugger instead of prints
 
 ```
-Espacio+nt     # correr el test bajo el cursor
-Espacio+no     # ver el traceback si falla
-Espacio+nf     # correr todo el archivo
+Space+db     # breakpoint on the suspicious line
+Space+dc     # start → "Django runserver"
+# make the request from the browser → it pauses there
+Space+do     # step line by line
+# inspect variables in the Scopes panel
+Space+dx     # finish
 ```
 
-### ¿Funcionaba antes?
+Details in **[django.md](django.md#debugger)**.
+
+### The tests
 
 ```
-Espacio+gh     # historial del archivo: ver qué cambió y cuándo
-Espacio+hb     # blame de la línea sospechosa
+Space+nt     # run the test under the cursor
+Space+no     # read the traceback if it fails
+Space+nf     # run the whole file
+```
+
+### Did it work before?
+
+```
+Space+gh     # file history: what changed and when
+Space+hb     # blame the suspicious line
 ```
 
 ---
 
-## 6. Trabajar con Docker
+## 6. Work with Docker
 
 ```
-Espacio+ld     # LazyDocker: contenedores, logs, imágenes y volúmenes
+Space+ld     # LazyDocker: containers, logs, images and volumes
 ```
 
-Es la forma más rápida de responder "¿está corriendo?", "¿por qué se cayó?" y
-"reinicia esto". Dentro: `Tab` cambia de panel, `Enter` ve logs, **`x` abre el
-menú de acciones** del elemento seleccionado.
+The fastest way to answer "is it running?", "why did it die?" and
+"restart this". Inside: `Tab` switches panels, `Enter` shows logs, **`x` opens
+the action menu** for the selected item.
 
-### Lo que más se hace en el día
+### What you do most in a day
 
 ```bash
-docker compose ps                  # ¿qué está arriba?
-docker compose logs -f web         # seguir los logs
-docker compose restart web         # aplicar un cambio de config
-docker compose exec web bash       # entrar al contenedor
+docker compose ps                  # what's up?
+docker compose logs -f web         # follow the logs
+docker compose restart web         # apply a config change
+docker compose exec web bash       # get a shell in the container
 docker compose exec web python manage.py migrate
 ```
 
-### Cuando el contenedor no levanta
+### When a container won't start
 
 ```
-Espacio+ld     → panel Containers → Enter sobre el que falló → leer el log
+Space+ld     → Containers panel → Enter on the failing one → read the log
 ```
 
-Si el error viene del `Dockerfile` o del `docker-compose.yml`, ábrelos en
-Neovim: tienen LSP con autocompletado y diagnósticos, así que los errores de
-sintaxis se ven antes de reconstruir.
+If the error comes from the `Dockerfile` or `docker-compose.yml`, open them in
+Neovim: they have LSP support with completion and diagnostics, so syntax
+mistakes show up before you rebuild.
 
-📖 Referencia completa en **[commands-and-workflow.md](commands-and-workflow.md#docker--lazydocker)**.
+📖 Full reference in **[commands-and-workflow.md](commands-and-workflow.md#docker--lazydocker)**.
 
 ---
 
-## 7. Refactorizar
+## 7. Preview HTML/CSS
 
-### Renombrar bien
-
-```
-Espacio+rn     # renombra el símbolo en TODO el proyecto vía LSP
-```
-
-Es lo correcto para variables, funciones y clases: entiende el scope, no toca
-strings ni comentarios que casualmente coincidan.
-
-### Buscar y reemplazar texto
+For plain HTML/CSS work with no backend involved:
 
 ```
-Espacio+sw     # buscar la palabra bajo el cursor en todo el proyecto
-# revisar la lista, excluir con dd lo que no quieras
-R              # aplicar
+Space+lv     # Live Server: serves the folder and opens the browser
 ```
 
-Para strings, URLs, nombres de templates: cosas que el LSP no entiende como símbolos.
-
-### Verificar que no rompiste nada
+Save the file and the browser refreshes on its own — the same thing the VSCode
+Live Server extension does.
 
 ```
-Espacio+xx     # ¿aparecieron errores nuevos?
-Espacio+nf     # ¿pasan los tests?
-Espacio+gw     # ¿el diff es lo que esperaba?
+1. Open your index.html
+2. Space+lv        → browser opens
+3. Esc             → leave the floating terminal (it keeps serving)
+4. Edit and save
+5. Look at the browser: already refreshed
+```
+
+📖 Details in **[commands-and-workflow.md](commands-and-workflow.md#html--live-server)**.
+
+---
+
+## 8. Refactor
+
+### Renaming properly
+
+```
+Space+rn     # renames the symbol across the WHOLE project via LSP
+```
+
+This is the right tool for variables, functions and classes: it understands
+scope and won't touch strings or comments that merely match.
+
+### Search and replace text
+
+```
+Space+sw     # search the word under the cursor project-wide
+# review the list, exclude what you don't want with dd
+R            # apply
+```
+
+For strings, URLs, template names — things the LSP doesn't treat as symbols.
+
+### Check you didn't break anything
+
+```
+Space+xx     # any new errors?
+Space+nf     # do the tests pass?
+Space+gw     # is the diff what I expected?
 ```
 
 ---
 
-## 8. Antes de commitear
+## 9. Before committing
 
-**El paso que más rondas de review ahorra:** revisar tu propio diff.
-
-```
-Espacio+gw     # diff completo del working tree
-Tab            # recorrer archivo por archivo
-```
-
-### Checklist mental
+**The step that saves the most review rounds:** read your own diff.
 
 ```
-Espacio+ft     # ¿dejé TODOs o FIXMEs sin resolver?
-Espacio+xx     # ¿hay errores o warnings?
-Espacio+cf     # ¿está formateado?
-Espacio+nf     # ¿pasan los tests?
+Space+gw     # full working-tree diff
+Tab          # walk through it file by file
 ```
 
-Cosas que suelen colarse y se ven en el diff: `print()` de debug, `console.log`,
-credenciales hardcodeadas, código comentado, imports sin usar.
+### Mental checklist
+
+```
+Space+ft     # did I leave TODOs or FIXMEs behind?
+Space+xx     # any errors or warnings?
+Space+cf     # is it formatted?
+Space+nf     # do the tests pass?
+```
+
+Things that commonly sneak in and show up in the diff: debug `print()`,
+`console.log`, hardcoded credentials, commented-out code, unused imports.
 
 ---
 
-## 9. Commit y push
+## 10. Commit and push
 
-### Commits limpios por hunks
+### Clean commits, hunk by hunk
 
-Si tocaste varias cosas en un archivo, sepáralas:
-
-```
-]c             # ir al primer cambio
-Espacio+hp     # revisarlo
-Espacio+hs     # stagear solo ese hunk
-]c             # siguiente... (o dejarlo para otro commit)
-```
-
-### Commitear
+If you touched several unrelated things in one file, split them:
 
 ```
-Espacio+gs     # panel de status
-s              # stagear el archivo bajo el cursor
-=              # ver su diff antes de decidir
-cc             # commit → escribir mensaje → Ctrl+s
+]c             # go to the first change
+Space+hp       # review it
+Space+hs       # stage only that hunk
+]c             # next one... (or leave it for another commit)
+```
+
+### Committing
+
+```
+Space+gs       # status panel
+s              # stage the file under the cursor
+=              # see its diff before deciding
+cc             # commit → write message → Ctrl+s
 ```
 
 ### Push
 
 ```
-:Git push origin feature/nombre-tarea
+:Git push origin feature/task-name
 ```
 
 ---
 
-## 10. Abrir el Pull Request
+## 11. Open the pull request
 
-Antes de pedirlo, mira el conjunto completo de tus commits:
-
-```
-Espacio+gf     # todos los commits desde development hasta HEAD
-Espacio+gd     # diff completo contra development
-```
-
-Luego:
+Before asking for it, look at the whole set of your commits:
 
 ```
-Espacio+opc    # crear el PR desde Neovim
+Space+gf     # every commit from the base branch to HEAD
+Space+gd     # full diff against the base branch
 ```
 
-O desde la terminal:
+Then:
+
+```
+Space+opc    # create the PR from Neovim
+```
+
+Or from the terminal:
 
 ```bash
-gh pr create --base development --title "..." --body "..."
+gh pr create --base main --title "..." --body "..."
 ```
 
 ---
 
-## 11. Revisar el PR de otra persona
+## 12. Review someone else's PR
 
 ```
-Espacio+opr    # listar PRs
-Enter          # abrir el que te asignaron
-Espacio+or     # iniciar el review
-Espacio+gD     # ver el diff contra origin/development
+Space+opr    # list PRs
+Enter        # open the one assigned to you
+Space+or     # start the review
+Space+gD     # see the diff against origin/<base branch>
 ```
 
-Mientras revisas:
+While reviewing:
 
-| Quiero | Atajo |
-|--------|-------|
-| Entender una función que cambió | `gd` / `K` |
-| Ver si eso rompe otros sitios | `gr` |
-| Comentar en una línea | `:Octo comment add` |
-| Ver el contexto histórico | `Espacio+gh` |
+| I want | Shortcut |
+|--------|----------|
+| Understand a changed function | `gd` / `K` |
+| See whether it breaks other places | `gr` |
+| Comment on a line | `:Octo comment add` |
+| See historical context | `Space+gh` |
 
 ```
 :Octo review submit
@@ -367,78 +391,78 @@ Mientras revisas:
 
 ---
 
-## 12. Resolver conflictos
+## 13. Resolve conflicts
 
 ```
-:Git merge development
+:Git merge main
 # → CONFLICT
 
-Espacio+cl     # ver todos los conflictos del repo
-Espacio+cn     # ir al siguiente
-Espacio+co     # quedarme con lo mío
-Espacio+ct     # quedarme con lo de la otra rama
-Espacio+cb     # quedarme con ambos y editar a mano
+Space+cl     # list every conflict in the repo
+Space+cn     # go to the next one
+Space+co     # keep mine
+Space+ct     # keep the other branch's
+Space+cb     # keep both and edit by hand
 
-Espacio+cl     # verificar que la lista quedó vacía
-Espacio+nf     # correr los tests: los conflictos mal resueltos compilan pero fallan
-Espacio+gs → s → cc
+Space+cl     # verify the list is empty
+Space+nf     # run the tests: badly resolved conflicts compile but fail
+Space+gs → s → cc
 ```
 
-> ⚠️ En un **rebase**, "ours" y "theirs" están invertidos respecto a un merge. Si
-> dudas, mira el contenido, no la etiqueta.
+> ⚠️ During a **rebase**, "ours" and "theirs" are swapped relative to a merge.
+> When in doubt, read the content, not the label.
 
 ---
 
-## 13. Cerrar el día
+## 14. End the day
 
 ```
-Espacio+gs                          # ¿queda algo sin commitear?
-s → cc                              # commit de lo que esté listo
-:Git push origin mi-rama            # subirlo (respaldo remoto)
-Espacio+ss                          # guardar la sesión
-:qa                                 # cerrar Neovim
-Ctrl+a d                            # detach de tmux (el server sigue vivo)
+Space+gs                          # anything uncommitted?
+s → cc                            # commit what's ready
+:Git push origin my-branch        # push it (remote backup)
+Space+ss                          # save the session
+:qa                               # close Neovim
+Ctrl+a d                          # detach from tmux (server stays alive)
 ```
 
-Al día siguiente:
+The next day:
 
 ```bash
-tmux attach -t mi-proyecto
-# todo exactamente como lo dejaste
+tmux attach -t my-project
+# exactly as you left it
 ```
 
-> 💡 Si dejas trabajo a medias, haz un commit `wip:` y súbelo. Un disco que
-> muere no avisa.
+> 💡 If you're leaving work half-done, make a `wip:` commit and push it. A dying
+> disk doesn't warn you.
 
 ---
 
-## Los 15 atajos que usarás el 90% del tiempo
+## The 15 shortcuts you'll use 90% of the time
 
-Si solo vas a memorizar unos pocos, que sean estos:
+If you only memorize a handful, make it these:
 
-| # | Atajo | Acción |
-|---|-------|--------|
-| 1 | `Espacio+ff` | Buscar archivo |
-| 2 | `Espacio+fg` | Buscar texto en el proyecto |
-| 3 | `gd` | Ir a la definición |
-| 4 | `gr` | Ver referencias |
-| 5 | `Ctrl+o` | Volver de donde vine |
-| 6 | `K` | Ver documentación |
-| 7 | `Espacio+ca` | Code actions (auto-import) |
-| 8 | `Espacio+cf` | Formatear |
-| 9 | `Espacio+xf` | Errores del archivo |
-| 10 | `Espacio+gs` | Git status |
-| 11 | `Espacio+hp` | Preview del cambio de git |
-| 12 | `s` | Saltar a cualquier punto |
-| 13 | `gcc` | Comentar |
-| 14 | `.` | Repetir la última acción |
-| 15 | `Ctrl+p` | Buscar cualquier comando que olvidaste |
+| # | Shortcut | Action |
+|---|----------|--------|
+| 1 | `Space+ff` | Find a file |
+| 2 | `Space+fg` | Search text in the project |
+| 3 | `gd` | Go to definition |
+| 4 | `gr` | Find references |
+| 5 | `Ctrl+o` | Get back to where I was |
+| 6 | `K` | Show documentation |
+| 7 | `Space+ca` | Code actions (auto-import) |
+| 8 | `Space+cf` | Format |
+| 9 | `Space+xf` | Current file diagnostics |
+| 10 | `Space+gs` | Git status |
+| 11 | `Space+hp` | Preview a git change |
+| 12 | `s` | Jump anywhere |
+| 13 | `gcc` | Comment |
+| 14 | `.` | Repeat the last action |
+| 15 | `Ctrl+p` | Search any command you forgot |
 
 ---
 
-## Comandos de terminal frecuentes
+## Frequent terminal commands
 
-Desde `Ctrl+´` o un panel de tmux:
+From `Ctrl+´` or a tmux pane:
 
 ```bash
 # Django
@@ -455,8 +479,8 @@ docker compose exec web python manage.py migrate
 
 # Tests
 pytest
-pytest -k "nombre_del_test"
-pytest --lf                    # solo los que fallaron la última vez
+pytest -k "test_name"
+pytest --lf                    # only what failed last time
 
 # Frontend
 npm run dev
@@ -465,20 +489,19 @@ npm run build
 
 ---
 
-## Tips que marcan diferencia
+## Tips that make a difference
 
-- **`.` es el atajo más subestimado de Vim.** Haz un cambio, muévete al
-  siguiente sitio, `.`. Funciona con casi todo.
-- **`Ctrl+p` cuando no recuerdes algo.** Busca por nombre entre todos los atajos
-  y comandos. Más rápido que abrir la documentación.
-- **Marca con Harpoon al empezar la tarea, no a mitad.** Los 4 archivos que vas
-  a tocar los sabes desde el principio.
-- **`TODO:` y `FIXME:` en vez de notas mentales.** Los recuperas con `Espacio+ft`.
-- **Stagea por hunks (`Espacio+hs`).** Commits pequeños se revisan mejor y se
-  revierten sin dolor.
-- **Revisa tu propio diff antes de pedir review.** Ahorra la ronda de "quita el
-  print" y "sobra ese import".
+- **`.` is Vim's most underrated key.** Make a change, move to the next spot,
+  press `.`. It works with almost everything.
+- **`Ctrl+p` when you can't remember something.** Search by name across every
+  shortcut and command. Faster than opening the docs.
+- **Mark files with Harpoon at the start of the task, not halfway through.** You
+  already know the four files you'll be touching.
+- **`TODO:` and `FIXME:` instead of mental notes.** Get them back with `Space+ft`.
+- **Stage by hunks (`Space+hs`).** Small commits review better and revert painlessly.
+- **Read your own diff before requesting review.** It saves the "remove the
+  print" and "unused import" round.
 
 ---
 
-[⬅️ Volver al README](../README.md) · [Referencia de comandos ➡️](commands-and-workflow.md)
+[⬅️ Back to the README](../README.md) · [Command reference ➡️](commands-and-workflow.md)

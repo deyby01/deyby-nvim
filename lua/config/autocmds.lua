@@ -1,20 +1,20 @@
 -- ==========================================
--- AUTOCOMANDOS
+-- AUTOCOMMANDS
 -- ==========================================
 
--- Guardar automáticamente al salir de modo INSERT
+-- Auto-save when leaving INSERT mode
 vim.api.nvim_create_autocmd("InsertLeave", {
     pattern = "*",
     callback = function()
-        -- Solo buffers normales, con nombre, modificables y con cambios
+        -- Only normal, named, modifiable buffers that actually changed
         if vim.bo.buftype == "" and vim.bo.modifiable and vim.bo.modified and vim.fn.expand("%") ~= "" then
             vim.cmd("silent! write")
         end
     end,
-    desc = "Guardar al salir de modo INSERT",
+    desc = "Save on leaving INSERT mode",
 })
 
--- Recargar archivo cuando cambia externamente (Claude Code, etc)
+-- Reload the file when it changes on disk (e.g. edited by another tool)
 vim.api.nvim_create_autocmd({ "BufEnter", "FocusGained" }, {
     pattern = "*",
     callback = function()
@@ -23,36 +23,36 @@ vim.api.nvim_create_autocmd({ "BufEnter", "FocusGained" }, {
             vim.cmd("checktime")
         end
     end,
-    desc = "Recargar archivo si cambió externamente",
+    desc = "Reload file if changed externally",
 })
 
--- Resaltar al copiar texto (yank)
+-- Briefly highlight yanked text
 vim.api.nvim_create_autocmd("TextYankPost", {
     pattern = "*",
     callback = function()
         vim.hl.on_yank({ timeout = 200 })
     end,
-    desc = "Resaltar al copiar",
+    desc = "Highlight on yank",
 })
 
--- Quitar espacios en blanco al final al guardar
+-- Strip trailing whitespace on save
 vim.api.nvim_create_autocmd("BufWritePre", {
     pattern = "*",
     callback = function()
-        -- No tocar filetypes donde el espacio final es significativo
+        -- Skip filetypes where trailing whitespace is meaningful
         if vim.tbl_contains({ "markdown", "diff", "gitcommit" }, vim.bo.filetype) then
             return
         end
         local view = vim.fn.winsaveview()
-        -- keeppatterns: no contamina el historial de búsqueda ni el registro /
+        -- keeppatterns: don't clobber the search history or the / register
         vim.cmd([[keeppatterns %s/\s\+$//e]])
         vim.fn.winrestview(view)
     end,
-    desc = "Eliminar espacios en blanco al guardar",
+    desc = "Strip trailing whitespace on save",
 })
 
--- Variantes de Markdown que Neovim no detecta solo
--- (.MD en mayúsculas y .mdx caen en filetype "conf" por defecto)
+-- Markdown variants Neovim doesn't detect on its own
+-- (uppercase .MD and .mdx fall back to filetype "conf")
 vim.filetype.add({
     extension = {
         MD = "markdown",
@@ -62,11 +62,11 @@ vim.filetype.add({
     },
 })
 
--- Detectar docker-compose para su language server
+-- Detect docker-compose files so their language server attaches
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     pattern = { "docker-compose*.yml", "docker-compose*.yaml", "compose*.yml", "compose*.yaml" },
     callback = function()
         vim.bo.filetype = "yaml.docker-compose"
     end,
-    desc = "Filetype para docker-compose",
+    desc = "Filetype for docker-compose",
 })

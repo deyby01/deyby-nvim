@@ -3,7 +3,7 @@
 -- ==========================================
 
 return {
-  -- Noice: UI mejorada
+  -- Noice: improved cmdline, messages and popups
   {
     "folke/noice.nvim",
     event = "VeryLazy",
@@ -32,28 +32,28 @@ return {
       })
     end,
   },
-  -- Which-key: mostrar atajos
+  -- which-key: shows available keymaps as you type a prefix
   {
   "folke/which-key.nvim",
   event = "VeryLazy",
   config = function()
     require("which-key").setup({
-      delay = 500,  -- aparece después de 500ms
+      delay = 500,  -- popup appears after 500ms
       icons = {
         mappings = true,
       },
       spec = {
-        { "<leader>f", group = "Buscar" },
+        { "<leader>f", group = "Find" },
         { "<leader>g", group = "Git" },
         { "<leader>h", group = "Git hunks / Harpoon" },
-        { "<leader>w", group = "Ventanas" },
-        { "<leader>c", group = "Código / Conflictos" },
+        { "<leader>w", group = "Windows" },
+        { "<leader>c", group = "Code / Conflicts" },
         { "<leader>d", group = "Debug" },
         { "<leader>n", group = "Tests" },
-        { "<leader>s", group = "Sesión / Spectre" },
-        { "<leader>x", group = "Diagnósticos" },
+        { "<leader>s", group = "Session / Spectre" },
+        { "<leader>x", group = "Diagnostics" },
         { "<leader>o", group = "Octo (GitHub)" },
-        { "<leader>l", group = "Legendary" },
+        { "<leader>l", group = "Legendary / Live Server" },
         { "<leader>t", group = "Toggle" },
         { "<leader>m", group = "Markdown" },
       },

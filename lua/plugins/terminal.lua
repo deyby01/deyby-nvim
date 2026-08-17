@@ -1,9 +1,9 @@
 -- ==========================================
--- PLUGINS DE TERMINAL
+-- TERMINAL PLUGINS
 -- ==========================================
 
 return {
-  -- ToggleTerm: Terminal integrada
+  -- ToggleTerm: integrated terminal
   {
     'akinsho/toggleterm.nvim',
     version = "*",
@@ -31,9 +31,9 @@ return {
         })
         vim.keymap.set("n", "<leader>ld", function() lazydocker:toggle() end, {noremap = true, silent = true, desc = "LazyDocker"})
 
-        -- Live Server: preview de HTML/CSS con auto-recarga en el navegador
-        -- (equivalente a la extensión Live Server de VSCode). Sirve la carpeta
-        -- del archivo que tenías abierto la primera vez que lo activas.
+        -- Live Server: HTML/CSS preview with browser auto-reload, the
+        -- equivalent of the VSCode Live Server extension. It serves the folder
+        -- of whichever file was open the first time you trigger it.
         local live_server
         vim.keymap.set("n", "<leader>lv", function()
             if not live_server then
@@ -47,10 +47,10 @@ return {
             live_server:toggle()
         end, { noremap = true, silent = true, desc = "Live Server: preview HTML/CSS" })
 
-        -- Terminal horizontal
+        -- Horizontal terminal
         vim.keymap.set("n", "<leader>tt", ":ToggleTerm<CR>", {noremap = true, silent = true, desc = "Toggle terminal"})
 
-        -- Atajos dentro de la terminal
+        -- Keymaps available inside the terminal
         function _G.set_terminal_keymaps()
             local opts = {buffer = 0}
             vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
@@ -64,7 +64,7 @@ return {
     end
   },
 
-  -- Vim-tmux-navigator: Navegación fluida
+  -- vim-tmux-navigator: seamless movement between nvim splits and tmux panes
   {
     'christoomey/vim-tmux-navigator',
     lazy = false,

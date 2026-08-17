@@ -1,15 +1,18 @@
 -- ==========================================
--- PLUGINS DE GIT
+-- GIT PLUGINS
 -- ==========================================
 
+local user = require("config.user")
+local base = user.git_base_branch
+
 return {
-  -- Vim Fugitive: Comandos de Git
+  -- Vim Fugitive: Git commands and status panel
   {
     'tpope/vim-fugitive',
     cmd = { "Git", "G", "Gdiffsplit", "Gread", "Gwrite" },
   },
 
-  -- GitSigns: Ver cambios de Git
+  -- GitSigns: per-line git changes
   {
     'lewis6991/gitsigns.nvim',
     event = { "BufReadPre", "BufNewFile" },
@@ -36,31 +39,31 @@ return {
             on_attach = function(bufnr)
                 local gs = package.loaded.gitsigns
 
-                -- Navegación entre cambios
+                -- Navigate between hunks
                 vim.keymap.set('n', ']c', function()
                     if vim.wo.diff then return ']c' end
                     vim.schedule(function() gs.next_hunk() end)
                     return '<Ignore>'
-                end, {expr=true, buffer = bufnr, desc = "Siguiente cambio"})
+                end, {expr=true, buffer = bufnr, desc = "Next hunk"})
 
                 vim.keymap.set('n', '[c', function()
                     if vim.wo.diff then return '[c' end
                     vim.schedule(function() gs.prev_hunk() end)
                     return '<Ignore>'
-                end, {expr=true, buffer = bufnr, desc = "Anterior cambio"})
+                end, {expr=true, buffer = bufnr, desc = "Previous hunk"})
 
-                -- Acciones sobre cambios
+                -- Hunk actions
                 vim.keymap.set('n', '<leader>hs', gs.stage_hunk, {buffer = bufnr, desc = "Stage hunk"})
                 vim.keymap.set('n', '<leader>hr', gs.reset_hunk, {buffer = bufnr, desc = "Reset hunk"})
                 vim.keymap.set('n', '<leader>hp', gs.preview_hunk, {buffer = bufnr, desc = "Preview hunk"})
                 vim.keymap.set('n', '<leader>hb', function() gs.blame_line{full=true} end, {buffer = bufnr, desc = "Blame line"})
 
-                -- Diff completo
+                -- Whole-file diff
                 vim.keymap.set('n', '<leader>hd', function()
                     gs.diffthis()
-                end, {buffer = bufnr, desc = "Diff archivo completo"})
+                end, {buffer = bufnr, desc = "Diff whole file"})
 
-                -- Toggle blame
+                -- Toggle inline blame
                 vim.keymap.set('n', '<leader>tb', function()
                     gs.toggle_current_line_blame()
                 end, {buffer = bufnr, desc = "Toggle blame"})
@@ -68,20 +71,20 @@ return {
         })
     end
   },
-  -- Diffview: Comparar con development (workflow de trabajo)
+  -- Diffview: compare branches and browse file history
   {
     "sindrets/diffview.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory" },
-    -- Los atajos van en keys (no en config) para que existan
-    -- aunque el plugin aún no haya cargado
+    -- Keymaps live in `keys` (not in `config`) so they exist even before the
+    -- plugin has loaded. The base branch comes from lua/config/user.lua.
     keys = {
-      { "<leader>gd", ":DiffviewOpen development<CR>", desc = "Git: Diff con development (QA Review)" },
-      { "<leader>gD", ":DiffviewOpen origin/development<CR>", desc = "Git: Diff con origin/development" },
-      { "<leader>gw", ":DiffviewOpen<CR>", desc = "Git: Diff working tree" },
-      { "<leader>gq", ":DiffviewClose<CR>", desc = "Git: Cerrar Diffview" },
-      { "<leader>gh", ":DiffviewFileHistory %<CR>", desc = "Git: Historial del archivo" },
-      { "<leader>gf", ":DiffviewFileHistory development..HEAD<CR>", desc = "Git: Commits desde development" },
+      { "<leader>gd", ":DiffviewOpen " .. base .. "<CR>", desc = "Git: diff against " .. base },
+      { "<leader>gD", ":DiffviewOpen origin/" .. base .. "<CR>", desc = "Git: diff against origin/" .. base },
+      { "<leader>gw", ":DiffviewOpen<CR>", desc = "Git: diff working tree" },
+      { "<leader>gq", ":DiffviewClose<CR>", desc = "Git: close Diffview" },
+      { "<leader>gh", ":DiffviewFileHistory %<CR>", desc = "Git: current file history" },
+      { "<leader>gf", ":DiffviewFileHistory " .. base .. "..HEAD<CR>", desc = "Git: commits since " .. base },
     },
     config = function()
         require("diffview").setup({
@@ -89,12 +92,12 @@ return {
             view = {
                 default = {
                     layout = "diff2_horizontal",
-                    winbar_info = true,  -- ✅ Mostrar nombre de ramas en la parte superior
+                    winbar_info = true,  -- show branch names in the winbar
                 },
             },
             file_panel = {
                 win_config = {
-                    width = 40,  -- Panel de archivos más ancho
+                    width = 40,  -- wider file panel
                 },
             },
             file_history_panel = {
@@ -103,7 +106,7 @@ return {
                 },
             },
             hooks = {
-                -- Mostrar claramente qué rama es cuál
+                -- Make it obvious which branch each side is
                 diff_buf_read = function()
                     vim.opt_local.number = true
                     vim.opt_local.relativenumber = true
@@ -113,7 +116,7 @@ return {
 
     end,
   },
-    -- Git conflict: resolver conflictos fácilmente
+    -- git-conflict: resolve merge conflicts visually
     {
       "akinsho/git-conflict.nvim",
       version = "*",
@@ -130,16 +133,16 @@ return {
           },
         })
 
-        -- Atajos
-        vim.keymap.set("n", "<leader>co", ":GitConflictChooseOurs<CR>",   { desc = "Conflict: elegir nuestro cambio" })
-        vim.keymap.set("n", "<leader>ct", ":GitConflictChooseTheirs<CR>", { desc = "Conflict: elegir su cambio" })
-        vim.keymap.set("n", "<leader>cb", ":GitConflictChooseBoth<CR>",   { desc = "Conflict: elegir ambos" })
-        vim.keymap.set("n", "<leader>cn", ":GitConflictNextConflict<CR>", { desc = "Conflict: siguiente conflicto" })
-        vim.keymap.set("n", "<leader>cp", ":GitConflictPrevConflict<CR>", { desc = "Conflict: conflicto anterior" })
-        vim.keymap.set("n", "<leader>cl", ":GitConflictListQf<CR>",       { desc = "Conflict: listar todos" })
+        -- Keymaps
+        vim.keymap.set("n", "<leader>co", ":GitConflictChooseOurs<CR>",   { desc = "Conflict: choose ours" })
+        vim.keymap.set("n", "<leader>ct", ":GitConflictChooseTheirs<CR>", { desc = "Conflict: choose theirs" })
+        vim.keymap.set("n", "<leader>cb", ":GitConflictChooseBoth<CR>",   { desc = "Conflict: choose both" })
+        vim.keymap.set("n", "<leader>cn", ":GitConflictNextConflict<CR>", { desc = "Conflict: next conflict" })
+        vim.keymap.set("n", "<leader>cp", ":GitConflictPrevConflict<CR>", { desc = "Conflict: previous conflict" })
+        vim.keymap.set("n", "<leader>cl", ":GitConflictListQf<CR>",       { desc = "Conflict: list all" })
       end,
     },
-    -- Octo: gestionar PRs e Issues de GitHub desde nvim
+    -- Octo: manage GitHub PRs and issues from nvim
     {
       "pwntester/octo.nvim",
       dependencies = {
@@ -148,13 +151,13 @@ return {
         "nvim-tree/nvim-web-devicons",
       },
       cmd = "Octo",
-      -- Atajos en keys para que existan antes de cargar el plugin
+      -- Keymaps in `keys` so they exist before the plugin loads
       keys = {
-        { "<leader>opr", ":Octo pr list<CR>", desc = "Octo: listar PRs" },
-        { "<leader>opc", ":Octo pr create<CR>", desc = "Octo: crear PR" },
-        { "<leader>ois", ":Octo issue list<CR>", desc = "Octo: listar issues" },
-        { "<leader>oic", ":Octo issue create<CR>", desc = "Octo: crear issue" },
-        { "<leader>or", ":Octo review start<CR>", desc = "Octo: iniciar review" },
+        { "<leader>opr", ":Octo pr list<CR>", desc = "Octo: list PRs" },
+        { "<leader>opc", ":Octo pr create<CR>", desc = "Octo: create PR" },
+        { "<leader>ois", ":Octo issue list<CR>", desc = "Octo: list issues" },
+        { "<leader>oic", ":Octo issue create<CR>", desc = "Octo: create issue" },
+        { "<leader>or", ":Octo review start<CR>", desc = "Octo: start review" },
       },
       config = function()
         require("octo").setup({

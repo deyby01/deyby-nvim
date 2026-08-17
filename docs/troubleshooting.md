@@ -1,149 +1,160 @@
-# 🐛 Solución de Problemas
+# 🐛 Troubleshooting
 
-> Diagnóstico de los problemas más comunes, del más frecuente al más raro.
+> Diagnosing the most common problems, from most frequent to most obscure.
 
 ---
 
-## 📋 Contenido
+## 📋 Contents
 
-- [Primer diagnóstico](#primer-diagnóstico)
-- [Instalación](#instalación)
-- [Iconos y fuentes](#iconos-y-fuentes)
+- [First diagnosis](#first-diagnosis)
+- [Installation](#installation)
+- [Icons and fonts](#icons-and-fonts)
 - [Telescope](#telescope)
-- [LSP y autocompletado](#lsp-y-autocompletado)
+- [LSP and completion](#lsp-and-completion)
 - [Copilot](#copilot)
 - [Snippets](#snippets)
-- [Formateo](#formateo)
-- [Atajos](#atajos)
-- [Rendimiento](#rendimiento)
+- [Formatting](#formatting)
+- [Keymaps](#keymaps)
+- [Performance](#performance)
 - [Git](#git)
-- [Debugger y tests](#debugger-y-tests)
-- [Reinstalación limpia](#reinstalación-limpia)
+- [Debugger and tests](#debugger-and-tests)
+- [Live Server and Docker](#live-server-and-docker)
+- [Clean reinstall](#clean-reinstall)
+- [Reporting a problem](#reporting-a-problem)
 
 ---
 
-## Primer diagnóstico
+## First diagnosis
 
-Antes de nada, estos cuatro comandos resuelven o localizan la mayoría de casos:
+Before anything else, these four commands solve or locate most cases:
 
 ```vim
-:checkhealth      " Diagnóstico completo de Neovim y plugins
-:Lazy             " ¿Están todos los plugins instalados?
-:Mason            " ¿Están los LSPs instalados?
-:messages         " ¿Hubo errores al arrancar?
+:checkhealth      " full Neovim and plugin diagnostics
+:Lazy             " are all plugins installed?
+:Mason            " are the language servers installed?
+:messages         " were there errors at startup?
 ```
 
 ---
 
-## Instalación
+## Installation
 
-### `vim.lsp.config` no existe / errores al arrancar tras clonar
+### `vim.lsp.config` doesn't exist / errors right after cloning
 
-Tu Neovim es anterior a 0.11.
+Your Neovim is older than 0.11.
 
 ```bash
 nvim --version
 ```
 
-Si es 0.10 o menor, actualiza — ver [installation.md](installation.md#neovim).
+If it's 0.10 or lower, upgrade — see [installation.md](installation.md#neovim).
 
-### `telescope-fzf-native` falla al compilar
+### `telescope-fzf-native` fails to compile
 
-Falta el compilador.
+The compiler is missing.
 
 ```bash
 sudo apt install build-essential -y
 ```
 
-Luego, dentro de Neovim:
+Then, inside Neovim:
 
 ```vim
 :Lazy build telescope-fzf-native.nvim
 ```
 
-### Los parsers de Treesitter no compilan
+### Treesitter parsers won't compile
 
-Mismo motivo (falta `gcc`). Verifica y recompila:
+Same cause (`gcc` missing). Check and rebuild:
 
 ```vim
 :checkhealth nvim-treesitter
 :TSUpdate
 ```
 
-### Mason no instala nada
+### Mason installs nothing
 
 ```vim
 :checkhealth mason
 ```
 
-Suele faltar `curl`, `unzip`, `tar`, `node` o `python3`:
+Usually `curl`, `unzip`, `tar`, `node` or `python3` is missing:
 
 ```bash
 sudo apt install curl unzip tar -y
 ```
 
+### The "all projects" search finds nothing
+
+`projects_dir` in [`lua/config/user.lua`](../lua/config/user.lua) points at a
+folder that doesn't exist. Set it to wherever you actually keep your code:
+
+```lua
+M.projects_dir = "~/projects"
+```
+
 ---
 
-## Iconos y fuentes
+## Icons and fonts
 
-### Veo cuadrados o signos de interrogación
+### I see boxes or question marks
 
-No tienes una Nerd Font activa en la terminal.
+You don't have a Nerd Font active in the terminal.
 
 ```bash
-# 1. ¿Está instalada?
+# 1. Is it installed?
 fc-list | grep -i "JetBrainsMono"
 
-# 2. Si no aparece, instalar
+# 2. If not, install it
 mkdir -p ~/.local/share/fonts && cd ~/.local/share/fonts
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
 unzip JetBrainsMono.zip -d JetBrainsMono && rm JetBrainsMono.zip
 fc-cache -fv
 ```
 
-**3.** Configúrala en las preferencias de tu terminal (no basta con instalarla).
-**4.** Cierra y abre la terminal por completo.
+**3.** Select it in your terminal preferences (installing isn't enough).
+**4.** Fully close and reopen the terminal.
 
-### Los colores se ven degradados o mal
+### Colors look washed out
 
-Falta true color.
+True color is missing.
 
 ```bash
-echo $COLORTERM     # debe decir "truecolor" o "24bit"
+echo $COLORTERM     # should say "truecolor" or "24bit"
 ```
 
-Si usas tmux, revisa [tmux.md](tmux.md#los-colores-se-ven-mal-dentro-de-tmux).
+If you use tmux, see [tmux.md](tmux.md#colors-look-wrong-inside-tmux).
 
 ---
 
 ## Telescope
 
-### No encuentra archivos
+### It doesn't find files
 
 ```bash
 which rg
 which fd
 
-# Si faltan:
+# If they're missing:
 sudo apt install ripgrep fd-find -y
 sudo ln -s /usr/bin/fdfind /usr/local/bin/fd
 ```
 
-### No encuentra archivos ocultos o ignorados
+### It doesn't find hidden or ignored files
 
-Por diseño: se excluyen `node_modules`, `.git/`, `dist/`, `build/`, `__pycache__`
-y `.pyc`. Para incluirlos temporalmente:
+By design: `node_modules`, `.git/`, `dist/`, `build/`, `__pycache__` and `.pyc`
+are excluded. To include them temporarily:
 
 ```vim
 :Telescope find_files hidden=true no_ignore=true
 ```
 
-Para cambiarlo de forma permanente, edita `file_ignore_patterns` en
+To change it permanently, edit `file_ignore_patterns` in
 [`lua/plugins/editor.lua`](../lua/plugins/editor.lua).
 
-### La búsqueda va lenta
+### Search feels slow
 
-Verifica que `fzf-native` esté compilado:
+Check `fzf-native` compiled:
 
 ```vim
 :checkhealth telescope
@@ -151,62 +162,62 @@ Verifica que `fzf-native` esté compilado:
 
 ---
 
-## LSP y autocompletado
+## LSP and completion
 
-### No hay autocompletado ni diagnósticos
+### No completion or diagnostics at all
 
 ```vim
-" 1. ¿Se adjuntó algún servidor a este buffer?
+" 1. Did any server attach to this buffer?
 :LspInfo
 
-" 2. ¿Está instalado el servidor?
+" 2. Is the server installed?
 :Mason
 
-" 3. ¿Hay errores?
+" 3. Any errors?
 :LspLog
 ```
 
-### `:LspInfo` dice que no hay clientes adjuntos
+### `:LspInfo` says no clients attached
 
-Causas frecuentes, en orden:
+Common causes, in order:
 
-**a) El filetype no coincide.** Verifica:
+**a) The filetype doesn't match.** Check:
 
 ```vim
 :set filetype?
 ```
 
-Compara con los `filetypes` del servidor en [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua).
+Compare against the server's `filetypes` in [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua).
 
-**b) El binario no está en el `PATH`.** Los LSPs de Mason viven en
-`~/.local/share/nvim/mason/bin/`. Prueba:
+**b) The binary isn't on `PATH`.** Mason's servers live in
+`~/.local/share/nvim/mason/bin/`. Try:
 
 ```vim
 :lua print(vim.fn.executable("pyright-langserver"))
-" 1 = existe, 0 = no
+" 1 = found, 0 = not found
 ```
 
-**c) Un typo en el `cmd`.** Este bug es silencioso: el servidor simplemente no
-arranca y no hay error visible. Revisa el `cmd` del servidor carácter por
-carácter (espacios sobrantes incluidos).
+**c) A typo in `cmd`.** This bug is silent: the server simply never starts and
+nothing is reported. Check the server's `cmd` character by character — stray
+spaces included.
 
-**d) No encuentra la raíz del proyecto.** Algunos servidores necesitan un marcador
-(`pyproject.toml`, `package.json`, `.git`). Abre Neovim desde la raíz del proyecto.
+**d) The project root isn't detected.** Some servers need a marker file
+(`pyproject.toml`, `package.json`, `.git`). Open Neovim from the project root.
 
-### Los diagnósticos de Python no coinciden con mi CI
+### Python diagnostics don't match my CI
 
-Casi siempre es el `.venv`. `ruff` se resuelve desde el `PATH`:
+Almost always the `.venv`. `ruff` is resolved from `PATH`:
 
 ```bash
-# Activa el venv ANTES de abrir nvim
+# Activate the venv BEFORE opening nvim
 source .venv/bin/activate
-which ruff        # debe apuntar al .venv, no a mason
+which ruff        # should point into .venv, not mason
 nvim
 ```
 
-Si abres Neovim sin el venv, usa el ruff global de Mason con su config por defecto.
+Without the venv, it uses Mason's global ruff with default settings.
 
-### Un servidor se queda colgado
+### A server hangs
 
 ```vim
 :LspRestart
@@ -216,133 +227,157 @@ Si abres Neovim sin el venv, usa el ruff global de Mason con su config por defec
 
 ## Copilot
 
-### No aparecen sugerencias
+### `Node.js version 22 or newer required but found 18.x`
+
+Your shell is resolving an old Node.
+
+```bash
+which node && node --version
+```
+
+If it points at `/usr/bin/node`, the system (apt) Node is winning over nvm's.
+Make sure nvm is loaded in **your** shell's config — the nvm installer often
+only writes to `.bashrc`, so zsh users need this in `~/.zshrc`:
+
+```bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+```
+
+Open a new terminal and confirm with `node --version`.
+
+> 💡 This also fixes `npm install -g` needing sudo: with nvm active, global
+> installs go into your home directory.
+
+### No suggestions
 
 ```vim
-" 1. ¿Autenticado?
+" 1. Authenticated?
 :Copilot status
 
-" 2. Si no:
+" 2. If not:
 :Copilot auth
 
-" 3. ¿El filetype está habilitado?
+" 3. Is the filetype enabled?
 :set filetype?
 ```
 
-Copilot usa `["*"] = false`: solo funciona en los filetypes de la lista de
-[`lua/plugins/ai.lua`](../lua/plugins/ai.lua). Es intencional (ver
-[ai-copilot.md](ai-copilot.md#-por-qué-la-lista-es-cerrada)).
+Copilot uses `["*"] = false`: it only works on the filetypes listed in
+[`lua/plugins/ai.lua`](../lua/plugins/ai.lua). That's intentional (see
+[ai-copilot.md](ai-copilot.md#-why-the-list-is-closed)).
 
-### Copilot funciona pero las sugerencias no salen en el menú
+### Copilot works but suggestions don't show in the menu
 
-Verifica que `copilot-cmp` esté cargado y que `copilot` esté en las `sources`
-de nvim-cmp en [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua).
+Check `copilot-cmp` is loaded and that `copilot` is in nvim-cmp's `sources` in
+[`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua).
 
-### `:Copilot status` dice "not authorized"
+### `:Copilot status` says "not authorized"
 
-Tu cuenta no tiene una suscripción activa de Copilot. Alternativas gratuitas en
-[ai-copilot.md](ai-copilot.md#alternativas-de-ia).
+Your account has no active Copilot subscription. Free alternatives in
+[ai-copilot.md](ai-copilot.md#ai-alternatives).
 
 ---
 
 ## Snippets
 
-### Los snippets de Django no aparecen
+### The Django snippets don't appear
 
-Verifica que se cargaron:
+Check they loaded:
 
 ```vim
 :lua print(#(require("luasnip").get_snippets("django") or {}))
-" Debe imprimir ~139
+" Should print ~139
 ```
 
-Si imprime `0`, el orden en [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua) está
-mal: `filetype_extend` **tiene que llamarse antes** de `lazy_load()`.
+If it prints `0`, the order in [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua)
+is wrong: `filetype_extend` **must be called before** `lazy_load()`.
 
 ```lua
--- ✅ Orden correcto
+-- ✅ Correct order
 luasnip.filetype_extend("python", { "django", "django-rest" })
 require("luasnip.loaders.from_vscode").lazy_load()
 ```
 
-### En un template no salen los snippets de Django
+### No Django snippets inside a template
 
-El filetype es `html` en vez de `htmldjango`:
+The filetype is `html` instead of `htmldjango`:
 
 ```vim
 :set filetype?
-:set filetype=htmldjango    " forzar
+:set filetype=htmldjango    " force it
 ```
 
-Neovim detecta `htmldjango` por la presencia de sintaxis `{% %}`. Un template
-que aún no tiene ninguna se detecta como `html`.
+Neovim detects `htmldjango` from the presence of `{% %}` syntax. A template
+that doesn't have any yet is detected as `html`.
 
 ---
 
-## Formateo
+## Formatting
 
-### `Espacio+cf` no hace nada
+### `Space+cf` does nothing
 
 ```vim
 :ConformInfo
 ```
 
-Muestra los formatters disponibles y el que se usaría. Si no hay ninguno,
-conform cae al LSP; si el LSP tampoco formatea ese filetype, no pasa nada.
+Shows the available formatters and which would run. If there are none, conform
+falls back to the LSP; if the LSP doesn't format that filetype either, nothing
+happens.
 
-### Instalar el formatter que falta
+### Installing the missing formatter
 
 ```bash
-# Python / templates Django (en el .venv del proyecto)
+# Python / Django templates (inside the project's .venv)
 pip install ruff djlint
 
 # JS/TS/CSS/JSON
 npm install -g prettier @fsouza/prettierd
 ```
 
-### El formateo no respeta la config de mi proyecto
+### Formatting ignores my project's config
 
-Los formatters se resuelven desde el `PATH`. Abre Neovim con el `.venv` activado
-para que use el ruff/djlint del proyecto y su `pyproject.toml`.
+Formatters are resolved from `PATH`. Open Neovim with the `.venv` active so it
+uses the project's ruff/djlint and its `pyproject.toml`.
 
 ---
 
-## Atajos
+## Keymaps
 
-### Un atajo documentado no hace nada
+### A documented shortcut does nothing
 
 ```vim
 :verbose nmap <leader>gd
 ```
 
-- **Si no muestra nada:** el atajo no está registrado. Casi siempre es el bug de
-  definir atajos en `config` de un plugin lazy — ver
-  [plugins.md](plugins.md#-regla-de-oro-atajos-en-keys-no-en-config).
-- **Si muestra otro plugin:** hay una colisión.
+- **Nothing shown:** the keymap isn't registered. Almost always the bug of
+  defining keymaps inside a lazy plugin's `config` — see
+  [plugins.md](plugins.md#-golden-rule-keymaps-go-in-keys-not-config).
+- **Another plugin shown:** there's a collision.
 
-### Un atajo tarda ~1 segundo en responder
+### A shortcut takes ~1 second to respond
 
-Colisión de prefijos: existe un mapeo que es a la vez completo y prefijo de
-otro. Neovim espera `timeoutlen` para desambiguar.
+Prefix collision: a mapping is both complete and a prefix of another one.
+Neovim waits `timeoutlen` to disambiguate.
 
-Esta config usa `timeoutlen = 300` y no tiene colisiones, pero si agregas
-`<leader>x` teniendo ya `<leader>xx`, reintroduces el problema.
+This config uses `timeoutlen = 300` and has no collisions, but adding
+`<leader>x` when `<leader>xx` already exists reintroduces the problem.
 
-Para detectarlas:
+To detect them:
 
 ```vim
 :lua for _,m in ipairs(vim.api.nvim_get_keymap("n")) do print(m.lhs) end
 ```
 
-### `Ctrl+h/j/k/l` no salta a los paneles de tmux
+### `Ctrl+h/j/k/l` doesn't reach the tmux panes
 
-Falta configurar `~/.tmux.conf` — ver
-[tmux.md](tmux.md#integración-con-vim-tmux-navigator).
+`~/.tmux.conf` isn't configured — see
+[tmux.md](tmux.md#vim-tmux-navigator-integration).
 
-### `Ctrl+´` no abre la terminal
+### `Ctrl+´` doesn't open the terminal
 
-Ese carácter depende del layout de teclado. Usa la alternativa `Espacio+tt`, o
-cambia `open_mapping` en [`lua/plugins/terminal.lua`](../lua/plugins/terminal.lua):
+That character depends on your keyboard layout. Use `Space+tt` instead, or
+change `open_mapping` in [`lua/plugins/terminal.lua`](../lua/plugins/terminal.lua):
 
 ```lua
 open_mapping = [[<C-\>]],
@@ -350,89 +385,121 @@ open_mapping = [[<C-\>]],
 
 ---
 
-## Rendimiento
+## Performance
 
-### Neovim tarda en arrancar
+### Neovim is slow to start
 
 ```bash
 nvim --startuptime /tmp/start.log +q && tail -1 /tmp/start.log
 ```
 
-Referencia: **~63ms**. Si es mucho más, identifica al culpable:
+Reference: **~60ms**. If it's much higher, find the culprit:
 
 ```vim
 :Lazy profile
 ```
 
-Causa habitual: un plugin agregado sin trigger de lazy-loading (sin `keys`,
-`cmd`, `ft` ni `event`).
+Usual cause: a plugin added without a lazy-loading trigger (no `keys`, `cmd`,
+`ft` or `event`).
 
-### El editor se siente lento al escribir
+### The editor feels sluggish while typing
 
-- **Archivos muy grandes:** Treesitter y el LSP sufren. Prueba
-  `:TSBufDisable highlight` en ese buffer.
-- **`update_in_insert`:** ya está en `false`. Si lo activaste, vuélvelo a apagar.
-- **Blame inline de gitsigns:** desactívalo con `Espacio+tb`.
+- **Very large files:** Treesitter and the LSP struggle. Try
+  `:TSBufDisable highlight` in that buffer.
+- **`update_in_insert`:** it's already `false`. If you turned it on, turn it back off.
+- **gitsigns inline blame:** disable it with `Space+tb`.
 
 ---
 
 ## Git
 
-### `Espacio+gd` falla con "revision not found"
+### `Space+gd` fails with "revision not found"
 
-Los atajos de Diffview asumen una rama base llamada `development`. Si tu repo
-usa `main` o `develop`, cámbialos en la sección `keys` de diffview en
-[`lua/plugins/git.lua`](../lua/plugins/git.lua).
+The Diffview shortcuts compare against the branch set as `git_base_branch` in
+[`lua/config/user.lua`](../lua/config/user.lua). If your repo uses `main` and
+that's set to `development` (or vice versa), update it:
 
-### Octo no funciona
+```lua
+M.git_base_branch = "main"
+```
+
+### Octo doesn't work
 
 ```bash
 gh auth status
 
-# Si no está autenticado:
+# If not authenticated:
 gh auth login
 ```
 
-### GitSigns no muestra nada
+### GitSigns shows nothing
 
-Solo funciona dentro de un repositorio Git. Verifica con `:Git status` o
-`git status`.
+It only works inside a Git repository. Verify with `:Git status` or `git status`.
 
 ---
 
-## Debugger y tests
+## Debugger and tests
 
-### `Espacio+dc` no encuentra el adaptador
+### `Space+dc` can't find the adapter
 
 ```vim
 :MasonInstall debugpy
 ```
 
-### El debugger de Django no se detiene en el breakpoint
+### The Django debugger doesn't stop at the breakpoint
 
-Asegúrate de usar la configuración **"Django runserver"**, que incluye
-`--noreload`. Con el autoreload activo, Django reinicia el proceso y el debugger
-pierde el attach.
+Make sure you picked the **"Django runserver"** configuration, which includes
+`--noreload`. With autoreload on, Django restarts the process and the debugger
+loses its attachment.
 
-### Neotest no encuentra los tests
+### Neotest finds no tests
 
-Requiere `pytest` en el entorno y que el `python` configurado exista:
+It needs `pytest` in the environment and the configured `python` to exist:
 
 ```bash
 source .venv/bin/activate
 pip install pytest
-which python      # debe apuntar a .venv/bin/python
+which python      # should point to .venv/bin/python
 ```
 
-Si usas el runner de Django en vez de pytest, cámbialo en
+If you use Django's runner instead of pytest, change it in
 [`lua/plugins/testing.lua`](../lua/plugins/testing.lua).
 
 ---
 
-## Reinstalación limpia
+## Live Server and Docker
 
-Cuando nada más funciona. **No borra tu configuración**, solo los plugins
-descargados, el estado y la caché:
+### `Space+lv` does nothing or errors
+
+It runs through `npx`, so Node must be available:
+
+```bash
+node --version    # >= 22 recommended
+npx --yes live-server --version
+```
+
+The first run downloads the package, which takes a few seconds.
+
+### Live Server serves the wrong folder
+
+It serves the folder of whichever file was open **the first time** you pressed
+`Space+lv` in that session. Restart Neovim to pick up a different folder.
+
+### `Space+ld` (LazyDocker) does nothing
+
+LazyDocker isn't installed:
+
+```bash
+curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
+lazydocker --version
+```
+
+---
+
+## Clean reinstall
+
+When nothing else works. **This does not delete your configuration**, only the
+downloaded plugins, state and cache:
 
 ```bash
 rm -rf ~/.local/share/nvim
@@ -441,21 +508,21 @@ rm -rf ~/.cache/nvim
 nvim
 ```
 
-Se reinstala todo desde `lazy-lock.json` (2-3 minutos).
+Everything reinstalls from `lazy-lock.json` (2-3 minutes).
 
-### Volver a la última versión que funcionaba
+### Going back to the last version that worked
 
 ```bash
 cd ~/.config/nvim
-git log --oneline           # encuentra el commit bueno
+git log --oneline           # find the good commit
 git checkout <commit>
 ```
 
 ```vim
-:Lazy restore   " reinstala las versiones de ese lazy-lock.json
+:Lazy restore   " reinstall that lock file's versions
 ```
 
-### Restaurar tu configuración anterior a esta
+### Restoring the configuration you had before this one
 
 ```bash
 rm -rf ~/.config/nvim
@@ -464,22 +531,22 @@ mv ~/.config/nvim.backup ~/.config/nvim
 
 ---
 
-## Reportar un problema
+## Reporting a problem
 
-Si nada de esto ayuda, abre un issue incluyendo:
+If none of this helps, open an issue including:
 
 ```bash
 nvim --version
 ```
 
 ```vim
-:checkhealth      " copia la salida relevante
-:messages         " errores al arrancar
-:LspInfo          " si es un problema de LSP
+:checkhealth      " copy the relevant output
+:messages         " startup errors
+:LspInfo          " if it's an LSP problem
 ```
 
-Y el filetype del archivo donde ocurre (`:set filetype?`).
+Plus the filetype of the file where it happens (`:set filetype?`).
 
 ---
 
-[⬅️ Volver al README](../README.md) · [Comandos ➡️](commands-and-workflow.md)
+[⬅️ Back to the README](../README.md) · [Commands ➡️](commands-and-workflow.md)

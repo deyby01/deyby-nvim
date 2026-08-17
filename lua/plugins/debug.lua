@@ -13,17 +13,17 @@ return {
     },
     keys = {
       { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Debug: toggle breakpoint" },
-      { "<leader>dc", function() require("dap").continue() end, desc = "Debug: continuar" },
+      { "<leader>dc", function() require("dap").continue() end, desc = "Debug: continue" },
       { "<leader>do", function() require("dap").step_over() end, desc = "Debug: step over" },
       { "<leader>di", function() require("dap").step_into() end, desc = "Debug: step into" },
-      { "<leader>dx", function() require("dap").terminate() end, desc = "Debug: terminar" },
+      { "<leader>dx", function() require("dap").terminate() end, desc = "Debug: terminate" },
       { "<leader>du", function() require("dapui").toggle() end, desc = "Debug: toggle UI" },
     },
     config = function()
       local dap = require("dap")
       local dapui = require("dapui")
 
-      -- UI del debugger
+      -- Debugger UI
       dapui.setup({
         layouts = {
           {
@@ -47,14 +47,14 @@ return {
         },
       })
 
-      -- Texto virtual con valores de variables
+      -- Virtual text showing variable values inline
       require("nvim-dap-virtual-text").setup({
         enabled = true,
         commented = false,
       })
 
-      -- Python: usa el debugpy instalado por Mason
-      -- (dap-python detecta solo el .venv del proyecto para ejecutar tu código)
+      -- Python: use the debugpy installed by Mason.
+      -- dap-python still picks up the project's .venv to run your code.
       local mason_debugpy = vim.fn.stdpath("data") .. "/mason/packages/debugpy/venv/bin/python"
       if vim.fn.executable(mason_debugpy) == 1 then
         require("dap-python").setup(mason_debugpy)
@@ -62,7 +62,7 @@ return {
         require("dap-python").setup("python3")
       end
 
-      -- Configuración extra: Django runserver con debugger
+      -- Extra configuration: Django runserver with the debugger attached
       table.insert(dap.configurations.python, {
         name = "Django runserver",
         type = "python",
@@ -73,7 +73,7 @@ return {
         justMyCode = false,
       })
 
-      -- Abrir/cerrar UI automáticamente
+      -- Open/close the UI automatically
       dap.listeners.after.event_initialized["dapui_config"] = function()
         dapui.open()
       end

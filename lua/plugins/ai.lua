@@ -1,8 +1,8 @@
 -- ==========================================
--- IA - GITHUB COPILOT
+-- AI - GITHUB COPILOT
 -- ==========================================
--- Las sugerencias aparecen DENTRO del menú de nvim-cmp (via copilot-cmp),
--- así no pelean con el autocompletado ni ocultan el ghost text.
+-- Suggestions show up INSIDE the nvim-cmp menu (via copilot-cmp), so they
+-- don't fight with completion or get hidden behind the popup.
 
 return {
   {
@@ -10,7 +10,7 @@ return {
     event = "InsertEnter",
     config = function()
       require("copilot").setup({
-        -- Desactivados: copilot-cmp se encarga de mostrar las sugerencias
+        -- Disabled: copilot-cmp is what renders the suggestions
         suggestion = { enabled = false },
         panel = { enabled = false },
         filetypes = {
@@ -20,7 +20,7 @@ return {
           javascriptreact = true,
           typescriptreact = true,
           html = true,
-          htmldjango = true,     -- Templates de Django
+          htmldjango = true,     -- Django templates
           css = true,
           scss = true,
           lua = true,
@@ -28,17 +28,17 @@ return {
           yaml = true,
           dockerfile = true,
           sh = true,
-          -- Todo lo demás apagado (evita mandar .env y similares a Copilot)
+          -- Everything else off, so files like .env are never sent to Copilot
           ["*"] = false,
         },
       })
     end,
   },
 
-  -- Copilot como fuente de nvim-cmp
+  -- Copilot as an nvim-cmp source
   {
     "zbirenbaum/copilot-cmp",
-    lazy = true,  -- Carga como dependencia de nvim-cmp (InsertEnter)
+    lazy = true,  -- loaded as an nvim-cmp dependency (InsertEnter)
     dependencies = { "zbirenbaum/copilot.lua" },
     config = function()
       require("copilot_cmp").setup()

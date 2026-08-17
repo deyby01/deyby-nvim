@@ -1,108 +1,117 @@
-# 🖥️ tmux — Sesiones y Multiplexado
+# 🖥️ tmux — Sessions and Multiplexing
 
-> Mantén varios proyectos abiertos, sobrevive a cierres de terminal y navega
-> entre paneles de tmux y splits de Neovim con las mismas teclas.
+> Keep several projects open, survive closing the terminal, and move between
+> tmux panes and Neovim splits with the same keys.
 
-**Plugin de integración:** `vim-tmux-navigator`
-**Archivo de config de Neovim:** [`lua/plugins/terminal.lua`](../lua/plugins/terminal.lua)
-
----
-
-## 📋 Contenido
-
-- [Por qué tmux](#por-qué-tmux)
-- [Instalación y configuración](#instalación-y-configuración)
-- [Comandos de sesión](#comandos-de-sesión)
-- [Atajos de tmux](#atajos-de-tmux)
-- [Navegación unificada con Neovim](#navegación-unificada-con-neovim)
-- [Terminal integrada vs tmux](#terminal-integrada-vs-tmux)
-- [Workflow multiproyecto](#workflow-multiproyecto)
+**Integration plugin:** `vim-tmux-navigator`
+**Neovim config file:** [`lua/plugins/terminal.lua`](../lua/plugins/terminal.lua)
 
 ---
 
-## Por qué tmux
+## 📋 Contents
 
-Con esta configuración de Neovim ya tienes `auto-session` (restaura tu sesión al
-volver a una carpeta) y `toggleterm` (terminal integrada). tmux resuelve algo distinto:
-
-| Necesidad | Solución |
-|-----------|----------|
-| El `runserver` sigue vivo aunque cierre la terminal | ✅ tmux |
-| Trabajar en 3 proyectos a la vez y saltar entre ellos | ✅ tmux |
-| Reconectar por SSH y encontrar todo como lo dejaste | ✅ tmux |
-| Recuperar los archivos abiertos al volver a un proyecto | ✅ auto-session |
-| Una terminal rápida para un comando puntual | ✅ toggleterm (`Ctrl+´`) |
+- [Why tmux](#why-tmux)
+- [Install and configure](#install-and-configure)
+- [Session commands](#session-commands)
+- [tmux shortcuts](#tmux-shortcuts)
+- [Unified navigation with Neovim](#unified-navigation-with-neovim)
+- [Integrated terminal vs tmux](#integrated-terminal-vs-tmux)
+- [Multi-project workflow](#multi-project-workflow)
+- [Common problems](#common-problems)
 
 ---
 
-## Instalación y configuración
+## Why tmux
+
+This Neovim setup already has `auto-session` (restores your session when you
+return to a folder) and `toggleterm` (integrated terminal). tmux solves
+something different:
+
+| Need | Solution |
+|------|----------|
+| The `runserver` keeps running after I close the terminal | ✅ tmux |
+| Work on 3 projects at once and hop between them | ✅ tmux |
+| Reconnect over SSH and find everything as I left it | ✅ tmux |
+| Get my open files back when I return to a project | ✅ auto-session |
+| A quick terminal for a one-off command | ✅ toggleterm (`Ctrl+´`) |
+
+---
+
+## Install and configure
 
 ```bash
 sudo apt install tmux -y
 ```
 
-Crea `~/.tmux.conf`:
+Create `~/.tmux.conf`:
 
 ```bash
 nvim ~/.tmux.conf
 ```
 
-Configuración recomendada (compatible con esta config de Neovim):
+> ⚠️ If `~/.tmux.conf` already exists **as a directory** (an accidental
+> `mkdir`), tmux will silently ignore your config. Check with
+> `ls -ld ~/.tmux.conf` and remove it with `rmdir ~/.tmux.conf` first.
+
+Recommended configuration (compatible with this Neovim setup):
 
 ```bash
-# Prefijo Ctrl+a en vez de Ctrl+b (más cómodo)
+# Ctrl+a prefix instead of Ctrl+b (easier to reach)
 unbind C-b
 set-option -g prefix C-a
 bind-key C-a send-prefix
 
-# Dividir paneles con | y -
-bind | split-window -h
-bind - split-window -v
+# Split with | and -
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
 unbind '"'
 unbind %
 
-# Navegar entre paneles con Alt+flechas (sin prefijo)
-bind -n M-Left select-pane -L
+# New windows open in the current directory
+bind c new-window -c "#{pane_current_path}"
+
+# Move between panes with Alt+arrows (no prefix)
+bind -n M-Left  select-pane -L
 bind -n M-Right select-pane -R
-bind -n M-Up select-pane -U
-bind -n M-Down select-pane -D
+bind -n M-Up    select-pane -U
+bind -n M-Down  select-pane -D
 
-# Recargar configuración
-bind r source-file ~/.tmux.conf \; display "Config recargada!"
+# Reload the configuration
+bind r source-file ~/.tmux.conf \; display "Config reloaded!"
 
-# Mouse habilitado
+# Mouse support
 set -g mouse on
 
-# Numeración desde 1
+# Number from 1
 set -g base-index 1
 setw -g pane-base-index 1
 
-# Colores (necesario para que Dracula se vea bien)
+# Colors (required for the theme to look right)
 set -g default-terminal "screen-256color"
 set -ga terminal-overrides ",xterm-256color:Tc"
 
-# Historial más grande
+# Bigger scrollback
 set -g history-limit 10000
 
-# No renombrar ventanas automáticamente
+# Don't rename windows automatically
 set-option -g allow-rename off
 ```
 
-Aplicar sin reiniciar:
+Apply without restarting:
 
 ```bash
 tmux source-file ~/.tmux.conf
 ```
 
-> 💡 **`terminal-overrides` con `Tc`** habilita true color. Sin esta línea, el
-> tema Dracula se ve con colores degradados dentro de tmux.
+> 💡 **`terminal-overrides` with `Tc`** enables true color. Without that line
+> your Neovim theme looks washed out inside tmux.
 
-### Integración con vim-tmux-navigator
+### vim-tmux-navigator integration
 
-Para que `Ctrl+h/j/k/l` funcionen **entre** tmux y Neovim, agrega a `~/.tmux.conf`:
+For `Ctrl+h/j/k/l` to work **across** tmux and Neovim, add this to `~/.tmux.conf`:
 
 ```bash
-# Smart pane switching con detección de Vim
+# Smart pane switching with Vim awareness
 is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
     | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?|fzf)(diff)?$'"
 bind-key -n 'C-h' if-shell "$is_vim" 'send-keys C-h' 'select-pane -L'
@@ -111,145 +120,146 @@ bind-key -n 'C-k' if-shell "$is_vim" 'send-keys C-k' 'select-pane -U'
 bind-key -n 'C-l' if-shell "$is_vim" 'send-keys C-l' 'select-pane -R'
 ```
 
-Sin esto, `Ctrl+h/j/k/l` solo navegan splits dentro de Neovim.
+Without it, `Ctrl+h/j/k/l` only move between Neovim splits.
 
 ---
 
-## Comandos de sesión
+## Session commands
 
-Desde la terminal (no dentro de tmux):
+From a normal terminal (not inside tmux):
 
-| Comando | Acción |
+| Command | Action |
 |---------|--------|
-| `tmux new -s nombre` | Crear sesión con nombre |
-| `tmux ls` | Listar sesiones activas |
-| `tmux attach -t nombre` | Reconectar a una sesión |
-| `tmux attach` | Reconectar a la última |
-| `tmux kill-session -t nombre` | Cerrar una sesión |
-| `tmux kill-server` | Cerrar todo ⚠️ |
+| `tmux new -s name` | Create a named session |
+| `tmux ls` | List active sessions |
+| `tmux attach -t name` | Reconnect to a session |
+| `tmux attach` | Reconnect to the last one |
+| `tmux kill-session -t name` | Close one session |
+| `tmux kill-server` | Close everything ⚠️ |
 
 ---
 
-## Atajos de tmux
+## tmux shortcuts
 
-**Prefijo:** `Ctrl+a` (se presiona, se suelta, y luego la tecla)
+**Prefix:** `Ctrl+a` (press it, release, then the key)
 
-### Sesiones
+### Sessions
 
-| Atajo | Acción |
-|-------|--------|
-| `Ctrl+a d` | **Detach** — salir dejando todo corriendo |
-| `Ctrl+a s` | Lista interactiva de **sesiones** |
-| `Ctrl+a $` | Renombrar la sesión |
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+a d` | **Detach** — leave, everything keeps running |
+| `Ctrl+a s` | Interactive **session** list |
+| `Ctrl+a $` | Rename the session |
 
-### Ventanas (como pestañas)
+### Windows (like tabs)
 
-| Atajo | Acción |
-|-------|--------|
-| `Ctrl+a c` | **Crear** ventana |
-| `Ctrl+a n` | Ventana **siguiente** |
-| `Ctrl+a p` | Ventana **anterior** |
-| `Ctrl+a {número}` | Ir a la ventana N |
-| `Ctrl+a w` | Lista de ventanas |
-| `Ctrl+a ,` | Renombrar ventana |
-| `Ctrl+a &` | Cerrar ventana |
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+a c` | **Create** a window |
+| `Ctrl+a n` | **Next** window |
+| `Ctrl+a p` | **Previous** window |
+| `Ctrl+a {number}` | Go to window N |
+| `Ctrl+a w` | Window list |
+| `Ctrl+a ,` | Rename the window |
+| `Ctrl+a &` | Close the window |
 
-### Paneles (splits)
+### Panes (splits)
 
-| Atajo | Acción |
-|-------|--------|
-| `Ctrl+a \|` | Dividir **vertical** |
-| `Ctrl+a -` | Dividir **horizontal** |
-| `Ctrl+a x` | Cerrar el panel actual |
-| `Ctrl+a z` | **Zoom** — pantalla completa (toggle) |
-| `Ctrl+a {` / `}` | Mover el panel de posición |
-| `Alt+↑↓←→` | Redimensionar panel |
-| `Ctrl+h/j/k/l` | Navegar paneles (sin prefijo, ver [integración](#navegación-unificada-con-neovim)) |
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+a \|` | Split **vertically** |
+| `Ctrl+a -` | Split **horizontally** |
+| `Ctrl+a x` | Close the current pane |
+| `Ctrl+a z` | **Zoom** — fullscreen toggle |
+| `Ctrl+a {` / `}` | Move the pane around |
+| `Alt+↑↓←→` | Resize the pane |
+| `Ctrl+h/j/k/l` | Move between panes (no prefix, see [integration](#unified-navigation-with-neovim)) |
 
-### Copiar texto
+### Copying text
 
-| Atajo | Acción |
-|-------|--------|
-| `Ctrl+a [` | Entrar a modo copia |
-| `Espacio` | Empezar la selección |
-| `Enter` | Copiar y salir |
-| `Ctrl+a ]` | Pegar |
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+a [` | Enter copy mode |
+| `Space` | Start the selection |
+| `Enter` | Copy and exit |
+| `Ctrl+a ]` | Paste |
 
-> 💡 `Ctrl+a z` (zoom) es de los más útiles: te da pantalla completa temporal
-> sin tener que cerrar los otros paneles.
-
----
-
-## Navegación unificada con Neovim
-
-Con `vim-tmux-navigator` + la config de `~/.tmux.conf`, las mismas cuatro teclas
-funcionan sin importar dónde estés:
-
-| Atajo | Acción |
-|-------|--------|
-| `Ctrl+h` | Panel/split de la **izquierda** |
-| `Ctrl+j` | Panel/split de **abajo** |
-| `Ctrl+k` | Panel/split de **arriba** |
-| `Ctrl+l` | Panel/split de la **derecha** |
-
-**El plugin detecta el borde:** si estás en el split más a la izquierda de
-Neovim y pulsas `Ctrl+h`, salta al panel de tmux que está a la izquierda. No hay
-que cambiar de "modo" mental.
-
-### También funciona en la terminal integrada
-
-Los mismos atajos están mapeados en modo terminal de Neovim, así que desde
-`Ctrl+´` puedes volver al código con `Ctrl+k` sin salir del modo terminal.
+> 💡 `Ctrl+a z` (zoom) is one of the most useful: temporary fullscreen without
+> having to close the other panes.
 
 ---
 
-## Terminal integrada vs tmux
+## Unified navigation with Neovim
 
-Ambas conviven. Cuándo usar cada una:
+With `vim-tmux-navigator` plus the `~/.tmux.conf` block, the same four keys
+work no matter where you are:
 
-| Situación | Usa |
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+h` | Pane/split to the **left** |
+| `Ctrl+j` | Pane/split **below** |
+| `Ctrl+k` | Pane/split **above** |
+| `Ctrl+l` | Pane/split to the **right** |
+
+**The plugin detects the edge:** if you're in Neovim's leftmost split and press
+`Ctrl+h`, you jump to the tmux pane on the left. No mental mode switch.
+
+### It also works in the integrated terminal
+
+The same keys are mapped in Neovim's terminal mode, so from `Ctrl+´` you can go
+back to your code with `Ctrl+k` without leaving terminal mode.
+
+---
+
+## Integrated terminal vs tmux
+
+Both coexist. When to use which:
+
+| Situation | Use |
 |-----------|-----|
-| Un comando rápido (`git log`, `ls`, `pip install`) | `Ctrl+´` (toggleterm) |
-| Ver contenedores Docker | `Espacio+ld` (LazyDocker flotante) |
-| `runserver` que debe sobrevivir el cierre de nvim | Panel de tmux |
-| Logs de Docker en seguimiento continuo | Panel de tmux |
-| Cambiar entre proyectos completos | Sesiones de tmux |
+| A quick command (`git log`, `ls`, `pip install`) | `Ctrl+´` (toggleterm) |
+| Inspecting Docker containers | `Space+ld` (floating LazyDocker) |
+| HTML/CSS preview with live reload | `Space+lv` (Live Server) |
+| A `runserver` that must survive closing nvim | A tmux pane |
+| Continuously tailing Docker logs | A tmux pane |
+| Switching between whole projects | tmux sessions |
 
-### Atajos de la terminal integrada
+### Integrated terminal shortcuts
 
-| Atajo | Acción |
-|-------|--------|
-| `Ctrl+´` | Toggle terminal horizontal |
-| `Espacio+tt` | Igual (alternativa) |
-| `Espacio+ld` | LazyDocker en ventana flotante |
-| `Esc` | Salir del modo terminal a modo normal |
-| `i` / `a` | Volver al modo terminal |
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+´` | Toggle horizontal terminal |
+| `Space+tt` | Same (alternative) |
+| `Space+ld` | LazyDocker in a floating window |
+| `Space+lv` | Live Server in a floating window |
+| `Esc` | Leave terminal mode for normal mode |
+| `i` / `a` | Back to terminal mode |
 
 ---
 
-## Workflow multiproyecto
+## Multi-project workflow
 
-### Lunes — arrancar el frontend
+### Monday — start the frontend
 
 ```bash
 tmux new -s frontend
-cd ~/Documents/proyecto-web
+cd ~/projects/web-app
 nvim
 
-# Dividir para el servidor
-Ctrl+a -            # panel abajo
+# Split for the dev server
+Ctrl+a -            # pane below
 npm run dev
 
-Ctrl+k              # volver a Neovim (vim-tmux-navigator)
+Ctrl+k              # back to Neovim (vim-tmux-navigator)
 ```
 
-### Martes — hay que tocar el backend sin perder el frontend
+### Tuesday — the backend needs work, don't lose the frontend
 
 ```bash
-Ctrl+a d                    # detach: el frontend sigue corriendo
+Ctrl+a d                    # detach: the frontend keeps running
 
 tmux new -s backend
-cd ~/Documents/api
+cd ~/projects/api
 source .venv/bin/activate
 nvim
 
@@ -257,71 +267,72 @@ Ctrl+a -
 python manage.py runserver
 ```
 
-### Saltar entre proyectos
+### Hopping between projects
 
 ```bash
-Ctrl+a s            # lista de sesiones → flechas → Enter
+Ctrl+a s            # session list → arrows → Enter
 ```
 
-### Viernes — ver qué tengo abierto
+### Friday — what do I have open?
 
 ```bash
 tmux ls
-# frontend: 2 windows (created Mon Jul 27 09:12:03 2026)
-# backend:  2 windows (created Tue Jul 28 10:45:31 2026)
+# frontend: 2 windows (created Mon ...)
+# backend:  2 windows (created Tue ...)
 ```
 
-### Lunes siguiente — retomar
+### Next Monday — pick up where you left off
 
 ```bash
 tmux attach -t frontend
-# Todo intacto: Neovim, archivos abiertos, el dev server corriendo
+# Everything intact: Neovim, open files, the dev server still running
 ```
 
-### Layout recomendado por proyecto
+### Recommended per-project layout
 
 ```
 ┌─────────────────────────────────┐
 │                                 │
-│           Neovim                │  ← Ctrl+a z para zoom
+│           Neovim                │  ← Ctrl+a z to zoom
 │                                 │
 ├─────────────────┬───────────────┤
 │   runserver     │   terminal    │
-│   (logs)        │   (comandos)  │
+│   (logs)        │   (commands)  │
 └─────────────────┴───────────────┘
 ```
 
-Se construye con: `Ctrl+a -` (dividir abajo) y luego `Ctrl+a |` (dividir ese panel).
+Built with: `Ctrl+a -` (split below) then `Ctrl+a |` (split that pane).
 
 ---
 
-## Problemas comunes
+## Common problems
 
-### Los colores se ven mal dentro de tmux
+### Colors look wrong inside tmux
 
-Falta el `terminal-overrides`. Verifica:
+The `terminal-overrides` line is missing. Check:
 
 ```bash
-echo $TERM          # debe ser screen-256color dentro de tmux
+echo $TERM          # should be screen-256color inside tmux
 tmux info | grep Tc
 ```
 
-Agrega a `~/.tmux.conf`:
+Add to `~/.tmux.conf`:
 
 ```bash
 set -g default-terminal "screen-256color"
 set -ga terminal-overrides ",xterm-256color:Tc"
 ```
 
-### `Ctrl+h/j/k/l` no salta entre tmux y Neovim
+### `Ctrl+h/j/k/l` doesn't cross between tmux and Neovim
 
-Falta el bloque `is_vim` en `~/.tmux.conf` (ver [integración](#integración-con-vim-tmux-navigator)).
+The `is_vim` block is missing from `~/.tmux.conf` (see
+[integration](#vim-tmux-navigator-integration)).
 
-### El prefijo `Ctrl+a` choca con "ir al inicio de línea" de bash
+### The `Ctrl+a` prefix clashes with bash's "go to start of line"
 
-Es el trade-off de usar `Ctrl+a`. Alternativas: usar `Ctrl+a a` para enviar el
-`Ctrl+a` literal (ya está mapeado con `send-prefix`), o cambiar el prefijo a
-`Ctrl+Espacio`:
+That's the trade-off of using `Ctrl+a`. Options: press `Ctrl+a a` to send a
+literal `Ctrl+a` (already mapped via `send-prefix`), or switch the prefix to
+`Ctrl+Space`:
 
 ```bash
 set-option -g prefix C-Space
@@ -329,4 +340,4 @@ set-option -g prefix C-Space
 
 ---
 
-[⬅️ Volver al README](../README.md) · [Plugins ➡️](plugins.md)
+[⬅️ Back to the README](../README.md) · [Plugins ➡️](plugins.md)

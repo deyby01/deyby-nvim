@@ -1,19 +1,24 @@
 -- ==========================================
 -- Neovim Configuration
 -- ==========================================
--- Configuración modular de Neovim
--- Autor: deyby-dev
--- Última actualización: Febrero 2026
+-- Modular Neovim setup for Python/Django, JS/TS/React, Docker and nginx.
+--
+-- Start here:
+--   lua/config/user.lua  -- the only file you need to edit after cloning
+--
+-- Layout:
+--   lua/config/   options, keymaps, autocmds
+--   lua/plugins/  one file per category (ui, editor, lsp, git, ...)
 -- ==========================================
 
--- Cargar opciones básicas
+-- Basic options
 require("config.options")
 
--- Cargar keymaps (atajos de teclado)
+-- Keymaps
 require("config.keymaps")
 
--- Cargar autocomandos
+-- Autocommands
 require("config.autocmds")
 
--- Cargar plugins
+-- Plugins (lazy.nvim bootstrap + imports)
 require("plugins")

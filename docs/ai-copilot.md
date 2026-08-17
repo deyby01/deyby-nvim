@@ -1,28 +1,29 @@
-# 🤖 IA — GitHub Copilot
+# 🤖 AI — GitHub Copilot
 
-> Copilot integrado **dentro del menú de autocompletado**, no como texto fantasma aparte.
+> Copilot integrated **inside the completion menu**, not as separate ghost text.
 
 **Plugins:** [`copilot.lua`](https://github.com/zbirenbaum/copilot.lua) + [`copilot-cmp`](https://github.com/zbirenbaum/copilot-cmp)
-**Archivo de config:** [`lua/plugins/ai.lua`](../lua/plugins/ai.lua)
+**Config file:** [`lua/plugins/ai.lua`](../lua/plugins/ai.lua)
 
 ---
 
-## 📋 Contenido
+## 📋 Contents
 
-- [Cómo funciona](#cómo-funciona)
-- [Atajos](#atajos)
-- [Configuración inicial](#configuración-inicial)
-- [Filetypes habilitados](#filetypes-habilitados)
-- [Por qué esta configuración](#por-qué-esta-configuración)
-- [Comandos útiles](#comandos-útiles)
-- [Problemas comunes](#problemas-comunes)
+- [How it works](#how-it-works)
+- [Shortcuts](#shortcuts)
+- [Initial setup](#initial-setup)
+- [Enabled filetypes](#enabled-filetypes)
+- [Why it's configured this way](#why-its-configured-this-way)
+- [Useful commands](#useful-commands)
+- [Common problems](#common-problems)
+- [AI alternatives](#ai-alternatives)
 
 ---
 
-## Cómo funciona
+## How it works
 
-Las sugerencias de Copilot aparecen como una entrada más en el menú de
-`nvim-cmp`, marcadas con el icono ****, junto a las del LSP y los snippets:
+Copilot suggestions appear as one more entry in the `nvim-cmp` menu, marked
+with the **** icon, next to the LSP results and snippets:
 
 ```
 ┌─────────────────────────────────────┐
@@ -33,83 +34,86 @@ Las sugerencias de Copilot aparecen como una entrada más en el menú de
 └─────────────────────────────────────┘
 ```
 
-**Ventaja:** una sola lista, una sola tecla. No hay que recordar si aceptas
-con `Tab` (cmp) o con `Ctrl+a` (ghost text de Copilot), ni pelear con
-sugerencias que se tapan entre sí.
+**The upside:** one list, one key. No need to remember whether you accept with
+`Tab` (cmp) or `Ctrl+a` (Copilot ghost text), and no suggestions covering each other.
 
 ---
 
-## Atajos
+## Shortcuts
 
-Son los **mismos del autocompletado**, no hay teclas extra que memorizar:
+They're **the same completion keys** — nothing extra to memorize:
 
-| Atajo | Acción |
-|-------|--------|
-| `Ctrl+Space` | Abrir el menú manualmente |
-| `Tab` | Siguiente opción (LSP / Copilot / snippet) |
-| `Shift+Tab` | Opción anterior |
-| `Enter` | Aceptar la opción seleccionada |
-| `Ctrl+e` | Cerrar el menú |
-| `Ctrl+f` / `Ctrl+b` | Scroll en la documentación de la sugerencia |
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+Space` | Open the menu manually |
+| `Tab` | Next entry (LSP / Copilot / snippet) |
+| `Shift+Tab` | Previous entry |
+| `Enter` | Accept the selected entry |
+| `Ctrl+e` | Close the menu |
+| `Ctrl+f` / `Ctrl+b` | Scroll the suggestion's documentation |
 
-> 💡 `Enter` está configurado con `select = false`: si no seleccionaste nada
-> con `Tab`, hace un salto de línea normal. No acepta sugerencias por accidente.
+> 💡 `Enter` is configured with `select = false`: if you haven't picked
+> anything with `Tab`, it inserts a normal newline. It never accepts a
+> suggestion by accident.
 
 ---
 
-## Configuración inicial
+## Initial setup
 
-Requiere una **suscripción activa de GitHub Copilot**.
+Requires an **active GitHub Copilot subscription**.
 
 ```vim
 :Copilot auth
 ```
 
-1. Se muestra un código y una URL
-2. Abre la URL, pega el código, autoriza
-3. Vuelve a Neovim
+1. A code and a URL are shown
+2. Open the URL, paste the code, authorize
+3. Return to Neovim
 
 ```vim
 :Copilot status
 ```
 
-La sesión queda guardada en `~/.config/github-copilot/`, así que solo se hace una vez.
+The session is stored in `~/.config/github-copilot/`, so this is a one-time step.
+
+> ⚠️ **Copilot requires Node.js 22+.** If you see
+> `Node.js version 22 or newer required`, your shell is resolving an older
+> Node — see [troubleshooting.md](troubleshooting.md#copilot).
 
 ---
 
-## Filetypes habilitados
+## Enabled filetypes
 
-Copilot está activo **solo** en el stack de trabajo. Todo lo demás está
-apagado a propósito con `["*"] = false`:
+Copilot is active **only** on the working stack. Everything else is
+deliberately off via `["*"] = false`:
 
-| Habilitado | |
+| Enabled | |
 |---|---|
 | ✅ `python` | ✅ `javascript` / `typescript` |
 | ✅ `javascriptreact` / `typescriptreact` | ✅ `html` / `htmldjango` |
 | ✅ `css` / `scss` | ✅ `lua` |
 | ✅ `json` / `yaml` | ✅ `dockerfile` / `sh` |
 
-### 🔒 Por qué la lista es cerrada
+### 🔒 Why the list is closed
 
-Con `["*"] = false`, Copilot **no envía** el contenido de archivos que no
-estén en la lista. Eso incluye `.env`, `.pem`, `secrets.yaml`, dumps de base
-de datos y cualquier cosa que no reconozca. Es una decisión de seguridad
-deliberada: el contenido del buffer viaja a los servidores de GitHub para
-generar la sugerencia.
+With `["*"] = false`, Copilot **never sends** the contents of files outside the
+list. That includes `.env`, `.pem`, `secrets.yaml`, database dumps and anything
+it doesn't recognize. This is a deliberate safety decision: buffer content is
+transmitted to GitHub's servers to generate the suggestion.
 
-### Agregar un filetype
+### Adding a filetype
 
-Edita [`lua/plugins/ai.lua`](../lua/plugins/ai.lua):
+Edit [`lua/plugins/ai.lua`](../lua/plugins/ai.lua):
 
 ```lua
 filetypes = {
   python = true,
-  go = true,        -- ← nuevo
+  go = true,        -- ← new
   ["*"] = false,
 }
 ```
 
-Para saber el filetype de un archivo abierto:
+To find an open file's filetype:
 
 ```vim
 :set filetype?
@@ -117,98 +121,105 @@ Para saber el filetype de un archivo abierto:
 
 ---
 
-## Por qué esta configuración
+## Why it's configured this way
 
-Detalles de las decisiones, por si quieres cambiarlas:
+The reasoning behind the defaults, in case you want to change them:
 
-### `suggestion = { enabled = false }` y `panel = { enabled = false }`
+### `suggestion = { enabled = false }` and `panel = { enabled = false }`
 
-El ghost text nativo de Copilot está **desactivado**. Con `nvim-cmp` abierto
-(que es casi siempre al escribir), el ghost text queda oculto detrás del menú
-y las sugerencias se pisan. `copilot-cmp` resuelve esto llevando todo al menú.
+Copilot's native ghost text is **disabled**. With `nvim-cmp` open — which is
+almost always while typing — ghost text sits behind the popup and the two
+suggestions fight each other. `copilot-cmp` solves this by moving everything
+into the menu.
 
-### Teclas de Vim recuperadas
+### Vim keys reclaimed
 
-La configuración anterior mapeaba las sugerencias a `<C-a>`, `<C-w>`, `<C-l>`,
-`<C-n>`, `<C-p>`, que son teclas **nativas de Vim**:
+The previous setup mapped suggestions to `<C-a>`, `<C-w>`, `<C-l>`, `<C-n>`
+and `<C-p>`, which are **native Vim keys**:
 
-| Tecla | Función original que se pisaba |
-|-------|-------------------------------|
-| `Ctrl+w` | Borrar palabra anterior (en insert) |
-| `Ctrl+n` / `Ctrl+p` | Autocompletado de palabras nativo |
-| `Ctrl+a` | Insertar el último texto insertado |
+| Key | Original behaviour it shadowed |
+|-----|-------------------------------|
+| `Ctrl+w` | Delete previous word (in insert mode) |
+| `Ctrl+n` / `Ctrl+p` | Native keyword completion |
+| `Ctrl+a` | Insert previously inserted text |
 
-Al usar `copilot-cmp` no se necesita ninguna, así que quedan libres.
+With `copilot-cmp` none of them are needed, so they're free again.
 
 ### `lazy = true`
 
-`copilot-cmp` carga como dependencia de `nvim-cmp` (evento `InsertEnter`), no
-al arrancar. Copilot solo se inicia cuando empiezas a escribir.
+`copilot-cmp` loads as a dependency of `nvim-cmp` (on `InsertEnter`), not at
+startup. Copilot only starts once you begin typing.
 
 ---
 
-## Comandos útiles
+## Useful commands
 
-| Comando | Acción |
+| Command | Action |
 |---------|--------|
-| `:Copilot status` | Estado de la conexión y del filetype actual |
-| `:Copilot auth` | Autenticar (primera vez) |
-| `:Copilot signout` | Cerrar sesión |
-| `:Copilot disable` | Desactivar temporalmente en la sesión |
-| `:Copilot enable` | Reactivar |
+| `:Copilot status` | Connection state and current filetype |
+| `:Copilot auth` | Authenticate (first time) |
+| `:Copilot signout` | Sign out |
+| `:Copilot disable` | Disable for this session |
+| `:Copilot enable` | Re-enable |
 
 ---
 
-## Problemas comunes
+## Common problems
 
-### No aparecen sugerencias de Copilot
+### No Copilot suggestions
 
 ```vim
-" 1. ¿Está autenticado?
+" 1. Authenticated?
 :Copilot status
 
-" 2. ¿El filetype está habilitado?
+" 2. Is the filetype enabled?
 :set filetype?
-" Si no está en la lista de ai.lua, agrégalo
+" If it isn't in ai.lua's list, add it
 
-" 3. ¿Cargó el plugin? (carga en InsertEnter)
+" 3. Did the plugin load? (it loads on InsertEnter)
 :Lazy
-" copilot.lua debe aparecer como cargado tras entrar a modo insert
+" copilot.lua should show as loaded after entering insert mode
 ```
 
-### Las sugerencias tardan
+### `Node.js version 22 or newer required`
 
-Normal en archivos grandes: Copilot necesita mandar contexto y esperar
-respuesta. El LSP y los snippets aparecen antes porque son locales.
+Your shell is resolving an old Node. Check with `which node` and
+`node --version`; if it points at `/usr/bin/node`, make sure nvm is loaded in
+your shell config — details in [troubleshooting.md](troubleshooting.md#copilot).
 
-### Quiero volver al ghost text clásico
+### Suggestions are slow
 
-En [`lua/plugins/ai.lua`](../lua/plugins/ai.lua), cambia:
+Normal on large files: Copilot has to send context and wait for a response.
+The LSP and snippets appear first because they're local.
+
+### I want the classic ghost text back
+
+In [`lua/plugins/ai.lua`](../lua/plugins/ai.lua), change:
 
 ```lua
 suggestion = {
   enabled = true,
   auto_trigger = true,
-  keymap = { accept = "<M-l>" },  -- usa Alt, no Ctrl, para no pisar Vim
+  keymap = { accept = "<M-l>" },  -- use Alt, not Ctrl, to avoid shadowing Vim
 },
 ```
 
-Y quita `copilot` de las `sources` de cmp en [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua).
+And remove `copilot` from cmp's `sources` in [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua).
 
 ---
 
-## Alternativas de IA
+## AI alternatives
 
-Si no tienes suscripción de Copilot, plugins compatibles con esta config:
+If you don't have a Copilot subscription, these plugins fit the same setup:
 
-| Plugin | Notas |
+| Plugin | Notes |
 |--------|-------|
-| [`supermaven-nvim`](https://github.com/supermaven-inc/supermaven-nvim) | Tier gratuito, muy rápido |
-| [`codeium.nvim`](https://github.com/Exafunction/codeium.nvim) | Gratis para uso individual |
-| [`minuet-ai.nvim`](https://github.com/milanglacier/minuet-ai.nvim) | Usa tu propia API key (Claude, OpenAI, local) |
+| [`supermaven-nvim`](https://github.com/supermaven-inc/supermaven-nvim) | Free tier, very fast |
+| [`codeium.nvim`](https://github.com/Exafunction/codeium.nvim) | Free for individual use |
+| [`minuet-ai.nvim`](https://github.com/milanglacier/minuet-ai.nvim) | Bring your own API key (Claude, OpenAI, local models) |
 
-Todos tienen fuente para `nvim-cmp`, así que el patrón de integración es el mismo.
+All of them provide an `nvim-cmp` source, so the integration pattern is identical.
 
 ---
 
-[⬅️ Volver al README](../README.md) · [LSP y autocompletado ➡️](lsp-and-completion.md)
+[⬅️ Back to the README](../README.md) · [LSP and completion ➡️](lsp-and-completion.md)

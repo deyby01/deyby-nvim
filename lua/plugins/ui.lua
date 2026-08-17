@@ -1,9 +1,9 @@
 -- ==========================================
--- PLUGINS DE INTERFAZ (UI)
+-- UI PLUGINS
 -- ==========================================
 
 return {
-    -- Tema: Nordic
+    -- Colorscheme: Nordic
     {
       "AlexvZyl/nordic.nvim",
       lazy = false,
@@ -12,7 +12,13 @@ return {
         require("nordic").setup({
           bold_keywords = false,
           italic_comments = true,
-          transparent_bg = true,
+          -- Transparent background: lets your terminal's background (or
+          -- wallpaper, if the terminal is translucent) show through.
+          -- Set both to false for a solid background.
+          transparent = {
+            bg = true,
+            float = false,
+          },
           bright_border = true,
           reduced_blue = true,
           cursorline = { theme = "dark", blend = 0.85 },
@@ -21,7 +27,7 @@ return {
         require("nordic").load()
       end,
     },
-    -- Barra de estado (lualine)
+    -- Statusline (lualine)
     {
     'nvim-lualine/lualine.nvim',
     dependencies = {'nvim-tree/nvim-web-devicons'},
@@ -85,7 +91,7 @@ return {
     end
     },
 
-    -- Colores para CSS/HTML
+    -- Color preview for CSS/HTML
     {
     "NvChad/nvim-colorizer.lua",
     event = "BufReadPre",
@@ -118,7 +124,7 @@ return {
     end,
     },
 
-    -- Líneas de indentación
+    -- Indentation guides
     {
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
@@ -168,7 +174,7 @@ return {
     end,
     },
 
-    -- Rainbow delimiters (colores para paréntesis/tags)
+    -- Rainbow delimiters (colored brackets and tags)
     {
     "HiPhish/rainbow-delimiters.nvim",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
@@ -200,7 +206,7 @@ return {
         })
     end,
     },
-    -- Dropbar: breadcrumbs interactivos
+    -- Dropbar: interactive breadcrumbs
     {
       "Bekaboo/dropbar.nvim",
       event = "BufReadPre",
@@ -242,10 +248,10 @@ return {
           },
         })
 
-        vim.keymap.set("n", "<leader>bp", function() require("dropbar.api").pick() end, { desc = "Dropbar: navegar breadcrumb" })
+        vim.keymap.set("n", "<leader>bp", function() require("dropbar.api").pick() end, { desc = "Dropbar: navigate breadcrumb" })
       end,
     },
-    -- Modes: colores según modo vim
+    -- Modes: cursor/line color follows the current vim mode
     {
       "mvllow/modes.nvim",
       event = "BufReadPre",
@@ -271,7 +277,7 @@ return {
         })
       end,
     },
-    -- Tiny inline diagnostic: errores más bonitos
+    -- Tiny inline diagnostic: nicer inline error display
     {
       "rachartier/tiny-inline-diagnostic.nvim",
       event = "BufReadPre",

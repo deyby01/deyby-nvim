@@ -1,8 +1,8 @@
 -- ==========================================
--- LAZY.NVIM - GESTOR DE PLUGINS
+-- LAZY.NVIM - PLUGIN MANAGER
 -- ==========================================
 
--- Instalar Lazy.nvim automáticamente
+-- Bootstrap lazy.nvim automatically
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
   vim.fn.system({
@@ -16,23 +16,23 @@ if not vim.uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Cargar todos los plugins de los módulos
+-- Load every plugin module
 require("lazy").setup({
-    -- Cargar plugins por categoría
-    { import = "plugins.ui" },        -- Temas, lualine, colorizer
-    { import = "plugins.editor" },    -- Telescope, NvimTree, Harpoon
-    { import = "plugins.lsp" },       -- LSP, autocompletado
-    { import = "plugins.git" },       -- Git plugins
-    { import = "plugins.terminal" },  -- Terminal y tmux
-    { import = "plugins.ai" },        -- Inteligencia artificial
-    { import = "plugins.ui_extra" },  -- Plugins adicionales
-    { import = "plugins.debug" },     -- Debug
-    { import = "plugins.dashboard" }, -- Dashboard
-    { import = "plugins.session" },   -- Session
-    { import = "plugins.testing" },   -- Testing
-    { import = "plugins.legendary" }, -- Paleta de comandos
+    -- Plugins grouped by category
+    { import = "plugins.ui" },        -- theme, lualine, colorizer
+    { import = "plugins.editor" },    -- Telescope, NvimTree, Harpoon, Treesitter
+    { import = "plugins.lsp" },       -- LSP, completion, formatting
+    { import = "plugins.git" },       -- Fugitive, GitSigns, Diffview, Octo
+    { import = "plugins.terminal" },  -- terminal, LazyDocker, Live Server, tmux
+    { import = "plugins.ai" },        -- GitHub Copilot
+    { import = "plugins.ui_extra" },  -- Noice, which-key
+    { import = "plugins.debug" },     -- DAP debugger
+    { import = "plugins.dashboard" }, -- start screen
+    { import = "plugins.session" },   -- auto-session
+    { import = "plugins.testing" },   -- Neotest
+    { import = "plugins.legendary" }, -- command palette
 }, {
-  -- Configuración de Lazy
+  -- lazy.nvim settings
   checker = {
     enabled = true,
     notify = false,
@@ -42,7 +42,7 @@ require("lazy").setup({
   },
   performance = {
     rtp = {
-      -- Plugins heredados de vim que no se usan
+      -- Legacy vim plugins we don't use
       disabled_plugins = {
         "gzip",
         "tarPlugin",

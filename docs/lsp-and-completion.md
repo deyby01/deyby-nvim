@@ -1,149 +1,149 @@
-# 🧠 LSP, Autocompletado y Formateo
+# 🧠 LSP, Completion and Formatting
 
-> Inteligencia de código: definiciones, referencias, diagnósticos, snippets y formateo.
+> Code intelligence: definitions, references, diagnostics, snippets and formatting.
 
 **Plugins:** `nvim-lspconfig` · `mason.nvim` (v2) · `nvim-cmp` · `LuaSnip` · `conform.nvim`
-**Archivo de config:** [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua)
+**Config file:** [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua)
 
 ---
 
-## 📋 Contenido
+## 📋 Contents
 
-- [Atajos de LSP](#atajos-de-lsp)
-- [Autocompletado](#autocompletado)
-- [Servidores incluidos](#servidores-incluidos)
-- [Linters por proyecto (.venv)](#linters-por-proyecto-venv)
-- [Formateo con conform.nvim](#formateo-con-conformnvim)
+- [LSP shortcuts](#lsp-shortcuts)
+- [Completion](#completion)
+- [Included servers](#included-servers)
+- [Per-project linters (.venv)](#per-project-linters-venv)
+- [Formatting with conform.nvim](#formatting-with-conformnvim)
 - [Snippets](#snippets)
-- [Diagnósticos](#diagnósticos)
-- [Agregar un servidor nuevo](#agregar-un-servidor-nuevo)
-- [Comandos de diagnóstico](#comandos-de-diagnóstico)
+- [Diagnostics](#diagnostics)
+- [Adding a new server](#adding-a-new-server)
+- [Diagnostic commands](#diagnostic-commands)
 
 ---
 
-## Atajos de LSP
+## LSP shortcuts
 
-Se registran automáticamente cuando un servidor se adjunta al buffer (`LspAttach`),
-así que solo existen donde hay LSP activo.
+These are registered per buffer when a server attaches, so they only exist
+where an LSP is running.
 
-| Atajo | Acción |
-|-------|--------|
-| `gd` | **Ir a la definición** |
-| `gr` | **Ver referencias** (dónde se usa) |
-| `gi` | Ir a la implementación |
-| `K` | **Hover**: documentación del símbolo bajo el cursor |
-| `Espacio+rn` | **Renombrar** el símbolo en todo el proyecto |
-| `Espacio+ca` | **Code actions**: auto-import, quick fixes |
-| `Espacio+cf` | **Formatear** (ver [conform](#formateo-con-conformnvim)) |
-| `]d` / `[d` | Siguiente / anterior diagnóstico |
+| Shortcut | Action |
+|----------|--------|
+| `gd` | **Go to definition** |
+| `gr` | **Find references** (where it's used) |
+| `gi` | Go to implementation |
+| `K` | **Hover**: documentation for the symbol under the cursor |
+| `Space+rn` | **Rename** the symbol across the project |
+| `Space+ca` | **Code actions**: auto-import, quick fixes |
+| `Space+cf` | **Format** (see [conform](#formatting-with-conformnvim)) |
+| `]d` / `[d` | Next / previous diagnostic |
 
-### Ejemplo: auto-import con code actions
+### Example: auto-import via code actions
 
 ```python
-# 1. Escribes código sin el import
-User.objects.all()      # 'User' no está importado
+# 1. You write code without the import
+User.objects.all()      # 'User' is not imported
 
-# 2. Cursor sobre "User" → Espacio+ca
-# 3. Eliges "Import User from django.contrib.auth.models"
-# 4. El import se agrega arriba automáticamente
+# 2. Cursor on "User" → Space+ca
+# 3. Pick "Import User from django.contrib.auth.models"
+# 4. The import is added at the top automatically
 ```
 
 ### Inlay hints
 
-Se activan solos en los servidores que los soportan: muestran tipos y nombres
-de parámetros en gris dentro del código.
+Enabled automatically on servers that support them: types and parameter names
+are shown greyed out inside the code.
 
 ---
 
-## Autocompletado
+## Completion
 
-`nvim-cmp` unifica cuatro fuentes en un solo menú, por prioridad:
+`nvim-cmp` merges four sources into a single menu, by priority:
 
-| Prioridad | Fuente | Qué aporta |
-|-----------|--------|------------|
-| 1100 |  **Copilot** | Sugerencias de IA ([ver doc](ai-copilot.md)) |
-| 1000 | **LSP** | Métodos, atributos, tipos reales del proyecto |
-| 750 | 󰩫 **LuaSnip** | Snippets (incluidos los de Django/DRF) |
-| 500 | **Buffer** | Palabras del archivo actual |
-| 250 | **Path** | Rutas de archivos |
+| Priority | Source | What it provides |
+|----------|--------|------------------|
+| 1100 |  **Copilot** | AI suggestions ([see doc](ai-copilot.md)) |
+| 1000 | **LSP** | Methods, attributes, real types from the project |
+| 750 | 󰩫 **LuaSnip** | Snippets (including the Django/DRF ones) |
+| 500 | **Buffer** | Words from the current file |
+| 250 | **Path** | Filesystem paths |
 
-### Atajos
+### Shortcuts
 
-| Atajo | Acción |
-|-------|--------|
-| `Ctrl+Space` | Abrir el menú manualmente |
-| `Tab` | Siguiente opción · o expandir/saltar en un snippet |
-| `Shift+Tab` | Opción anterior · o saltar atrás en un snippet |
-| `Enter` | Aceptar la opción **seleccionada** |
-| `Ctrl+e` | Cerrar el menú |
-| `Ctrl+f` / `Ctrl+b` | Scroll en la ventana de documentación |
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+Space` | Open the menu manually |
+| `Tab` | Next entry · or expand/jump inside a snippet |
+| `Shift+Tab` | Previous entry · or jump backwards in a snippet |
+| `Enter` | Accept the **selected** entry |
+| `Ctrl+e` | Close the menu |
+| `Ctrl+f` / `Ctrl+b` | Scroll the documentation window |
 
-> 💡 **`Enter` usa `select = false`**: si no seleccionaste con `Tab`, hace un
-> salto de línea normal. Evita aceptar sugerencias que no querías.
+> 💡 **`Enter` uses `select = false`**: if you didn't select anything with
+> `Tab`, it inserts a normal newline. No accidental accepts.
 
 ---
 
-## Servidores incluidos
+## Included servers
 
-Mason los instala automáticamente en la primera ejecución (`ensure_installed`).
+Mason installs these automatically on first launch (`ensure_installed`).
 
-| Servidor | Lenguaje / Uso |
-|----------|----------------|
-| `pyright` | Python — type checking, navegación |
-| `ruff` | Python — linting y formateo (ultrarrápido) |
-| `html` | HTML y templates de Django (`htmldjango`) |
+| Server | Language / use |
+|--------|----------------|
+| `pyright` | Python — type checking, navigation |
+| `ruff` | Python — linting and formatting (very fast) |
+| `html` | HTML and Django templates (`htmldjango`) |
 | `cssls` | CSS / SCSS / LESS |
 | `ts_ls` | JavaScript / TypeScript / React (JSX, TSX) |
 | `emmet_ls` | Emmet: `div.card>ul>li*3` + `Tab` |
-| `jsonls` | JSON — con validación de schemas |
+| `jsonls` | JSON — with schema validation |
 | `yamlls` | YAML |
 | `dockerls` | Dockerfile |
 | `docker_compose_language_service` | `docker-compose.yml` |
 | `nginx_language_server` | `nginx.conf` |
 
-### Por qué pyright **y** ruff juntos
+### Why pyright **and** ruff together
 
-No se solapan, se complementan:
+They don't overlap, they complement each other:
 
-- **pyright** entiende tipos, resuelve imports y navega el código (`gd`, `gr`)
-- **ruff** hace linting y formateo casi instantáneo (reemplaza flake8 + isort + black)
+- **pyright** understands types, resolves imports and powers navigation (`gd`, `gr`)
+- **ruff** does near-instant linting and formatting (replaces flake8 + isort + black)
 
 ---
 
-## Linters por proyecto (.venv)
+## Per-project linters (.venv)
 
-`ruff` se resuelve **desde el `PATH`**, no con una ruta fija. Esto es intencional:
+`ruff` is resolved **from `PATH`**, not from a fixed path. That's intentional:
 
 ```bash
-# Activas el venv del proyecto
-cd ~/Documents/mi-proyecto
+# Activate the project's venv
+cd ~/projects/my-project
 source .venv/bin/activate
 
-# Abres nvim desde ahí
+# Open nvim from there
 nvim
 ```
 
-Ahora Neovim usa **el ruff del proyecto** con su configuración local
-(`pyproject.toml`, `ruff.toml`, `setup.cfg`). Cada proyecto puede tener reglas
-distintas y todo funciona sin tocar la config de Neovim.
+Neovim now uses **the project's ruff** with its local configuration
+(`pyproject.toml`, `ruff.toml`, `setup.cfg`). Every project can have different
+rules and it all works without touching the Neovim config.
 
 ```toml
-# pyproject.toml del proyecto
+# The project's pyproject.toml
 [tool.ruff]
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "DJ"]   # DJ = reglas de Django
+select = ["E", "F", "I", "DJ"]   # DJ = Django rules
 ```
 
-> ⚠️ Si abres Neovim **sin** el venv activado, ruff usará la versión global
-> (la de Mason) con su config por defecto. Los diagnósticos pueden diferir.
+> ⚠️ If you open Neovim **without** the venv active, ruff falls back to the
+> global (Mason) version with its default configuration. Diagnostics may differ.
 
 ---
 
-## Formateo con conform.nvim
+## Formatting with conform.nvim
 
-`Espacio+cf` formatea el archivo completo, o la selección en modo visual.
+`Space+cf` formats the whole file, or the selection in visual mode.
 
 | Filetype | Formatter | Fallback |
 |----------|-----------|----------|
@@ -152,34 +152,34 @@ select = ["E", "F", "I", "DJ"]   # DJ = reglas de Django
 | `css` `scss` | `prettierd` → `prettier` | LSP |
 | `json` `yaml` | `prettierd` → `prettier` | LSP |
 | `htmldjango` | `djlint` | LSP |
-| Cualquier otro | — | LSP |
+| Anything else | — | LSP |
 
-**Cómo funciona la cadena:** conform intenta el primer formatter de la lista;
-si no está instalado prueba el siguiente; si ninguno existe usa
-`vim.lsp.buf.format()`. Nunca se queda sin formatear.
+**How the chain works:** conform tries the first formatter in the list; if it
+isn't installed it tries the next; if none exist it falls back to
+`vim.lsp.buf.format()`. It never leaves the file unformatted.
 
-### Instalar los formatters
+### Installing the formatters
 
 ```bash
-# Python + templates Django, dentro del .venv del proyecto
+# Python + Django templates, inside the project's .venv
 pip install ruff djlint
 
 # JS/TS/CSS/JSON, global
 npm install -g prettier @fsouza/prettierd
 ```
 
-### Ver qué formatter se usaría
+### See which formatter would run
 
 ```vim
 :ConformInfo
 ```
 
-Muestra los formatters disponibles para el buffer actual y cuál se ejecutaría.
+Lists the formatters available for the current buffer and which one would execute.
 
-### Activar formateo al guardar
+### Enabling format-on-save
 
-Si lo quieres, edita [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua) y agrega a
-las `opts` de conform:
+If you want it, edit [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua) and add to
+conform's `opts`:
 
 ```lua
 format_on_save = {
@@ -188,83 +188,83 @@ format_on_save = {
 },
 ```
 
-> No está activado por defecto: en proyectos con estilos mezclados, formatear
-> al guardar genera diffs gigantes en archivos que solo querías tocar un poco.
+> It's off by default: in projects with mixed styles, formatting on save
+> produces huge diffs in files you only meant to touch slightly.
 
 ---
 
 ## Snippets
 
-`friendly-snippets` + `LuaSnip`. Aparecen en el menú de cmp con tipo **Snippet**.
+`friendly-snippets` + `LuaSnip`. They appear in the cmp menu tagged **Snippet**.
 
-### Navegación dentro de un snippet
+### Moving inside a snippet
 
-| Atajo | Acción |
-|-------|--------|
-| `Tab` | Siguiente placeholder |
-| `Shift+Tab` | Placeholder anterior |
+| Shortcut | Action |
+|----------|--------|
+| `Tab` | Next placeholder |
+| `Shift+Tab` | Previous placeholder |
 
-### Django y DRF
+### Django and DRF
 
-Activados con `filetype_extend`, que hace que un filetype herede snippets de otros:
+Enabled through `filetype_extend`, which makes one filetype inherit another's snippets:
 
 ```lua
 luasnip.filetype_extend("htmldjango", { "html" })
 luasnip.filetype_extend("python", { "django", "django-rest" })
 ```
 
-Con eso disponibles: **168 snippets** en templates y **191** de Django/DRF en Python.
-La lista completa está en **[django.md](django.md#snippets)**.
+That yields **168 snippets** in templates and **191** Django/DRF ones in Python.
+The full list is in **[django.md](django.md#snippets)**.
 
-> ⚠️ **Orden importante:** `filetype_extend` debe llamarse **antes** de
-> `require("luasnip.loaders.from_vscode").lazy_load()`. Al revés, los snippets
-> extendidos no se cargan.
+> ⚠️ **Order matters:** `filetype_extend` must be called **before**
+> `require("luasnip.loaders.from_vscode").lazy_load()`. The other way around,
+> the extended snippets never load.
 
 ---
 
-## Diagnósticos
+## Diagnostics
 
-Configuración actual:
+Current configuration:
 
 ```lua
 vim.diagnostic.config({
-    virtual_text = false,     -- lo dibuja tiny-inline-diagnostic
-    signs = true,             -- iconos en la columna izquierda
+    virtual_text = false,     -- drawn by tiny-inline-diagnostic instead
+    signs = true,             -- icons in the left gutter
     underline = true,
-    update_in_insert = false, -- no molesta mientras escribes
-    severity_sort = true,     -- errores antes que warnings
+    update_in_insert = false, -- doesn't nag while you type
+    severity_sort = true,     -- errors before warnings
 })
 ```
 
-`virtual_text` está apagado porque **`tiny-inline-diagnostic.nvim`** dibuja los
-mensajes con un estilo más legible (preset `modern`), con la fuente del
-diagnóstico y soporte multilínea.
+`virtual_text` is off because **`tiny-inline-diagnostic.nvim`** renders the
+messages more legibly (the `modern` preset), including the diagnostic source
+and multiline support.
 
-### Ver diagnósticos en panel
+### Viewing diagnostics in a panel
 
-| Atajo | Acción |
-|-------|--------|
-| `Espacio+xx` | Todos los errores del proyecto (Trouble) |
-| `Espacio+xf` | Solo del archivo actual |
-| `Espacio+xq` | Quickfix list |
-| `]d` / `[d` | Saltar entre diagnósticos |
+| Shortcut | Action |
+|----------|--------|
+| `Space+xx` | Every error in the project (Trouble) |
+| `Space+xf` | Current file only |
+| `Space+xq` | Quickfix list |
+| `]d` / `[d` | Jump between diagnostics |
 
 ---
 
-## Agregar un servidor nuevo
+## Adding a new server
 
-Ejemplo con `gopls` (Go), en [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua):
+Example with `gopls` (Go), in [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua):
 
-**1.** Agrégalo a `ensure_installed` de `mason-lspconfig`:
+**1.** Add it to mason-lspconfig's `ensure_installed`:
 
 ```lua
 ensure_installed = {
   "pyright", "ruff", -- ...
-  "gopls",           -- ← nuevo
+  "gopls",           -- ← new
 },
 ```
 
-**2.** Si necesita configuración específica, dentro del `config` de `nvim-lspconfig`:
+**2.** If it needs specific settings, add them inside `nvim-lspconfig`'s `config`:
 
 ```lua
 vim.lsp.config("gopls", {
@@ -276,15 +276,15 @@ vim.lsp.config("gopls", {
 })
 ```
 
-**3.** Reinicia Neovim. Mason lo instala y `automatic_enable` (default en v2) lo activa.
+**3.** Restart Neovim. Mason installs it and `automatic_enable` (the v2 default) turns it on.
 
-> 💡 **No hace falta `vim.lsp.enable()`**: mason-lspconfig v2 habilita
-> automáticamente todo lo que instala. Los nombres válidos están en la
-> [lista de nvim-lspconfig](https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md).
+> 💡 **No `vim.lsp.enable()` needed**: mason-lspconfig v2 automatically enables
+> everything it installs. Valid names are in the
+> [nvim-lspconfig list](https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md).
 
-### Agregar un formatter
+### Adding a formatter
 
-En las `opts` de conform:
+In conform's `opts`:
 
 ```lua
 formatters_by_ft = {
@@ -294,18 +294,18 @@ formatters_by_ft = {
 
 ---
 
-## Comandos de diagnóstico
+## Diagnostic commands
 
-| Comando | Para qué |
-|---------|----------|
-| `:LspInfo` | Servidores adjuntos al buffer actual |
-| `:LspLog` | Log de errores del LSP |
-| `:LspRestart` | Reiniciar servidores (útil tras cambiar config) |
-| `:Mason` | Gestor de servidores (`U` = actualizar todos) |
-| `:ConformInfo` | Formatters disponibles y activo |
-| `:checkhealth lsp` | Diagnóstico del subsistema LSP |
-| `:checkhealth mason` | Verificar Mason y sus dependencias |
+| Command | Purpose |
+|---------|---------|
+| `:LspInfo` | Servers attached to the current buffer |
+| `:LspLog` | LSP error log |
+| `:LspRestart` | Restart servers (handy after config changes) |
+| `:Mason` | Server manager (`U` = update all) |
+| `:ConformInfo` | Available and active formatters |
+| `:checkhealth lsp` | LSP subsystem diagnostics |
+| `:checkhealth mason` | Verify Mason and its dependencies |
 
 ---
 
-[⬅️ Volver al README](../README.md) · [Django y DRF ➡️](django.md)
+[⬅️ Back to the README](../README.md) · [Django and DRF ➡️](django.md)

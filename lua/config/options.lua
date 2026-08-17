@@ -1,51 +1,51 @@
 -- ==========================================
--- OPCIONES BÁSICAS DE VIM
+-- BASIC VIM OPTIONS
 -- ==========================================
 
--- Números de línea
+-- Line numbers
 vim.opt.number = true
 vim.opt.relativenumber = true
 
--- Indentación
+-- Indentation
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.smartindent = true
 
--- Interfaz
+-- Interface
 vim.opt.wrap = false
 vim.opt.termguicolors = true
-vim.opt.signcolumn = "yes"     -- Columna de signos siempre visible (gitsigns no desplaza el texto)
-vim.opt.cursorline = true      -- Resaltar línea actual
-vim.opt.scrolloff = 8          -- Contexto al hacer scroll
-vim.opt.laststatus = 3         -- Una sola statusline global
-vim.opt.splitkeep = "screen"   -- El texto no salta al abrir splits
+vim.opt.signcolumn = "yes"     -- always show the sign column (gitsigns won't shift text)
+vim.opt.cursorline = true      -- highlight the current line
+vim.opt.scrolloff = 8          -- keep context around the cursor when scrolling
+vim.opt.laststatus = 3         -- single global statusline
+vim.opt.splitkeep = "screen"   -- text doesn't jump when opening splits
 
--- Búsqueda
+-- Search
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
--- Clipboard (compartir con sistema)
+-- Share the clipboard with the system
 vim.opt.clipboard:append({ "unnamed", "unnamedplus" })
 
--- Splits (ventanas)
-vim.opt.splitright = true  -- Splits verticales a la derecha
-vim.opt.splitbelow = true  -- Splits horizontales abajo
+-- Splits
+vim.opt.splitright = true  -- vertical splits open to the right
+vim.opt.splitbelow = true  -- horizontal splits open below
 
--- Recargar archivos cambiados externamente (Claude Code, etc)
+-- Reload files changed outside of Neovim
 vim.opt.autoread = true
 
--- Confirmación en vez de error al salir con cambios sin guardar
+-- Ask instead of failing when quitting with unsaved changes
 vim.opt.confirm = true
 
--- Ratón habilitado
+-- Mouse support
 vim.opt.mouse = "a"
 
--- Tiempos de respuesta
-vim.opt.updatetime = 250   -- LSP/gitsigns más reactivos (default: 4000ms)
-vim.opt.timeoutlen = 300   -- Los prefijos de atajos responden antes (default: 1000ms)
+-- Response times
+vim.opt.updatetime = 250   -- snappier LSP/gitsigns (default: 4000ms)
+vim.opt.timeoutlen = 300   -- key prefixes resolve faster (default: 1000ms)
 
--- Historial de undo persistente
+-- Persistent undo history
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("state") .. "/undo"
 
@@ -53,14 +53,14 @@ vim.opt.undodir = vim.fn.stdpath("state") .. "/undo"
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Skip ts_context_commentstring module (deprecado en treesittier)
+-- Skip the ts_context_commentstring module (deprecated in treesitter)
 vim.g.skip_ts_context_commentstring_module = true
 
 -- ==========================================
--- INDENTACIÓN POR TIPO DE ARCHIVO
+-- PER-FILETYPE INDENTATION
 -- ==========================================
 
--- Forzar 4 espacios para HTML y archivos relacionados
+-- Force 4 spaces for HTML and related filetypes
 vim.api.nvim_create_autocmd("FileType", {
     pattern = { "html", "htmldjango", "css", "javascript", "typescript", "javascriptreact", "typescriptreact" },
     callback = function()
