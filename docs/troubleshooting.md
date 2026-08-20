@@ -217,6 +217,27 @@ nvim
 
 Without the venv, it uses Mason's global ruff with default settings.
 
+### No inline types in TypeScript/JavaScript (inlay hints)
+
+If `gd`, `K` and diagnostics work but you never see the greyed-out inferred
+types, it's not a broken install: `tsserver` reports `inlayHintProvider = true`
+and then returns zero hints unless its preferences are enabled.
+
+Check the server is actually attached and what it returns:
+
+```vim
+:LspInfo
+:lua =vim.lsp.inlay_hint.is_enabled({ bufnr = 0 })
+```
+
+The fix lives in `ts_ls`'s `settings` in
+[`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua) — `typescript.inlayHints` and
+`javascript.inlayHints` must both be set.
+
+> 💡 Remember hints only appear where the type is **inferred**. In a file where
+> every variable is annotated by hand there is nothing to show, which can look
+> like a failure when it isn't.
+
 ### A server hangs
 
 ```vim

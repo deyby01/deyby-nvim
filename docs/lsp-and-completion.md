@@ -50,8 +50,30 @@ User.objects.all()      # 'User' is not imported
 
 ### Inlay hints
 
-Enabled automatically on servers that support them: types and parameter names
-are shown greyed out inside the code.
+Enabled automatically on servers that support them: inferred types and
+parameter names are shown greyed out inside the code.
+
+```typescript
+const count = 42;          // count: number
+const items = [1, 2, 3];   // items: number[]
+add(1, 2);                 // add(a: 1, b: 2)
+```
+
+> ⚠️ **TypeScript needs an extra step.** `tsserver` advertises
+> `inlayHintProvider` but returns nothing until its preferences are enabled, so
+> the hints silently never appear. The config enables them explicitly for
+> `typescript` **and** `javascript` in
+> [`lua/plugins/lsp.lua`](../lua/plugins/lsp.lua) — they're separate settings
+> blocks in the server, and setting only one leaves the other language without hints.
+
+Hints only show where the type is **inferred**. A variable you annotated by hand
+(`const x: number = 42`) correctly shows nothing, since the type is already visible.
+
+To turn them off for a buffer:
+
+```vim
+:lua vim.lsp.inlay_hint.enable(false, { bufnr = 0 })
+```
 
 ---
 

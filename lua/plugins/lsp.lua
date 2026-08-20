@@ -114,9 +114,29 @@ return {
         })
 
         -- JavaScript / TypeScript / React
+        --
+        -- Inlay hints are OFF by default in tsserver: it advertises
+        -- inlayHintProvider but returns nothing until these preferences are
+        -- enabled, so inferred types stay invisible. They must be set for
+        -- `typescript` and `javascript` separately.
+        local ts_inlay_hints = {
+            includeInlayParameterNameHints = "literals",     -- "none" | "literals" | "all"
+            includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+            includeInlayFunctionParameterTypeHints = true,
+            includeInlayVariableTypeHints = true,
+            includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+            includeInlayPropertyDeclarationTypeHints = true,
+            includeInlayFunctionLikeReturnTypeHints = true,
+            includeInlayEnumMemberValueHints = true,
+        }
+
         vim.lsp.config("ts_ls", {
             cmd = { "typescript-language-server", "--stdio" },
             filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+            settings = {
+                typescript = { inlayHints = ts_inlay_hints },
+                javascript = { inlayHints = ts_inlay_hints },
+            },
         })
 
         -- Emmet (abbreviation expansion: div.card>ul>li*3, ...)
