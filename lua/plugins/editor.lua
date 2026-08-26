@@ -118,6 +118,29 @@ return {
     lazy = false,
     build = ':TSUpdate',
     config = function()
+        -- WORKAROUND (Neovim 0.12 + nvim-treesitter master)
+        --
+        -- nvim-treesitter's master branch does not support Neovim 0.12 (its
+        -- own README says so). Its markdown injections query uses the custom
+        -- directive #set-lang-from-info-string!, whose handler still reads
+        -- `match[capture_id]` as a single node. In 0.12 that is a LIST of
+        -- nodes, so it blows up with "attempt to call method 'range' (a nil
+        -- value)" and markdown loses all highlighting.
+        --
+        -- Neovim ships its own, correct markdown queries. Registering them
+        -- explicitly makes them win over the plugin's copy, and survives
+        -- :Lazy sync (which would restore the broken file on disk).
+        --
+        -- Remove this once the config moves to the nvim-treesitter `main`
+        -- branch, which supports 0.12 natively.
+        local rt_injections = vim.env.VIMRUNTIME .. "/queries/markdown/injections.scm"
+        if vim.fn.filereadable(rt_injections) == 1 then
+            local ok, query = pcall(vim.fn.readfile, rt_injections)
+            if ok then
+                pcall(vim.treesitter.query.set, "markdown", "injections", table.concat(query, "\n"))
+            end
+        end
+
         require("nvim-treesitter.configs").setup({
             ensure_installed = {
                 "lua",

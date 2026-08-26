@@ -19,6 +19,8 @@
 - [Git](#git)
 - [Debugger and tests](#debugger-and-tests)
 - [Live Server and Docker](#live-server-and-docker)
+- [REST client (Kulala)](#rest-client-kulala)
+- [Treesitter and highlighting](#treesitter-and-highlighting)
 - [Clean reinstall](#clean-reinstall)
 - [Reporting a problem](#reporting-a-problem)
 
@@ -514,6 +516,91 @@ LazyDocker isn't installed:
 curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
 lazydocker --version
 ```
+
+---
+
+## REST client (Kulala)
+
+### `:checkhealth kulala` says `kulala-core not found`
+
+The backend (~100 MB) downloads on first use into
+`~/.local/share/nvim/kulala.nvim/bin/`. Open any `.http` file with a working
+connection and it retries. To force it:
+
+```vim
+:lua require("kulala.backend").ensure_installed(function(ok) print(ok) end)
+```
+
+If the download races with the first request you may see `ETXTBSY` once — it is
+the installer executing the binary it just wrote. Re-run `:checkhealth kulala`;
+if it reports OK, there is nothing to fix.
+
+### Variables arrive as literal `{{host}}`
+
+`http-client.env.json` has to sit in the **same folder** as the `.http` file,
+and the selected environment must exist as a key in it. `Space+Ri` inspects the
+request with everything resolved, which shows exactly what got substituted.
+
+### A POST that looks correct returns `400`
+
+The blank line between the headers and the body is required by the `.http`
+spec. Without it Django receives an empty body.
+
+> Full guide: [rest-client.md](rest-client.md)
+
+---
+
+## Treesitter and highlighting
+
+### Markdown lost its colors — `attempt to call method 'range' (a nil value)`
+
+Full error, on opening any `.md` file:
+
+```
+vim.schedule callback: .../treesitter/languagetree.lua:215:
+.../treesitter.lua:197: attempt to call method 'range' (a nil value)
+```
+
+**Cause:** nvim-treesitter's `master` branch does not support Neovim 0.12 — its
+own README states `Neovim 0.10 or 0.11 (Neovim 0.12 is not supported)`. Its
+markdown injections query uses the custom `#set-lang-from-info-string!`
+directive, whose handler reads `match[capture_id]` as a single node. Neovim
+0.12 changed that to a **list** of nodes, so the call blows up. Since that
+query is what injects `markdown_inline` and the fenced code languages, the
+whole markdown highlighter falls over and you get plain text.
+
+**Status:** worked around in `lua/plugins/editor.lua`. Neovim ships correct
+markdown queries of its own; the config registers them explicitly so they win
+over the plugin's copy. Reading them from `$VIMRUNTIME` keeps them in sync as
+Neovim updates, and doing it in the config (rather than deleting the plugin's
+file) survives `:Lazy sync`.
+
+Only markdown is affected — it is the only language in this setup whose queries
+use nvim-treesitter's custom directives.
+
+### TODO: migrate to the nvim-treesitter `main` branch
+
+The workaround above treats a symptom. The root cause is that `master` is
+frozen and will not be fixed for Neovim 0.12, so more breakage is expected as
+Neovim moves on.
+
+The `main` branch supports 0.12 natively, but it is a rewrite, not a version
+bump. Migrating means:
+
+| Today (`master`) | On `main` |
+|------------------|-----------|
+| `require("nvim-treesitter.configs").setup{}` | `require("nvim-treesitter").setup{}` (optional) |
+| `ensure_installed = { ... }` | `require("nvim-treesitter").install{ ... }` / `:TSInstall` |
+| `highlight = { enable = true }` | `vim.treesitter.start()` per filetype |
+| `indent = { enable = true }` | `vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"` |
+
+It also requires dropping `branch = 'master'` from the plugin spec and removing
+the markdown workaround in the same change.
+
+Do this when the next incompatibility shows up, or when there is time to test
+every filetype in [`ensure_installed`](../lua/plugins/editor.lua) — not while
+mid-project, since a bad migration takes highlighting down for every language
+at once.
 
 ---
 
