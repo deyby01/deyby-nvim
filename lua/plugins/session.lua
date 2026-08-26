@@ -17,10 +17,10 @@ return {
 
       require("auto-session").setup({
         log_level = "error",
-        auto_session_suppress_dirs = suppressed,
-        auto_save_enabled = true,
-        auto_restore_enabled = true,
-        auto_session_use_git_branch = true,
+        suppressed_dirs = suppressed,
+        auto_save = true,
+        auto_restore = true,
+        git_use_branch_name = true,
       })
 
       -- Keymaps
