@@ -75,6 +75,13 @@ sudo ln -s /usr/bin/fdfind /usr/local/bin/fd
 sudo add-apt-repository ppa:neovim-ppa/unstable -y && sudo apt update && sudo apt install neovim -y
 ```
 
+On Arch and derivatives (CachyOS, EndeavourOS) the repos already carry a
+current Neovim, so no PPA is needed:
+
+```bash
+sudo pacman -S neovim tree-sitter-cli
+```
+
 ### 3. Node.js 22+
 
 ```bash
@@ -246,7 +253,7 @@ cd ~/.config/nvim && git pull
 
 | What | How |
 |------|-----|
-| **Neovim** | `sudo apt update && sudo apt upgrade neovim -y` |
+| **Neovim** | `sudo apt update && sudo apt upgrade neovim -y` <br>Arch / CachyOS: `sudo pacman -Syu` (full system upgrade — Arch does not support partial ones) |
 | **Plugins** | `:Lazy sync` — then commit `lazy-lock.json` |
 | **LSPs** | `:Mason` → press `U` |
 | **Treesitter** | `:TSUpdate` |
