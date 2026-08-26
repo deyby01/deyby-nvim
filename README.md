@@ -139,6 +139,7 @@ Give it 2-3 minutes: plugins install, parsers compile and **Mason installs the
 | `Space+gs` | Git status |
 | `Space+ld` | Docker: containers and logs (LazyDocker) |
 | `Space+lv` | Live Server: HTML/CSS preview with auto-reload |
+| `Space+Rs` | Send the HTTP request under the cursor (REST client) |
 | `Ctrl+´` | Integrated terminal |
 | `Ctrl+s` / `Ctrl+q` | Save / quit without saving |
 | `jk` | Leave insert mode |
@@ -183,6 +184,7 @@ Give it 2-3 minutes: plugins install, parsers compile and **Mason installs the
 | 🧠 **[LSP and completion](docs/lsp-and-completion.md)** | Servers, per-`.venv` linters, formatting and snippets |
 | 🐍 **[Django and DRF](docs/django.md)** | Snippets, templates, debugger and tests |
 | 🔀 **[Git and GitHub](docs/git-and-github.md)** | Fugitive, GitSigns, Diffview, conflicts and Octo |
+| 🔌 **[REST client](docs/rest-client.md)** | Testing DRF APIs from `.http` files, environments and auth |
 | 🖥️ **[tmux](docs/tmux.md)** | Setup, sessions and unified navigation |
 | 🔌 **[Plugins](docs/plugins.md)** | All 56 plugins, structure, lazy-loading and how to add or remove |
 | 🐛 **[Troubleshooting](docs/troubleshooting.md)** | Diagnosing the most common failures |
