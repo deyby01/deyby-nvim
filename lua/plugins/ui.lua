@@ -56,8 +56,8 @@ return {
                         symbols = {
                             modified = ' ●',
                             readonly = ' ',
-                            unnamed = '[Sin nombre]',
-                            newfile = ' [Nuevo]',
+                            unnamed = '[No name]',
+                            newfile = ' [New]',
                         }
                     }
                 },
