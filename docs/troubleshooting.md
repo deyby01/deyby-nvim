@@ -535,6 +535,71 @@ If the download races with the first request you may see `ETXTBSY` once — it i
 the installer executing the binary it just wrote. Re-run `:checkhealth kulala`;
 if it reports OK, there is nothing to fix.
 
+### `Failed to fetch tree-sitter grammar: fatal: 'origin' does not appear to be a git repository`
+
+Full message, on opening a `.http` file:
+
+```
+Failed to fetch tree-sitter grammar: fatal: 'origin' does not appear to be a
+git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights and the repository exists.
+```
+
+**This is not an SSH problem**, despite what the last two lines suggest. It is
+what git prints when there is no remote named `origin`: it falls back to
+treating `origin` as a URL, fails to resolve it, and emits its generic
+access-rights message.
+
+**Cause:** Kulala sets up the grammar in three async steps —
+
+```
+git init  →  git remote add origin <url>  →  git fetch origin <commit>
+```
+
+If Neovim exits between the first and second step (Ctrl+C, closing the
+terminal, an impatient `:q` during the first launch), a `.git` directory is
+left behind with no remote configured. `lua/kulala/config/parser.lua` then only
+checks that `.git` **exists** before skipping straight to the fetch, so the
+half-initialised state is never repaired and every subsequent `.http` file
+raises the same error.
+
+**Diagnose** — an empty output confirms it:
+
+```bash
+git -C ~/.local/share/nvim/kulala.nvim/tree-sitter-kulala-http remote -v
+```
+
+**Fix** — delete the directory and reopen a `.http` file, letting the setup run
+to completion this time:
+
+```bash
+rm -rf ~/.local/share/nvim/kulala.nvim/tree-sitter-kulala-http
+```
+
+### `Failed to build tree-sitter parser`
+
+The grammar downloaded but `tree-sitter-cli` is missing; Kulala compiles the
+parser from source and shells out to it.
+
+```bash
+sudo pacman -S tree-sitter-cli     # Arch / CachyOS
+npm install -g tree-sitter-cli     # anywhere Node is installed
+```
+
+Debian and Ubuntu do ship a `tree-sitter-cli` package, but it lags well behind
+(0.20.x on 24.04) and is usually too old for the pinned grammar. Prefer the npm
+route there. If `npm config get prefix` points at `/usr`, the global install
+needs `sudo`.
+
+Reopen a `.http` file — the build takes a couple of seconds and only happens
+once. It lands in `~/.local/share/nvim/site/parser/kulala_http.so`.
+
+If you would rather not install it, add `treesitter = { enable = false }` to
+the `opts` in `lua/plugins/http.lua`. You lose syntax highlighting inside
+`.http` files; requests themselves work without the parser.
+
 ### Variables arrive as literal `{{host}}`
 
 `http-client.env.json` has to sit in the **same folder** as the `.http` file,
