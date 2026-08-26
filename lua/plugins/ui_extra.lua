@@ -56,6 +56,7 @@ return {
         { "<leader>l", group = "Legendary / Live Server" },
         { "<leader>t", group = "Toggle" },
         { "<leader>m", group = "Markdown" },
+        { "<leader>R", group = "REST / API (Kulala)" },
       },
     })
   end,

@@ -30,6 +30,7 @@ require("lazy").setup({
     { import = "plugins.dashboard" }, -- start screen
     { import = "plugins.session" },   -- auto-session
     { import = "plugins.testing" },   -- Neotest
+    { import = "plugins.http" },      -- Kulala HTTP client (.http files)
     { import = "plugins.legendary" }, -- command palette
 }, {
   -- lazy.nvim settings

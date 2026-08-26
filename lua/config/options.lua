@@ -49,6 +49,11 @@ vim.opt.timeoutlen = 300   -- key prefixes resolve faster (default: 1000ms)
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("state") .. "/undo"
 
+-- Let sessions store global variables, so Kulala can restore its request
+-- history when auto-session reopens a project. Remove "globals" if sessions
+-- ever start misbehaving; only Kulala's history depends on it.
+vim.opt.sessionoptions:append("globals")
+
 -- Leader key
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
