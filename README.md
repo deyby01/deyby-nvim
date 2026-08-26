@@ -3,12 +3,12 @@
 # ⚡ Neovim IDE — Python · Django · React
 
 **A modular Neovim setup, ready for modern web development.**
-Starts in ~60ms, with AI in the completion menu, automatic LSP install and the whole Git workflow without leaving the editor.
+Starts in ~45ms, with AI in the completion menu, automatic LSP install and the whole Git workflow without leaving the editor.
 
-[![Neovim](https://img.shields.io/badge/Neovim-0.11%2B-57A143?style=flat-square&logo=neovim&logoColor=white)](https://neovim.io)
+[![Neovim](https://img.shields.io/badge/Neovim-0.12%2B-57A143?style=flat-square&logo=neovim&logoColor=white)](https://neovim.io)
 [![Lua](https://img.shields.io/badge/Lua-2C2D72?style=flat-square&logo=lua&logoColor=white)](https://www.lua.org)
 [![lazy.nvim](https://img.shields.io/badge/lazy.nvim-managed-blueviolet?style=flat-square)](https://github.com/folke/lazy.nvim)
-[![Startup](https://img.shields.io/badge/startup-~60ms-success?style=flat-square)](docs/plugins.md#performance-and-lazy-loading)
+[![Startup](https://img.shields.io/badge/startup-~45ms-success?style=flat-square)](docs/plugins.md#performance-and-lazy-loading)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04%2B-E95420?style=flat-square&logo=ubuntu&logoColor=white)](https://ubuntu.com)
 
 [Install](#-install) · [Features](#-features) · [Commands](#-essential-commands) · [Docs](#-documentation)
@@ -33,7 +33,7 @@ so cloning and making it yours takes about a minute.
 
 | | |
 |---|---|
-| ⚡ **~60ms startup** | 56 plugins, only 12 load at boot |
+| ⚡ **~45ms startup** | 63 plugins, only 14 load at boot |
 | 🤖 **Copilot inside completion** | AI suggestions appear in the same menu as the LSP, not as separate ghost text |
 | 🧠 **11 LSPs, installed for you** | Mason sets them up on first launch |
 | 🐍 **Django and DRF snippets** | `model`, `serializer`, `{% block %}`, `{% for %}`... ~360 in total |
@@ -41,7 +41,7 @@ so cloning and making it yours takes about a minute.
 | 🐞 **Django debugger** | Real breakpoints in views, with `manage.py runserver` |
 | 🔀 **Complete Git workflow** | Status, hunks, branch diffs, conflicts, PRs and reviews |
 | 🖥️ **Live preview** | Docker containers and HTML/CSS live-reload, without leaving nvim |
-| ✅ **No key collisions** | 77 shortcuts, verified — none shadows another |
+| ✅ **No key collisions** | Every shortcut verified — none shadows another |
 
 ---
 
@@ -49,8 +49,9 @@ so cloning and making it yours takes about a minute.
 
 | Requirement | Minimum | Why |
 |-------------|---------|-----|
-| **Neovim** | 0.11+ | Uses the modern `vim.lsp.config` API |
+| **Neovim** | 0.12+ | Required by nvim-treesitter `main`; also the modern `vim.lsp.config` API |
 | **build-essential** | — | Compiles `fzf-native` and the Treesitter parsers |
+| **tree-sitter-cli** | 0.26.1+ | nvim-treesitter `main` builds parsers with it (package manager, not npm) |
 | **Node.js** | 22+ | Copilot requires it; also powers the web LSPs |
 | **ripgrep** + **fd** | — | Telescope searching |
 | **A Nerd Font** | — | Interface icons |
@@ -68,7 +69,7 @@ sudo apt update && sudo apt install -y git build-essential ripgrep fd-find
 sudo ln -s /usr/bin/fdfind /usr/local/bin/fd
 ```
 
-### 2. Neovim 0.11+
+### 2. Neovim 0.12+
 
 ```bash
 sudo add-apt-repository ppa:neovim-ppa/unstable -y && sudo apt update && sudo apt install neovim -y
@@ -169,7 +170,8 @@ Give it 2-3 minutes: plugins install, parsers compile and **Mason installs the
 > 💡 **Nothing to memorize:** press `Space` and wait — which-key lists the
 > options. Or hit `Ctrl+p` to search commands by name.
 
-> 📖 **All 77 shortcuts, grouped by tool:** [docs/commands-and-workflow.md](docs/commands-and-workflow.md)
+> 📖 **Every shortcut, grouped by tool:** [docs/commands-and-workflow.md](docs/commands-and-workflow.md)
+> The REST client keymaps live in [docs/rest-client.md](docs/rest-client.md).
 
 ---
 
@@ -186,7 +188,7 @@ Give it 2-3 minutes: plugins install, parsers compile and **Mason installs the
 | 🔀 **[Git and GitHub](docs/git-and-github.md)** | Fugitive, GitSigns, Diffview, conflicts and Octo |
 | 🔌 **[REST client](docs/rest-client.md)** | Testing DRF APIs from `.http` files, environments and auth |
 | 🖥️ **[tmux](docs/tmux.md)** | Setup, sessions and unified navigation |
-| 🔌 **[Plugins](docs/plugins.md)** | All 56 plugins, structure, lazy-loading and how to add or remove |
+| 🔌 **[Plugins](docs/plugins.md)** | All 63 plugins, structure, lazy-loading and how to add or remove |
 | 🐛 **[Troubleshooting](docs/troubleshooting.md)** | Diagnosing the most common failures |
 
 ---

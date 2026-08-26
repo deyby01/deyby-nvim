@@ -43,7 +43,7 @@ sudo apt install git build-essential -y
 ## Neovim
 
 > ⚠️ This configuration uses the modern LSP API (`vim.lsp.config` / `vim.lsp.enable`),
-> so it needs **Neovim 0.11 or newer**. The versions in Ubuntu's stable repos
+> so it needs **Neovim 0.12 or newer**. The versions in Ubuntu's stable repos
 > are usually older, which is why we use the PPA.
 
 ```bash
@@ -59,7 +59,7 @@ sudo apt install neovim -y
 nvim --version
 ```
 
-**Expected:** `NVIM v0.11.x` or newer.
+**Expected:** `NVIM v0.12.x` or newer.
 
 <details>
 <summary>Alternative: install the official AppImage</summary>
@@ -322,7 +322,7 @@ npm install -g live-server
 ## Final verification
 
 ```bash
-nvim --version       # >= 0.11
+nvim --version       # >= 0.12
 rg --version
 fd --version
 node --version       # >= 22

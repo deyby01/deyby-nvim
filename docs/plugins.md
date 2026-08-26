@@ -92,7 +92,7 @@ editing that one file.
 | [`telescope-fzf-native.nvim`](https://github.com/nvim-telescope/telescope-fzf-native.nvim) | Native C sorter (much faster) | Dependency (compiled with `make`) |
 | [`nvim-tree.lua`](https://github.com/nvim-tree/nvim-tree.lua) | Side file explorer | `keys` + `cmd` |
 | [`harpoon`](https://github.com/ThePrimeagen/harpoon) | Bookmarks for frequent files | `keys` |
-| [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) | Real parsing: highlighting and indentation | Immediately |
+| [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) | Real parsing: highlighting and indentation (`main` branch) | Immediately |
 | [`flash.nvim`](https://github.com/folke/flash.nvim) | Jump anywhere in two keystrokes (`s`) | `VeryLazy` |
 | [`nvim-surround`](https://github.com/kylechui/nvim-surround) | Manipulate quotes, brackets, tags | `VeryLazy` |
 | [`Comment.nvim`](https://github.com/numToStr/Comment.nvim) | Comment with `gcc` / `gc` | `BufReadPre` |

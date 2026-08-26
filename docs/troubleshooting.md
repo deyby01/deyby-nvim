@@ -43,13 +43,14 @@ Before anything else, these four commands solve or locate most cases:
 
 ### `vim.lsp.config` doesn't exist / errors right after cloning
 
-Your Neovim is older than 0.11.
+Your Neovim is older than 0.12.
 
 ```bash
 nvim --version
 ```
 
-If it's 0.10 or lower, upgrade — see [installation.md](installation.md#neovim).
+If it's 0.11 or lower, upgrade — see [installation.md](installation.md#neovim).
+nvim-treesitter's `main` branch also requires 0.12.
 
 ### `telescope-fzf-native` fails to compile
 
