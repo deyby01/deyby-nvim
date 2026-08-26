@@ -112,68 +112,74 @@ return {
   },
 
   -- Treesitter: better syntax highlighting
+  --
+  -- On the `main` branch (required by Neovim 0.12; `master` is frozen and
+  -- does not support it). The module system is gone: parsers are installed
+  -- imperatively, and highlighting/indentation are enabled per buffer by
+  -- Neovim itself rather than by the plugin.
   {
     'nvim-treesitter/nvim-treesitter',
-    branch = 'master',
-    lazy = false,
+    branch = 'main',
+    lazy = false,       -- the main branch does not support lazy-loading
     build = ':TSUpdate',
     config = function()
-        -- WORKAROUND (Neovim 0.12 + nvim-treesitter master)
-        --
-        -- nvim-treesitter's master branch does not support Neovim 0.12 (its
-        -- own README says so). Its markdown injections query uses the custom
-        -- directive #set-lang-from-info-string!, whose handler still reads
-        -- `match[capture_id]` as a single node. In 0.12 that is a LIST of
-        -- nodes, so it blows up with "attempt to call method 'range' (a nil
-        -- value)" and markdown loses all highlighting.
-        --
-        -- Neovim ships its own, correct markdown queries. Registering them
-        -- explicitly makes them win over the plugin's copy, and survives
-        -- :Lazy sync (which would restore the broken file on disk).
-        --
-        -- Remove this once the config moves to the nvim-treesitter `main`
-        -- branch, which supports 0.12 natively.
-        local rt_injections = vim.env.VIMRUNTIME .. "/queries/markdown/injections.scm"
-        if vim.fn.filereadable(rt_injections) == 1 then
-            local ok, query = pcall(vim.fn.readfile, rt_injections)
-            if ok then
-                pcall(vim.treesitter.query.set, "markdown", "injections", table.concat(query, "\n"))
-            end
-        end
+        local languages = {
+            "lua",
+            "python",
+            "javascript",
+            "typescript",
+            "tsx",
+            "html",
+            "css",
+            "scss",
+            "htmldjango",
+            "json",
+            "yaml",
+            "toml",
+            "bash",
+            "dockerfile",
+            "nginx",
+            "markdown",
+            "markdown_inline",
+            "gitcommit",
+            "diff",
+            "vim",
+            "vimdoc",
+            "query",
+            "regex",
+        }
 
-        require("nvim-treesitter.configs").setup({
-            ensure_installed = {
-                "lua",
-                "python",
-                "javascript",
-                "typescript",
-                "tsx",
-                "html",
-                "css",
-                "scss",
-                "htmldjango",
-                "json",
-                "yaml",
-                "toml",
-                "bash",
-                "dockerfile",
-                "nginx",
-                "markdown",
-                "markdown_inline",
-                "gitcommit",
-                "diff",
-                "vim",
-                "vimdoc",
-                "query",
-                "regex",
-            },
-            highlight = {
-                enable = true,
-                additional_vim_regex_highlighting = false,
-            },
-            indent = {
-                enable = true,
-            },
+        -- Replaces `ensure_installed`. Asynchronous, and a no-op for parsers
+        -- that are already present, so it is cheap on every startup.
+        require("nvim-treesitter").install(languages)
+
+        -- Replaces the `highlight` and `indent` modules. Enabling by whatever
+        -- parser is available (rather than by a fixed list) also covers the
+        -- parsers Neovim ships and the one Kulala installs for .http files.
+        vim.api.nvim_create_autocmd("FileType", {
+            callback = function(args)
+                local lang = vim.treesitter.language.get_lang(vim.bo[args.buf].filetype)
+                if not lang then
+                    return
+                end
+
+                -- Fails when the parser is not installed yet: on first launch
+                -- install() is still downloading in the background.
+                if not pcall(vim.treesitter.language.add, lang) then
+                    return
+                end
+
+                pcall(vim.treesitter.start, args.buf, lang)
+
+                -- Treesitter indentation is experimental upstream, and not
+                -- every language ships an `indents` query. Only opt in where
+                -- one exists, so the rest keep Neovim's own indenting.
+                local ok, has_indents = pcall(vim.treesitter.query.get, lang, "indents")
+                if ok and has_indents then
+                    vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                end
+            end,
+            desc = "Enable treesitter highlighting and indentation",
         })
     end
   },

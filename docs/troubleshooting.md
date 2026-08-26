@@ -585,13 +585,17 @@ parser from source and shells out to it.
 
 ```bash
 sudo pacman -S tree-sitter-cli     # Arch / CachyOS
-npm install -g tree-sitter-cli     # anywhere Node is installed
 ```
 
-Debian and Ubuntu do ship a `tree-sitter-cli` package, but it lags well behind
-(0.20.x on 24.04) and is usually too old for the pinned grammar. Prefer the npm
-route there. If `npm config get prefix` points at `/usr`, the global install
-needs `sudo`.
+`tree-sitter-cli` is needed twice over: Kulala builds its grammar with it, and
+nvim-treesitter's `main` branch requires it (0.26.1 or later) to install
+parsers. Upstream asks for the **package-manager build, not the npm one**, so
+install it that way where you can.
+
+Debian and Ubuntu do ship the package, but it lags well behind (0.20.x on
+24.04) — too old for both consumers. On those, install a current release from
+[the tree-sitter releases page](https://github.com/tree-sitter/tree-sitter/releases)
+and put it on your `PATH`.
 
 Reopen a `.http` file — the build takes a couple of seconds and only happens
 once. It lands in `~/.local/share/nvim/site/parser/kulala_http.so`.
@@ -626,48 +630,40 @@ vim.schedule callback: .../treesitter/languagetree.lua:215:
 .../treesitter.lua:197: attempt to call method 'range' (a nil value)
 ```
 
-**Cause:** nvim-treesitter's `master` branch does not support Neovim 0.12 — its
+**Resolved** — this config now tracks the nvim-treesitter `main` branch, which
+supports Neovim 0.12. Kept here because the error is cryptic and any config
+still on `master` will hit it.
+
+**Cause:** nvim-treesitter's `master` branch does not support Neovim 0.12; its
 own README states `Neovim 0.10 or 0.11 (Neovim 0.12 is not supported)`. Its
 markdown injections query uses the custom `#set-lang-from-info-string!`
 directive, whose handler reads `match[capture_id]` as a single node. Neovim
-0.12 changed that to a **list** of nodes, so the call blows up. Since that
-query is what injects `markdown_inline` and the fenced code languages, the
-whole markdown highlighter falls over and you get plain text.
+0.12 changed that to a **list** of nodes, so the call fails. Since that query
+is what injects `markdown_inline` and the fenced code languages, the whole
+markdown highlighter goes down with it and you get plain text.
 
-**Status:** worked around in `lua/plugins/editor.lua`. Neovim ships correct
-markdown queries of its own; the config registers them explicitly so they win
-over the plugin's copy. Reading them from `$VIMRUNTIME` keeps them in sync as
-Neovim updates, and doing it in the config (rather than deleting the plugin's
-file) survives `:Lazy sync`.
+**Fix:** move to the `main` branch, as this config did. The directive does not
+exist there — queries ship with each parser rather than with the plugin.
 
-Only markdown is affected — it is the only language in this setup whose queries
-use nvim-treesitter's custom directives.
+### A language lost its highlighting after the move to `main`
 
-### TODO: migrate to the nvim-treesitter `main` branch
+Parsers live in a different place on `main`
+(`~/.local/share/nvim/site/parser/`), and the ones built by `master` inside the
+plugin directory are not reused. If a language went plain after switching:
 
-The workaround above treats a symptom. The root cause is that `master` is
-frozen and will not be fixed for Neovim 0.12, so more breakage is expected as
-Neovim moves on.
+```vim
+:checkhealth nvim-treesitter    " lists installed parsers and their versions
+:TSInstall <language>
+:TSUpdate
+```
 
-The `main` branch supports 0.12 natively, but it is a rewrite, not a version
-bump. Migrating means:
+Highlighting is enabled by a `FileType` autocommand in
+[`lua/plugins/editor.lua`](../lua/plugins/editor.lua) that starts treesitter
+for whatever parser is available, so a language works as soon as its parser is
+installed — no list to edit for a one-off.
 
-| Today (`master`) | On `main` |
-|------------------|-----------|
-| `require("nvim-treesitter.configs").setup{}` | `require("nvim-treesitter").setup{}` (optional) |
-| `ensure_installed = { ... }` | `require("nvim-treesitter").install{ ... }` / `:TSInstall` |
-| `highlight = { enable = true }` | `vim.treesitter.start()` per filetype |
-| `indent = { enable = true }` | `vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"` |
-
-It also requires dropping `branch = 'master'` from the plugin spec and removing
-the markdown workaround in the same change.
-
-Do this when the next incompatibility shows up, or when there is time to test
-every filetype in [`ensure_installed`](../lua/plugins/editor.lua) — not while
-mid-project, since a bad migration takes highlighting down for every language
-at once.
-
----
+Note that `main` requires `tree-sitter-cli` from a **package manager, not npm**
+(the npm build is not supported upstream), plus a C compiler.
 
 ## Clean reinstall
 
