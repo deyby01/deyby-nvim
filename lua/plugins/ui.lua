@@ -277,6 +277,110 @@ return {
         })
       end,
     },
+    -- Bufferline: the open buffers as tabs across the top, like VSCode.
+    --
+    -- These are BUFFERS, not vim tabs. Every file you open is already a
+    -- buffer; this only makes them visible and clickable. Vim tabs are a
+    -- different thing (layouts of splits) and this does not touch them.
+    {
+      "akinsho/bufferline.nvim",
+      version = "*",
+      dependencies = { "nvim-tree/nvim-web-devicons" },
+      event = "BufReadPre",
+      keys = {
+        { "<S-l>", "<cmd>BufferLineCycleNext<cr>", desc = "Buffer: next" },
+        { "<S-h>", "<cmd>BufferLineCyclePrev<cr>", desc = "Buffer: previous" },
+        { "<leader>bb", "<cmd>BufferLinePick<cr>", desc = "Buffer: pick by letter" },
+        { "<leader>bd", "<cmd>bdelete<cr>", desc = "Buffer: close current" },
+        { "<leader>bo", "<cmd>BufferLineCloseOthers<cr>", desc = "Buffer: close others" },
+        { "<leader>b.", "<cmd>BufferLineMoveNext<cr>", desc = "Buffer: move right" },
+        { "<leader>b,", "<cmd>BufferLineMovePrev<cr>", desc = "Buffer: move left" },
+      },
+      config = function()
+        require("bufferline").setup({
+          options = {
+            mode = "buffers",
+            themable = true,
+            separator_style = "slant",
+            always_show_bufferline = true,
+            show_buffer_close_icons = true,
+            show_close_icon = false,
+            diagnostics = "nvim_lsp",
+            diagnostics_indicator = function(_, _, diag)
+              local s = ""
+              if diag.error then s = s .. " " .. diag.error end
+              if diag.warning then s = s .. " " .. diag.warning end
+              return s
+            end,
+            modified_icon = "[+]",
+            -- Keep NvimTree in its own column instead of letting a buffer
+            -- tab sit above it
+            offsets = {
+              {
+                filetype = "NvimTree",
+                text = "Explorer",
+                text_align = "left",
+                separator = true,
+              },
+            },
+            hover = {
+              enabled = true,
+              delay = 150,
+              reveal = { "close" },
+            },
+          },
+          -- Nordic palette: the active buffer picks up the same yellow the
+          -- rest of the config uses for emphasis.
+          highlights = {
+            buffer_selected = { fg = "#EBCB8B", bold = true, italic = false },
+            modified_selected = { fg = "#EBCB8B" },
+            indicator_selected = { fg = "#EBCB8B" },
+            diagnostic_selected = { fg = "#EBCB8B" },
+            error_selected = { fg = "#BF616A", bold = true },
+            warning_selected = { fg = "#D08770", bold = true },
+          },
+        })
+      end,
+    },
+
+    -- Incline: floating filename in the top-right corner of each window.
+    -- With splits open it is what tells you which one you are typing in.
+    {
+      "b0o/incline.nvim",
+      event = "BufReadPre",
+      config = function()
+        require("incline").setup({
+          window = {
+            margin = { vertical = 0, horizontal = 1 },
+            padding = 1,
+            placement = { horizontal = "right", vertical = "top" },
+          },
+          hide = {
+            cursorline = true,      -- get out of the way when the cursor is on that line
+          },
+          render = function(props)
+            local name = vim.api.nvim_buf_get_name(props.buf)
+            local filename = name ~= "" and vim.fn.fnamemodify(name, ":t") or "[No name]"
+
+            local icon, icon_color = require("nvim-web-devicons").get_icon_color(filename)
+            local modified = vim.bo[props.buf].modified
+
+            -- Focused window gets the violet plate; the others stay muted so
+            -- the active split is obvious at a glance.
+            local fg = props.focused and "#2E3440" or "#D8DEE9"
+            local bg = props.focused and "#B48EAD" or "#3B4252"
+
+            return {
+              modified and { "[+] ", guifg = fg, guibg = bg } or "",
+              icon and { icon .. " ", guifg = props.focused and fg or icon_color, guibg = bg } or "",
+              { filename, guifg = fg, guibg = bg, gui = props.focused and "bold" or "" },
+              guibg = bg,
+            }
+          end,
+        })
+      end,
+    },
+
     -- Tiny inline diagnostic: nicer inline error display
     {
       "rachartier/tiny-inline-diagnostic.nvim",

@@ -57,6 +57,7 @@ return {
         { "<leader>t", group = "Toggle" },
         { "<leader>m", group = "Markdown" },
         { "<leader>R", group = "REST / API (Kulala)" },
+        { "<leader>b", group = "Buffers" },
       },
     })
   end,
