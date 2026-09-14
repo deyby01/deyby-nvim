@@ -108,6 +108,11 @@ Space+hb   → why was it written this way? (blame → commit → PR)
 > 💡 **`Ctrl+o` / `Ctrl+i`** walk the jumplist (back/forward). They're the key
 > to exploring without getting lost.
 
+After a flow like that you have five or six files open, all of them on the bar
+at the top. `Shift+l` / `Shift+h` step through them, and `Space+bb` tags each
+one with a letter so you can jump straight to the one you want. When the bar
+gets noisy, `Space+bo` closes everything except the file you are in.
+
 ---
 
 ## 4. Write code

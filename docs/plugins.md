@@ -33,7 +33,7 @@
     │   └── autocmds.lua      # autocommands (auto-save, trailing whitespace)
     └── plugins/
         ├── init.lua          # lazy.nvim bootstrap + imports
-        ├── ui.lua            # theme, lualine, colorizer, indent, dropbar, modes
+        ├── ui.lua            # theme, lualine, colorizer, indent, dropbar, modes, bufferline, incline
         ├── ui_extra.lua      # Noice, which-key
         ├── editor.lua        # Telescope, NvimTree, Harpoon, Treesitter, Trouble, Spectre
         ├── lsp.lua           # Mason, LSPs, nvim-cmp, conform, snippets
@@ -91,6 +91,8 @@ editing that one file.
 | [`telescope.nvim`](https://github.com/nvim-telescope/telescope.nvim) | Fuzzy finder for files and content | `keys` + `cmd` |
 | [`telescope-fzf-native.nvim`](https://github.com/nvim-telescope/telescope-fzf-native.nvim) | Native C sorter (much faster) | Dependency (compiled with `make`) |
 | [`nvim-tree.lua`](https://github.com/nvim-tree/nvim-tree.lua) | Side file explorer | `keys` + `cmd` |
+| [`bufferline.nvim`](https://github.com/akinsho/bufferline.nvim) | Open buffers as tabs across the top | `BufReadPre` |
+| [`incline.nvim`](https://github.com/b0o/incline.nvim) | Floating filename per window, highlights the focused one | `BufReadPre` |
 | [`harpoon`](https://github.com/ThePrimeagen/harpoon) | Bookmarks for frequent files | `keys` |
 | [`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) | Real parsing: highlighting and indentation (`main` branch) | Immediately |
 | [`flash.nvim`](https://github.com/folke/flash.nvim) | Jump anywhere in two keystrokes (`s`) | `VeryLazy` |

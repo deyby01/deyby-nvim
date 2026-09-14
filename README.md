@@ -33,7 +33,7 @@ so cloning and making it yours takes about a minute.
 
 | | |
 |---|---|
-| ⚡ **~45ms startup** | 63 plugins, only 14 load at boot |
+| ⚡ **~45ms startup** | 65 plugins, only 14 load at boot |
 | 🤖 **Copilot inside completion** | AI suggestions appear in the same menu as the LSP, not as separate ghost text |
 | 🧠 **11 LSPs, installed for you** | Mason sets them up on first launch |
 | 🐍 **Django and DRF snippets** | `model`, `serializer`, `{% block %}`, `{% for %}`... ~360 in total |
@@ -144,6 +144,7 @@ Give it 2-3 minutes: plugins install, parsers compile and **Mason installs the
 | `Space+ff` | Find files |
 | `Space+fg` | Search text in the project |
 | `Space+e` | File explorer |
+| `Shift+l` / `Shift+h` | Move between open files (tab bar at the top) |
 | `Space+gs` | Git status |
 | `Space+ld` | Docker: containers and logs (LazyDocker) |
 | `Space+lv` | Live Server: HTML/CSS preview with auto-reload |
@@ -195,7 +196,7 @@ Give it 2-3 minutes: plugins install, parsers compile and **Mason installs the
 | 🔀 **[Git and GitHub](docs/git-and-github.md)** | Fugitive, GitSigns, Diffview, conflicts and Octo |
 | 🔌 **[REST client](docs/rest-client.md)** | Testing DRF APIs from `.http` files, environments and auth |
 | 🖥️ **[tmux](docs/tmux.md)** | Setup, sessions and unified navigation |
-| 🔌 **[Plugins](docs/plugins.md)** | All 63 plugins, structure, lazy-loading and how to add or remove |
+| 🔌 **[Plugins](docs/plugins.md)** | All 65 plugins, structure, lazy-loading and how to add or remove |
 | 🐛 **[Troubleshooting](docs/troubleshooting.md)** | Diagnosing the most common failures |
 
 ---

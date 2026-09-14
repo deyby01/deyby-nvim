@@ -34,7 +34,7 @@ For the day-to-day workflow, see **[daily-routine.md](daily-routine.md)**.
 - [This config's own keymaps](#this-configs-own-keymaps)
 
 **Project search and navigation**
-- [Telescope](#telescope--fuzzy-finder) · [NvimTree](#nvimtree--file-explorer) · [Harpoon](#harpoon--bookmarks) · [Flash](#flash--fast-motion) · [Dropbar](#dropbar--breadcrumbs) · [Spectre](#spectre--project-wide-search-and-replace)
+- [Telescope](#telescope--fuzzy-finder) · [NvimTree](#nvimtree--file-explorer) · [Harpoon](#harpoon--bookmarks) · [Flash](#flash--fast-motion) · [Dropbar](#dropbar--breadcrumbs) · [Bufferline](#bufferline--open-files-as-tabs) · [Incline](#incline--filename-per-window) · [Spectre](#spectre--project-wide-search-and-replace)
 
 **Code**
 - [LSP](#lsp--code-intelligence) · [nvim-cmp](#nvim-cmp--completion) · [Copilot](#copilot--ai-suggestions) · [Snippets](#snippets) · [conform](#conform--formatting) · [Trouble](#trouble--diagnostics-panel) · [Treesitter](#treesitter) · [Comment](#commentnvim--commenting) · [Surround](#nvim-surround--wrapping) · [autopairs](#nvim-autopairs--auto-closing) · [TODO comments](#todo-comments)
@@ -210,7 +210,9 @@ To append at the end: `Ctrl+v` → select → `$` → `A` → text → `Esc`.
 | `:ls` | List buffers |
 | `:b name` | Go to a buffer by name (Tab completes) |
 
-Faster: `Space+fb` ([Telescope](#telescope--fuzzy-finder)).
+Faster: `Space+fb` ([Telescope](#telescope--fuzzy-finder)), or just read them
+off the bar at the top — see [Bufferline](#bufferline--open-files-as-tabs),
+where `Shift+l` / `Shift+h` replace `:bn` / `:bp`.
 
 ### Windows (splits)
 
@@ -232,6 +234,11 @@ See also the `Space+w*` shortcuts in [this config's keymaps](#this-configs-own-k
 | `:tabnew` | New tab |
 | `gt` / `gT` | Next / previous tab |
 | `:tabclose` | Close the tab |
+
+> These are **not** the tabs in the bar at the top of the screen. Vim tabs are
+> layouts of splits, closer to VSCode's workspaces than to its tabs. The bar
+> shows buffers — see [Bufferline](#bufferline--open-files-as-tabs). In day to
+> day use with this config you can ignore `:tabnew` entirely.
 
 ---
 
@@ -443,6 +450,70 @@ A top bar with the file path and current symbol (class → method), navigable.
 | `Space+bp` | Navigate the breadcrumb: pick a component and jump |
 
 Inside the menu, `q` closes.
+
+---
+
+## Bufferline — open files as tabs
+
+**Plugin:** `bufferline.nvim` · **Loads on:** `BufReadPre`
+
+The bar across the top listing every file you have open, like VSCode's tabs.
+
+> **These are buffers, not Vim tabs.** Every file you open already becomes a
+> buffer; bufferline only makes them visible. Vim's own tabs (`:tabnew`, `gt`)
+> are something else entirely — layouts of splits — and bufferline ignores
+> them. See [buffers, windows and tabs](#vim-core--buffers-windows-and-tabs).
+
+### Moving between files
+
+| Shortcut | Action |
+|----------|--------|
+| `Shift+l` | Next buffer |
+| `Shift+h` | Previous buffer |
+| `Space+bb` | **Pick by letter** — tags each tab with a letter, jump straight to it |
+| `Space+bd` | Close the current buffer |
+| `Space+bo` | Close every buffer but this one |
+| `Space+b.` | Move the tab right |
+| `Space+b,` | Move the tab left |
+
+With five or more files open, `Space+bb` beats cycling with `Shift+l`.
+
+### Opening a new one
+
+There is no "new tab" command — **opening a file is what creates the tab**.
+Anything that opens a file adds it to the bar: `Space+ff`, `Space+e` plus
+`Enter`, a `Space+fg` result, `Space+1..4` (Harpoon), or `:e path/to/file`.
+
+For an empty file, `:enew` creates an unnamed buffer; it takes a name and icon
+once you `:w name.py`.
+
+A split does **not** create a second tab: the same file shown in two places is
+still one buffer. Tabs are which files are open, splits are how many places you
+are viewing them in.
+
+### What the tab shows
+
+| Element | Meaning |
+|---------|---------|
+| `[+]` | Unsaved changes |
+| ` 2` ·  1` | LSP errors / warnings in that file |
+| Yellow text | The active buffer |
+| Explorer column | NvimTree keeps its own column; tabs never sit above it |
+
+---
+
+## Incline — filename per window
+
+**Plugin:** `incline.nvim` · **Loads on:** `BufReadPre`
+
+A small floating label in the top-right corner of each window with the current
+filename, its icon, and `[+]` when there are unsaved changes.
+
+No keymaps — it is purely informational. The point is the colour: **only the
+focused window gets the violet plate**, the rest stay muted grey. With two or
+three splits open, that is what tells you where your typing will land.
+
+It hides itself when the cursor reaches that line, so it never covers code.
 
 ---
 
@@ -1152,6 +1223,11 @@ Every `Space` shortcut, sorted.
 | `Space+-` | NvimTree | Narrow |
 | `Space+1..4` | Harpoon | Go to marked file 1-4 |
 | `Space+a` | Harpoon | Mark file |
+| `Space+b,` | Bufferline | Move tab left |
+| `Space+b.` | Bufferline | Move tab right |
+| `Space+bb` | Bufferline | Pick buffer by letter |
+| `Space+bd` | Bufferline | Close current buffer |
+| `Space+bo` | Bufferline | Close every other buffer |
 | `Space+bp` | Dropbar | Navigate breadcrumb |
 | `Space+ca` | LSP | Code actions |
 | `Space+cb` | git-conflict | Choose both changes |
@@ -1231,6 +1307,7 @@ Every `Space` shortcut, sorted.
 |----------|------|--------|
 | `Ctrl+s` / `Ctrl+q` | Config | Save / quit without saving |
 | `Ctrl+h/j/k/l` | tmux-navigator | Move between splits and panes |
+| `Shift+l` / `Shift+h` | Bufferline | Next / previous open file |
 | `Ctrl+p` | Legendary | Command palette |
 | `Ctrl+´` | ToggleTerm | Terminal |
 | `Ctrl+Space` | nvim-cmp | Manual completion |
