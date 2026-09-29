@@ -40,20 +40,41 @@ something different:
 ## Install and configure
 
 ```bash
-sudo apt install tmux -y
+sudo apt install tmux -y           # Debian / Ubuntu
+sudo pacman -S tmux                # Arch / CachyOS
 ```
 
-Create `~/.tmux.conf`:
+> ⚠️ Installing the package gives you the binary and **nothing else** — tmux
+> ships with no configuration of its own.
+
+**The config is in this repo**, at [`tmux.conf`](../tmux.conf). `setup.sh`
+links it to `~/.tmux.conf`, so on a new machine there is nothing to write by
+hand:
 
 ```bash
-nvim ~/.tmux.conf
+~/.config/nvim/setup.sh
 ```
 
-> ⚠️ If `~/.tmux.conf` already exists **as a directory** (an accidental
-> `mkdir`), tmux will silently ignore your config. Check with
-> `ls -ld ~/.tmux.conf` and remove it with `rmdir ~/.tmux.conf` first.
+Verify it took:
 
-Recommended configuration (compatible with this Neovim setup):
+```bash
+ls -l ~/.tmux.conf        # -> ~/.config/nvim/tmux.conf
+tmux show -gv prefix      # -> C-a
+```
+
+Edit [`tmux.conf`](../tmux.conf) in the repo, never `~/.tmux.conf` — it is a
+symlink to the same file, but editing through the repo is what keeps the change
+committed. Reload a running tmux with `Ctrl+a` then `r`.
+
+> ⚠️ If `~/.tmux.conf` already exists **as a directory** (an accidental
+> `mkdir`), tmux silently ignores your config and `setup.sh` cannot link over
+> it. Check with `ls -ld ~/.tmux.conf` and remove it with `rmdir ~/.tmux.conf`.
+
+<details>
+<summary>The full configuration, for reference</summary>
+
+This is what `tmux.conf` contains. You do not need to type it — `setup.sh`
+links the file — but it is here so the reasoning stays with the docs.
 
 ```bash
 # Ctrl+a prefix instead of Ctrl+b (easier to reach)
@@ -86,9 +107,22 @@ set -g mouse on
 set -g base-index 1
 setw -g pane-base-index 1
 
-# Colors (required for the theme to look right)
-set -g default-terminal "screen-256color"
-set -ga terminal-overrides ",xterm-256color:Tc"
+# Colors (required for the theme to look right).
+# tmux-256color, not screen-256color: the latter has no italics, and the
+# nordic theme sets italic_comments. Check it exists with
+# `infocmp tmux-256color`; fall back to screen-256color if it does not.
+set -g default-terminal "tmux-256color"
+set -ga terminal-overrides ",*256col*:Tc"
+
+# Neovim wants a low escape-time; the default 500ms makes Esc feel laggy
+set -sg escape-time 10
+
+# Tell Neovim when the terminal regains focus, so the config's :checktime
+# autocmd fires and files edited outside nvim reload
+set -g focus-events on
+
+# Renumber windows when one is closed, so there are no gaps
+set -g renumber-windows on
 
 # Bigger scrollback
 set -g history-limit 10000
@@ -97,10 +131,12 @@ set -g history-limit 10000
 set-option -g allow-rename off
 ```
 
-Apply without restarting:
+</details>
+
+Apply changes to a running tmux:
 
 ```bash
-tmux source-file ~/.tmux.conf
+tmux source-file ~/.tmux.conf     # or Ctrl+a then r
 ```
 
 > 💡 **`terminal-overrides` with `Tc`** enables true color. Without that line
@@ -118,6 +154,12 @@ bind-key -n 'C-h' if-shell "$is_vim" 'send-keys C-h' 'select-pane -L'
 bind-key -n 'C-j' if-shell "$is_vim" 'send-keys C-j' 'select-pane -D'
 bind-key -n 'C-k' if-shell "$is_vim" 'send-keys C-k' 'select-pane -U'
 bind-key -n 'C-l' if-shell "$is_vim" 'send-keys C-l' 'select-pane -R'
+
+# Same keys from inside tmux's copy-mode
+bind-key -T copy-mode-vi 'C-h' select-pane -L
+bind-key -T copy-mode-vi 'C-j' select-pane -D
+bind-key -T copy-mode-vi 'C-k' select-pane -U
+bind-key -T copy-mode-vi 'C-l' select-pane -R
 ```
 
 Without it, `Ctrl+h/j/k/l` only move between Neovim splits.
@@ -312,14 +354,14 @@ Built with: `Ctrl+a -` (split below) then `Ctrl+a |` (split that pane).
 The `terminal-overrides` line is missing. Check:
 
 ```bash
-echo $TERM          # should be screen-256color inside tmux
+echo $TERM          # should be tmux-256color inside tmux
 tmux info | grep Tc
 ```
 
 Add to `~/.tmux.conf`:
 
 ```bash
-set -g default-terminal "screen-256color"
+set -g default-terminal "tmux-256color"
 set -ga terminal-overrides ",xterm-256color:Tc"
 ```
 

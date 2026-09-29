@@ -104,7 +104,19 @@ Then select it in your terminal preferences.
 mv ~/.config/nvim ~/.config/nvim.backup 2>/dev/null; git clone https://github.com/deyby01/deyby-nvim.git ~/.config/nvim
 ```
 
-### 6. Make it yours
+### 6. Run the bootstrap
+
+```bash
+~/.config/nvim/setup.sh
+```
+
+Links the dotfiles that live outside Neovim (`tmux.conf` → `~/.tmux.conf`) and
+checks every dependency, telling you what any missing one is for. Re-runnable,
+and it backs up rather than overwrites.
+
+> 📖 [Moving to a new machine](#-moving-to-a-new-machine)
+
+### 7. Make it yours
 
 Open [`lua/config/user.lua`](lua/config/user.lua) and set your projects folder
 and your default git branch. That's the only file you need to touch.
@@ -114,7 +126,7 @@ M.projects_dir    = "~/Documents"   -- where you keep your code
 M.git_base_branch = "development"   -- "main", "develop", ...
 ```
 
-### 7. First launch
+### 8. First launch
 
 ```bash
 nvim
@@ -123,7 +135,7 @@ nvim
 Give it 2-3 minutes: plugins install, parsers compile and **Mason installs the
 11 language servers automatically**. Quit with `:qa` and reopen.
 
-### 8. Authenticate Copilot (optional)
+### 9. Authenticate Copilot (optional)
 
 ```vim
 :Copilot auth
@@ -207,6 +219,8 @@ Give it 2-3 minutes: plugins install, parsers compile and **Mason installs the
 ~/.config/nvim/
 ├── init.lua              # entry point
 ├── lazy-lock.json        # exact plugin versions
+├── setup.sh              # bootstrap a fresh machine
+├── tmux.conf             # linked to ~/.tmux.conf by setup.sh
 ├── lua/
 │   ├── config/
 │   │   ├── user.lua      # ← the only file you need to edit
@@ -221,6 +235,49 @@ Each file under `lua/plugins/` covers one category: commenting out an `import`
 in `lua/plugins/init.lua` disables that whole group.
 
 > 📖 **What each module does:** [docs/plugins.md](docs/plugins.md#file-structure)
+
+---
+
+## 💻 Moving to a new machine
+
+This repo is the whole environment, not just Neovim. On a fresh install:
+
+```bash
+git clone git@github.com:deyby01/deyby-nvim.git ~/.config/nvim
+~/.config/nvim/setup.sh
+nvim
+```
+
+`setup.sh` links the dotfiles that live outside Neovim into place and checks
+that every required tool is present, naming what each missing one is for. It is
+safe to re-run: links already pointing at the repo are left alone, and anything
+it would overwrite is renamed to `*.backup-<timestamp>` rather than deleted.
+
+### What it links
+
+| In the repo | Linked to | What it is |
+|-------------|-----------|------------|
+| `tmux.conf` | `~/.tmux.conf` | Prefix, splits, and the `Ctrl+h/j/k/l` navigation shared with Neovim |
+
+### Adding another dotfile
+
+Move the file into the repo and add one line to the `LINKS` array in
+`setup.sh`:
+
+```bash
+mv ~/.gitconfig ~/.config/nvim/gitconfig
+# then, in setup.sh:
+LINKS=(
+  "tmux.conf:$HOME/.tmux.conf"
+  "gitconfig:$HOME/.gitconfig"
+)
+```
+
+Re-run `setup.sh` and it links the new one.
+
+> ⚠️ **Check before you commit.** Anything that lands here is public. Shell
+> configs and `~/.ssh/config` often carry tokens, internal hostnames or paths
+> that should not be — read the file before adding it, not after.
 
 ---
 
