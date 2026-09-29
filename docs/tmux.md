@@ -82,9 +82,14 @@ unbind C-b
 set-option -g prefix C-a
 bind-key C-a send-prefix
 
-# Split with | and -
+# Split, keeping the current directory.
+# v and b are letter aliases: | is awkward on a latam keyboard.
+#   v = vertical -> side by side    b = below -> stacked
+# s is left alone — it is tmux's session picker.
 bind | split-window -h -c "#{pane_current_path}"
+bind v split-window -h -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"
+bind b split-window -v -c "#{pane_current_path}"
 unbind '"'
 unbind %
 
@@ -144,7 +149,7 @@ tmux source-file ~/.tmux.conf     # or Ctrl+a then r
 
 ### vim-tmux-navigator integration
 
-For `Ctrl+h/j/k/l` to work **across** tmux and Neovim, add this to `~/.tmux.conf`:
+For `Ctrl+h/j/k/l` to work **across** tmux and Neovim, [`tmux.conf`](../tmux.conf) carries this — nothing to add by hand:
 
 ```bash
 # Smart pane switching with Vim awareness
@@ -209,8 +214,10 @@ From a normal terminal (not inside tmux):
 
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl+a \|` | Split **vertically** |
-| `Ctrl+a -` | Split **horizontally** |
+| `Ctrl+a v` | Split **vertically** — panes side by side |
+| `Ctrl+a b` | Split **horizontally** — panes stacked (**b**elow) |
+| `Ctrl+a \|` | Same as `v` |
+| `Ctrl+a -` | Same as `b` |
 | `Ctrl+a x` | Close the current pane |
 | `Ctrl+a z` | **Zoom** — fullscreen toggle |
 | `Ctrl+a {` / `}` | Move the pane around |
@@ -351,24 +358,62 @@ Built with: `Ctrl+a -` (split below) then `Ctrl+a |` (split that pane).
 
 ### Colors look wrong inside tmux
 
-The `terminal-overrides` line is missing. Check:
+The `terminal-overrides` line is not in effect. Check:
 
 ```bash
 echo $TERM          # should be tmux-256color inside tmux
 tmux info | grep Tc
 ```
 
-Add to `~/.tmux.conf`:
+Both lines are already in [`tmux.conf`](../tmux.conf):
 
 ```bash
 set -g default-terminal "tmux-256color"
-set -ga terminal-overrides ",xterm-256color:Tc"
+set -ga terminal-overrides ",*256col*:Tc"
 ```
+
+If `$TERM` still reads wrong, the running server predates the config — tmux
+reads it once at server start. Reload with `Ctrl+a r`, or kill the server
+(`tmux kill-server`) and start fresh.
 
 ### `Ctrl+h/j/k/l` doesn't cross between tmux and Neovim
 
-The `is_vim` block is missing from `~/.tmux.conf` (see
-[integration](#vim-tmux-navigator-integration)).
+The `is_vim` block is not loaded. It ships in [`tmux.conf`](../tmux.conf) (see
+[integration](#vim-tmux-navigator-integration)), so either the symlink is
+missing — `ls -l ~/.tmux.conf` should point into the repo, `setup.sh` fixes it
+— or the running server started before it existed. Reload with `Ctrl+a r`.
+
+Confirm the bindings landed:
+
+```bash
+tmux list-keys -T root | grep C-h
+```
+
+### `Ctrl+a |` does nothing (non-US keyboard)
+
+The split never happens and there is no error — tmux simply never received a
+`|`. On a **latam** layout the pipe is not where a US layout puts it:
+
+| Layout | Where `\|` is |
+|--------|--------------|
+| US | `Shift` + the key above Enter |
+| **latam** | The key **left of `1`**, pressed alone — or `AltGr + 1` |
+
+Check yours with `localectl status`.
+
+That is why this config also binds `Ctrl+a v` and `Ctrl+a b`, which need no
+modifier at all. They do exactly the same as `|` and `-`.
+
+The other common cause has nothing to do with the layout: the prefix has to be
+**released** first. It is `Ctrl+a`, let go, then `v` — not all three keys at
+once. Holding Ctrl sends `Ctrl+v`, which is not bound.
+
+To confirm a split really did not happen rather than landing somewhere
+unexpected:
+
+```bash
+tmux list-panes          # one line per pane in the current window
+```
 
 ### The `Ctrl+a` prefix clashes with bash's "go to start of line"
 
