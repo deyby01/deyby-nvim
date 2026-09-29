@@ -14,6 +14,16 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 
 bold=$'\e[1m'; green=$'\e[32m'; yellow=$'\e[33m'; red=$'\e[31m'; reset=$'\e[0m'
+
+# Package manager, so a missing tool comes with the command that installs it
+# here rather than a generic "not found".
+if   command -v pacman >/dev/null 2>&1; then PKG="sudo pacman -S"
+elif command -v apt    >/dev/null 2>&1; then PKG="sudo apt install -y"
+elif command -v dnf    >/dev/null 2>&1; then PKG="sudo dnf install -y"
+elif command -v brew   >/dev/null 2>&1; then PKG="brew install"
+else PKG=""
+fi
+install_hint() { [[ -n "$PKG" ]] && printf '        %s %s\n' "$PKG" "$1"; }
 ok()   { printf '  %s✓%s %s\n' "$green" "$reset" "$1"; }
 warn() { printf '  %s!%s %s\n' "$yellow" "$reset" "$1"; }
 bad()  { printf '  %s✗%s %s\n' "$red" "$reset" "$1"; }
@@ -25,6 +35,7 @@ head_() { printf '\n%s%s%s\n' "$bold" "$1" "$reset"; }
 # ------------------------------------------------------------------
 LINKS=(
   "tmux.conf:$HOME/.tmux.conf"
+  "lazydocker/config.yml:${XDG_CONFIG_HOME:-$HOME/.config}/lazydocker/config.yml"
 )
 
 head_ "Linking dotfiles"
@@ -63,6 +74,7 @@ check_req() {
         ok "$1${2:+ ($($2 2>/dev/null | head -1))}"
     else
         bad "$1 — $3"
+        install_hint "${4:-$1}"
         req_missing=$((req_missing + 1))
     fi
 }
@@ -76,12 +88,17 @@ check_req cc          ""                 "a C compiler, to build treesitter pars
 
 head_ "Optional"
 check_opt() {
-    command -v "$1" >/dev/null 2>&1 && ok "$1" || warn "$1 — $2"
+    if command -v "$1" >/dev/null 2>&1; then
+        ok "$1"
+    else
+        warn "$1 — $2"
+        install_hint "${3:-$1}"
+    fi
 }
 check_opt rg         "ripgrep: Telescope's text search"
 check_opt fd         "fd: faster file finding"
 check_opt tmux       "sessions that survive closing the terminal"
-check_opt lazydocker "container management with Space+ld"
+check_opt lazydocker "containers and compose logs with Space+ld — used daily here" lazydocker
 check_opt gh         "GitHub PRs and issues via Octo"
 check_opt jq         "pretty-printing in some scripts"
 

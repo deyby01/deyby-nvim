@@ -1,0 +1,47 @@
+# ==========================================
+# LAZYDOCKER
+# ==========================================
+# Opened from Neovim with Space+ld (floating terminal, see
+# lua/plugins/terminal.lua). Linked to ~/.config/lazydocker/config.yml
+# by setup.sh.
+#
+# NOTE: theme colours are names only — default, black, red, green, yellow,
+# blue, magenta, cyan, white, bold, underline. Hex is NOT supported; an
+# unrecognised value silently falls back to white.
+
+gui:
+  # Show stopped and exited containers too. The default hides them, which is
+  # exactly when you need to look: a container that died is the one you are
+  # trying to debug.
+  showAllContainers: true
+
+  # Wider side panel — compose project names get long
+  sidePanelWidth: 0.25
+
+  # Expand whichever panel has focus, so logs get the room
+  expandFocusedSidePanel: true
+
+  # Closest match to the nordic palette from the named colours available
+  theme:
+    activeBorderColor:
+      - cyan
+      - bold
+    inactiveBorderColor:
+      - default
+    selectedLineBgColor:
+      - blue
+    optionsTextColor:
+      - blue
+
+logs:
+  # Timestamps matter when correlating a request against a traceback
+  timestamps: true
+
+  # The default 60m is short when you come back to a container after lunch
+  since: "24h"
+
+# Docker Compose v2+ is the `docker compose` subcommand, not the old
+# `docker-compose` binary. This is lazydocker's default, kept explicit so it
+# is obvious what to change on a host that only has the legacy binary.
+commandTemplates:
+  dockerCompose: docker compose
