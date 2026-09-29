@@ -877,7 +877,43 @@ Highlights keywords in comments and lets you search them.
 
 A visual interface for containers, logs, images and volumes without leaving Neovim.
 
-### Install
+### First: Docker itself has to be running
+
+On **Docker Desktop** (Ubuntu, macOS, Windows) you launch an application and it
+starts the daemon for you. On Arch and most Linux installs there is no
+application — it is **Docker Engine**, a systemd service you enable once and
+then never think about again. Forgetting this is what produces:
+
+```
+failed to connect to the docker API at unix:///var/run/docker.sock;
+check if the path is correct and if the daemon is running
+```
+
+Nothing is broken; the daemon simply was never started.
+
+```bash
+# Install (Arch / CachyOS). Docker is NOT preinstalled — check with
+# `pacman -Qi docker` before assuming it is there.
+sudo pacman -S docker docker-compose docker-buildx
+
+# Enable at boot and start it now — the step that gets forgotten
+sudo systemctl enable --now docker
+
+# Run docker without sudo (log out and back in afterwards)
+sudo usermod -aG docker $USER
+```
+
+Check all three:
+
+```bash
+systemctl is-active docker     # active
+id -nG | grep -q docker && echo "in the docker group"
+docker info --format '{{.ServerVersion}}'
+```
+
+`setup.sh` runs these checks too and prints whichever one is missing.
+
+### Install lazydocker
 
 Not bundled with Neovim — it is a separate binary:
 

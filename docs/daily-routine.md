@@ -214,6 +214,13 @@ Space+hb     # blame the suspicious line
 Space+ld     # LazyDocker: containers, logs, images and volumes
 ```
 
+> 💡 **On a fresh Linux install, start the daemon first.** There is no Docker
+> Desktop to launch here — it is Docker Engine, a service:
+> `sudo systemctl enable --now docker`. Without it every docker command fails
+> with `cannot connect to the Docker daemon`. Once enabled it comes back on
+> every boot. See
+> [commands-and-workflow.md](commands-and-workflow.md#first-docker-itself-has-to-be-running).
+
 The fastest way to answer "is it running?", "why did it die?" and
 "restart this". Inside: `Tab` switches panels, `Enter` shows logs, **`x` opens
 the action menu** for the selected item.

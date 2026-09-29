@@ -103,6 +103,31 @@ check_opt gh         "GitHub PRs and issues via Octo"
 check_opt jq         "pretty-printing in some scripts"
 
 # ------------------------------------------------------------------
+# Docker: the daemon and group membership, not just the binary.
+# On Arch there is no Docker Desktop to launch — it is a systemd service,
+# and forgetting to enable it is the usual reason docker "does not work".
+# ------------------------------------------------------------------
+if command -v docker >/dev/null 2>&1; then
+    head_ "Docker"
+
+    if docker info >/dev/null 2>&1; then
+        ok "daemon running ($(docker info --format '{{.ServerVersion}}' 2>/dev/null))"
+    elif command -v systemctl >/dev/null 2>&1 && ! systemctl is-active --quiet docker; then
+        warn "daemon not running — no Docker Desktop here, it is a service"
+        printf '        sudo systemctl enable --now docker\n'
+    else
+        warn "docker is installed but the daemon is unreachable"
+    fi
+
+    if id -nG 2>/dev/null | tr ' ' '\n' | grep -qx docker; then
+        ok "you are in the docker group"
+    else
+        warn "not in the docker group — every command will need sudo"
+        printf '        sudo usermod -aG docker "$USER"   # then log out and back in\n'
+    fi
+fi
+
+# ------------------------------------------------------------------
 head_ "Next"
 cat <<'NEXT'
   1. nvim            plugins install and Mason pulls the language servers.
