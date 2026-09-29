@@ -56,7 +56,11 @@ so cloning and making it yours takes about a minute.
 | **ripgrep** + **fd** | — | Telescope searching |
 | **A Nerd Font** | — | Interface icons |
 
-Optional: `tmux`, `lazydocker`, `gh` (for PRs), an active GitHub Copilot subscription.
+Optional: `tmux`, `gh` (for PRs), an active GitHub Copilot subscription.
+
+`lazydocker` is listed as optional but is the day-to-day tool here if your
+projects run on Docker Compose — `setup.sh` prints the install command for your
+package manager and links its config.
 
 ---
 
@@ -258,6 +262,7 @@ it would overwrite is renamed to `*.backup-<timestamp>` rather than deleted.
 | In the repo | Linked to | What it is |
 |-------------|-----------|------------|
 | `tmux.conf` | `~/.tmux.conf` | Prefix, splits, and the `Ctrl+h/j/k/l` navigation shared with Neovim |
+| `lazydocker/config.yml` | `~/.config/lazydocker/config.yml` | Container UI opened with `Space+ld` — shows stopped containers, 24h of timestamped logs |
 
 ### Adding another dotfile
 

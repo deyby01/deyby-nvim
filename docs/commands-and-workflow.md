@@ -877,6 +877,34 @@ Highlights keywords in comments and lets you search them.
 
 A visual interface for containers, logs, images and volumes without leaving Neovim.
 
+### Install
+
+Not bundled with Neovim — it is a separate binary:
+
+```bash
+sudo pacman -S lazydocker           # Arch / CachyOS
+sudo apt install lazydocker -y      # Debian / Ubuntu (check the version)
+brew install lazydocker             # macOS
+```
+
+`setup.sh` reports it as missing and prints the command for your package
+manager, then links [`lazydocker/config.yml`](../lazydocker/config.yml) from
+this repo to `~/.config/lazydocker/config.yml`.
+
+### What this config changes from the defaults
+
+| Setting | Default | Here | Why |
+|---------|---------|------|-----|
+| `gui.showAllContainers` | `false` | `true` | Stopped and exited containers stay visible — the dead one is usually the one being debugged |
+| `logs.timestamps` | `false` | `true` | Needed to line a request up against a traceback |
+| `logs.since` | `60m` | `24h` | An hour is short when coming back to a container later in the day |
+| `gui.expandFocusedSidePanel` | `false` | `true` | The focused panel gets the room, so logs are readable |
+
+> ⚠️ Theme colours are **names only** — `default`, `black`, `red`, `green`,
+> `yellow`, `blue`, `magenta`, `cyan`, `white`, `bold`, `underline`. Hex is not
+> supported: an unrecognised value silently falls back to white rather than
+> erroring, so a `#88C0D0` in there just looks broken with no explanation.
+
 | Shortcut | Action |
 |----------|--------|
 | `Space+ld` | Open **LazyDocker** in a floating window |

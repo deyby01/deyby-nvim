@@ -234,6 +234,11 @@ docker compose exec web python manage.py migrate
 Space+ld     → Containers panel → Enter on the failing one → read the log
 ```
 
+A container that already exited is still in the list — this config sets
+`showAllContainers`, which the lazydocker default turns off. That default hides
+exactly the container you are trying to debug. Logs carry timestamps and go
+back 24h, so you can still find the traceback from this morning.
+
 If the error comes from the `Dockerfile` or `docker-compose.yml`, open them in
 Neovim: they have LSP support with completion and diagnostics, so syntax
 mistakes show up before you rebuild.
