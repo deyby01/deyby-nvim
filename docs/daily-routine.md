@@ -410,23 +410,42 @@ While reviewing:
 
 ## 13. Resolve conflicts
 
+**Several files? Use the four-pane view.** It shows both sides and the result
+being assembled, which is far easier to follow than markers in a buffer:
+
 ```
 :Git merge main
 # → CONFLICT
 
-Space+cl     # list every conflict in the repo
-Space+cn     # go to the next one
-Space+co     # keep mine
-Space+ct     # keep the other branch's
-Space+cb     # keep both and edit by hand
+Space+gw     # open Diffview's merge tool: files | OURS | RESULT | THEIRS
+]x           # go to the first conflict
+Space+co     # keep mine        → lands in the RESULT pane
+Space+ct     # or keep theirs
+]x           # next conflict
+:w           # save when the file is done
+Space+e → s  # mark it resolved (saving alone is NOT enough)
+Tab          # next file
 
-Space+cl     # verify the list is empty
 Space+nf     # run the tests: badly resolved conflicts compile but fail
 Space+gs → s → cc
 ```
 
+**One conflict in a file you already have open?** Resolve it in place:
+
+```
+Space+cn     # jump to the conflict  ← required, see below
+Space+co     # keep mine
+Space+cl     # verify nothing is left
+```
+
+> ⚠️ **`Space+co` only works with the cursor inside the conflict.** Anywhere
+> else it does nothing at all — no error, nothing. Press `Space+cn` first.
+
 > ⚠️ During a **rebase**, "ours" and "theirs" are swapped relative to a merge.
 > When in doubt, read the content, not the label.
+
+📖 Both flows in
+**[git-and-github.md](git-and-github.md#resolving-merge-conflicts)**.
 
 ---
 

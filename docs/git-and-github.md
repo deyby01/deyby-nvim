@@ -14,7 +14,7 @@
 - [Fugitive — status and commits](#fugitive--status-and-commits)
 - [GitSigns — hunks and blame](#gitsigns--hunks-and-blame)
 - [Diffview — branch diffs and history](#diffview--branch-diffs-and-history)
-- [git-conflict — merge conflicts](#git-conflict--merge-conflicts)
+- [Resolving merge conflicts](#resolving-merge-conflicts)
 - [Octo — GitHub PRs and issues](#octo--github-prs-and-issues)
 - [Complete flows](#complete-flows)
 
@@ -30,7 +30,8 @@ The five plugins overlap a little. Quick guide:
 | See/stage the change on the line I'm on | **GitSigns** | `Space+hp` `Space+hs` |
 | Compare my branch against the base branch | **Diffview** | `Space+gd` |
 | See a file's history | **Diffview** | `Space+gh` |
-| Resolve a merge conflict | **git-conflict** | `Space+co` `Space+ct` |
+| Resolve a merge conflict (several files) | **Diffview merge tool** | `Space+gw` |
+| Resolve a merge conflict (one file, in place) | **git-conflict** | `Space+cn` then `Space+co` |
 | Create or review a PR | **Octo** | `Space+opc` `Space+opr` |
 
 > ℹ️ The Diffview shortcuts compare against the branch set in
@@ -147,6 +148,10 @@ A full, GitHub-style diff view for comparing branches and browsing history.
 | `X` | Restore the file |
 | `g?` | Help with every shortcut |
 
+> 💡 During a merge conflict, `Space+gw` opens Diffview in **merge mode**
+> instead — a four-pane view built for resolving them. See
+> [Resolving merge conflicts](#resolving-merge-conflicts).
+
 ### Commands
 
 ```vim
@@ -161,48 +166,138 @@ A full, GitHub-style diff view for comparing branches and browsing history.
 
 ---
 
-## git-conflict — merge conflicts
+## Resolving merge conflicts
 
-When a merge or rebase conflicts, it highlights the three sides in color and
-lets you pick with a shortcut.
+There are **two tools** for this, and picking the right one is most of the
+battle:
 
-### Shortcuts
+| Situation | Tool | Open with |
+|-----------|------|-----------|
+| One or two conflicts, in a file you already have open | **git-conflict** | nothing to open — it is already highlighting them |
+| Several files, or you want to see both sides side by side | **Diffview merge tool** | `Space+gw` |
+
+If you are not sure, use Diffview. It is the one that shows you everything.
+
+---
+
+### Option A — Diffview merge tool (the 4-pane view)
+
+The equivalent of PyCharm's conflict window. Run it **while the merge is in
+progress**, after git has told you `CONFLICT`:
+
+```
+Space+gw
+```
+
+```
+┌───────────┬────────────┬─────────────┬───────────┐
+│  Files    │    OURS    │   RESULT    │  THEIRS   │
+│   with    │  the base  │  what you   │ the branch│
+│ conflicts │   branch   │ are building│  coming in│
+└───────────┴────────────┴─────────────┴───────────┘
+```
+
+The middle pane is the file as it will end up. Accepting a side moves that
+text into it — exactly the behaviour you want: you work through the conflicts
+and watch the final version assemble itself.
+
+#### Keys inside
+
+| Key | Action |
+|-----|--------|
+| `]x` / `[x` | Next / previous conflict |
+| `Space+co` | Take **OURS** for this conflict |
+| `Space+ct` | Take **THEIRS** for this conflict |
+| `Space+ca` | Take **both**, in order |
+| `dx` | Take **neither** — delete the conflict region |
+| `Space+cO` / `Space+cT` | Take one side for the **whole file** (capitals) |
+| `Tab` / `Shift+Tab` | Next / previous **file** |
+| `Space+e` | Jump back to the file panel |
+| `Space+b` | Hide/show the file panel |
+| `g?` | Help with every key |
+
+#### The full loop
+
+```
+Space+gw          # open the merge tool
+]x                # go to the first conflict
+Space+co          # accept a side — it lands in the RESULT pane
+]x                # next conflict in this file
+                  # ...until the file is done
+:w                # save it
+Space+e           # focus the file panel
+s                 # mark the file resolved  ← the step people miss
+Tab               # move to the next file
+```
+
+> ⚠️ **Saving is not the same as resolving.** `:w` writes the file, but git
+> still lists it as conflicted (`UU` in `git status`) until it is staged. That
+> is what `s` does in the file panel — it is `git add` under another name.
+> `S` stages every file at once.
+
+When the file panel is empty, commit as usual with `Space+gs` → `cc`.
+
+---
+
+### Option B — git-conflict (in the file itself)
+
+No separate window: the conflict markers in the buffer are highlighted and you
+pick a side with the cursor on them.
 
 | Shortcut | Action |
 |----------|--------|
-| `Space+co` | Choose **ours** (current / HEAD) |
-| `Space+ct` | Choose **theirs** (incoming) |
-| `Space+cb` | Choose **both** |
-| `Space+cn` | **Next** conflict |
-| `Space+cp` | **Previous** conflict |
-| `Space+cl` | **List** every conflict (quickfix) |
+| `Space+cn` / `Space+cp` | Next / previous conflict |
+| `Space+co` | Keep **ours** (current / HEAD) |
+| `Space+ct` | Keep **theirs** (incoming) |
+| `Space+cb` | Keep **both** |
+| `Space+cl` | List every conflict in the project (quickfix) |
 
-### Workflow
+> ⚠️ **The cursor has to be inside the conflict.** This is the one that wastes
+> your afternoon: with the cursor anywhere else, `Space+co` does **nothing at
+> all** — no error, no message, no beep. It looks like the keymap is broken.
+>
+> Always press `Space+cn` first. That is what puts the cursor on a conflict;
+> after it, the choose keys work.
 
-```bash
-# 1. The merge fails
-:Git merge main
-# → CONFLICT
-
-# 2. See every conflict in the repo
-Space+cl
-
-# 3. For each one
-Space+cn        → jump to the next
-Space+co        → keep mine
-Space+ct        → keep the other branch's
-Space+cb        → keep both and edit by hand
-
-# 4. Check no markers are left
-Space+cl        → should be empty
-
-# 5. Commit the resolution
-Space+gs → s → cc
+```
+Space+cl          # see every conflict in the project
+Space+cn          # jump to one          ← never skip this
+Space+co          # now it resolves
+Space+cn          # next
+                  # ...
+Space+cl          # empty = nothing left
+:w                # save
 ```
 
-> 💡 **"Ours" vs "theirs" is inverted during a rebase**: there, "ours" is the
-> base branch and "theirs" is *your* commits. When in doubt, read the content,
-> not the label.
+Staging still happens separately — `Space+gs`, then `s` on the file.
+
+---
+
+### Ours and theirs: read, don't trust the label
+
+During a **merge**, the names mean what you expect: "ours" is your current
+branch, "theirs" is what is coming in.
+
+During a **rebase they are swapped**, because git replays your commits on top
+of the other branch: "ours" becomes the base branch and "theirs" becomes *your*
+own work. The labels are technically right and completely misleading.
+
+When in doubt, read the actual content of each side rather than the label. The
+Diffview merge tool helps here — the winbar names the real source of each pane.
+
+---
+
+### If something goes wrong
+
+| Symptom | Cause |
+|---------|-------|
+| `Space+co` does nothing | Cursor is not inside a conflict. Press `Space+cn` first. |
+| File still shows as conflicted after saving | It was saved but not staged. `s` in the Diffview file panel, or `Space+gs` then `s`. |
+| `Space+gw` opens a normal diff, not the 4 panes | The merge is not in progress. The merge tool only exists while git reports a conflict. |
+| You want out | `git merge --abort` (or `git rebase --abort`) returns everything to how it was. |
+
+Nothing here is destructive until you commit. `git merge --abort` is always
+available while the merge is unfinished.
 
 ---
 

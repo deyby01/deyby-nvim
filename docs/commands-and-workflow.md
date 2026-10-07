@@ -828,7 +828,16 @@ Highlights keywords in comments and lets you search them.
 | `Space+cn` / `Space+cp` | Next / previous conflict |
 | `Space+cl` | List every conflict |
 
-📖 Workflow in **[git-and-github.md](git-and-github.md#git-conflict--merge-conflicts)**.
+> ⚠️ **`Space+cn` first, always.** The choose keys only act when the cursor is
+> inside a conflict; anywhere else they do nothing at all, with no error.
+
+### The other option: Diffview's merge tool
+
+For more than a file or two, `Space+gw` during a conflict opens a four-pane
+view — file list, both sides, and the result being assembled — with `]x` to
+step through conflicts and `Tab` to move between files.
+
+📖 Both workflows in **[git-and-github.md](git-and-github.md#resolving-merge-conflicts)**.
 
 ---
 
